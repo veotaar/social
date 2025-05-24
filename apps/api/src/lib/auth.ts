@@ -60,6 +60,22 @@ export const auth = betterAuth({
         defaultValue: "user",
         input: false,
       },
+      bio: {
+        type: "string",
+        required: false,
+      },
+      followersCount: {
+        type: "number",
+        defaultValue: 0,
+      },
+      followingCount: {
+        type: "number",
+        defaultValue: 0,
+      },
+      postsCount: {
+        type: "number",
+        defaultValue: 0,
+      },
     },
   },
   plugins: [

@@ -10,17 +10,27 @@ export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  emailVerified: boolean("email_verified").notNull(),
+  emailVerified: boolean("email_verified")
+    .$defaultFn(() => !1)
+    .notNull(),
   image: text("image"),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
   twoFactorEnabled: boolean("two_factor_enabled"),
-  role: text("role"),
+  role: text("role").default("user"),
   banned: boolean("banned"),
   banReason: text("ban_reason"),
   banExpires: timestamp("ban_expires"),
   username: text("username").unique(),
   displayUsername: text("display_username"),
+  bio: text("bio"),
+  followersCount: integer("followers_count"),
+  followingCount: integer("following_count"),
+  postsCount: integer("posts_count"),
 });
 
 export const session = pgTable("session", {
@@ -60,8 +70,8 @@ export const verification = pgTable("verification", {
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at"),
-  updatedAt: timestamp("updated_at"),
+  createdAt: timestamp("created_at").$defaultFn(() => new Date()),
+  updatedAt: timestamp("updated_at").$defaultFn(() => new Date()),
 });
 
 export const twoFactor = pgTable("two_factor", {
