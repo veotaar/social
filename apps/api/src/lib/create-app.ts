@@ -2,20 +2,19 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { auth } from "@/lib/auth";
 import { cors } from "hono/cors";
 import { requestId } from "hono/request-id";
-import { type PinoLogger, pinoLogger } from "hono-pino";
+import { pinoLogger } from "hono-pino";
+import type { AppBindings } from "@/lib/types";
 import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
 import pino from "pino";
 import pretty from "pino-pretty";
 import env from "@/env";
 
+export const createRouter = () => {
+  return new OpenAPIHono<AppBindings>();
+};
+
 const createApp = () => {
-  const app = new OpenAPIHono<{
-    Variables: {
-      user: typeof auth.$Infer.Session.user | null;
-      session: typeof auth.$Infer.Session.session | null;
-      logger: PinoLogger;
-    };
-  }>();
+  const app = createRouter();
 
   app.use(serveEmojiFavicon("🔥"));
 
