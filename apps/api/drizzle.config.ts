@@ -1,11 +1,11 @@
 import { defineConfig } from "drizzle-kit";
+import env from "@/env";
 
 export default defineConfig({
   out: "./drizzle",
   schema: "./src/db/schema/*",
   dialect: "postgresql",
   dbCredentials: {
-    // biome-ignore lint/style/noNonNullAssertion:
-    url: process.env.DATABASE_URL!,
+    url: env.DATABASE_URL,
   },
 });

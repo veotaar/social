@@ -6,6 +6,7 @@ import { type PinoLogger, pinoLogger } from "hono-pino";
 import { notFound, onError } from "stoker/middlewares";
 import pino from "pino";
 import pretty from "pino-pretty";
+import env from "@/env";
 
 const app = new OpenAPIHono<{
   Variables: {
@@ -25,9 +26,9 @@ app
     pinoLogger({
       pino: pino(
         {
-          level: process.env.LOG_LEVEL || "info",
+          level: env.LOG_LEVEL || "info",
         },
-        process.env.NODE_ENV === "production" ? undefined : pretty(),
+        env.NODE_ENV === "production" ? undefined : pretty(),
       ),
     }),
   );
@@ -73,4 +74,8 @@ app.get("/error", (c) => {
 app.notFound(notFound);
 app.onError(onError);
 
-export default app;
+// export default app;
+export default {
+  port: env.PORT,
+  fetch: app.fetch,
+};
