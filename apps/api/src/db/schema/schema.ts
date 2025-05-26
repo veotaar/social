@@ -13,7 +13,7 @@ import {
   foreignKey,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
-import { user } from "./auth-schema";
+import { user } from "@/db/schema/auth-schema";
 
 export const subscriptionPlanTypeEnum = pgEnum("subscription_plan_type", [
   "free",

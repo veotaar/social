@@ -7,14 +7,14 @@ import {
   twoFactor,
 } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "../db/db";
+import { db } from "@/db/db";
 import {
   user,
   session,
   account,
   verification,
   twoFactor as tf,
-} from "../db/schema/auth-schema";
+} from "@/db/schema/auth-schema";
 import { sendTestEmail } from "./email";
 
 export const auth = betterAuth({
