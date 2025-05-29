@@ -8,9 +8,12 @@ import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
 import pino from "pino";
 import pretty from "pino-pretty";
 import env from "@/env";
+import { defaultHook } from "stoker/openapi";
 
 export const createRouter = () => {
-  return new OpenAPIHono<AppBindings>();
+  return new OpenAPIHono<AppBindings>({
+    defaultHook,
+  });
 };
 
 const createApp = () => {

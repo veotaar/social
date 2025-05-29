@@ -14,7 +14,7 @@ import {
   account,
   verification,
   twoFactor as tf,
-} from "@/db/schema/auth-schema";
+} from "@/db/schema";
 import { sendTestEmail } from "./email";
 
 export const auth = betterAuth({
