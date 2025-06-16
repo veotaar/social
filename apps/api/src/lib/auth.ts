@@ -101,4 +101,4 @@ export const auth = betterAuth({
       maxUsernameLength: 30,
     }),
   ],
-});
+}) as ReturnType<typeof betterAuth>;

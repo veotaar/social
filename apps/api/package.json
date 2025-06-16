@@ -1,9 +1,11 @@
 {
-  "name": "api",
+  "name": "@repo/api",
   "type": "module",
   "version": "1.0.0",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "check-types": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
     "@hono/zod-openapi": "^0.19.6",
@@ -24,6 +26,15 @@
   "devDependencies": {
     "@types/bun": "^1.2.11",
     "drizzle-kit": "^0.31.0",
-    "pg": "^8.16.0"
+    "pg": "^8.16.0",
+    "typescript": "^5.8.3"
+  },
+  "exports": {
+    "./hc": {
+      "import": {
+        "default": "./dist/hc.js",
+        "types": "./dist/hc.d.ts"
+      }
+    }
   }
 }
