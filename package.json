@@ -17,5 +17,8 @@
     "node": ">=18"
   },
   "packageManager": "bun@1.2.8",
-  "workspaces": ["apps/*", "packages/*"]
+  "workspaces": ["apps/*", "packages/*"],
+  "dependencies": {
+    "better-auth": "^1.2.10"
+  }
 }

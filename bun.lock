@@ -3,6 +3,9 @@
   "workspaces": {
     "": {
       "name": "social-app",
+      "dependencies": {
+        "better-auth": "^1.2.10",
+      },
       "devDependencies": {
         "@biomejs/biome": "1.9.4",
         "turbo": "^2.5.3",
