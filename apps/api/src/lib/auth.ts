@@ -19,6 +19,7 @@ import { sendTestEmail } from "./email";
 
 export const auth = betterAuth({
   appName: "Social App",
+  trustedOrigins: ["http://localhost:3001"],
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
@@ -82,6 +83,11 @@ export const auth = betterAuth({
     database: {
       generateId: false,
     },
+    defaultCookieAttributes: {
+      sameSite: "none",
+      secure: true,
+      partitioned: true,
+    },
   },
   plugins: [
     twoFactor(),
@@ -101,4 +107,9 @@ export const auth = betterAuth({
       maxUsernameLength: 30,
     }),
   ],
-}) as ReturnType<typeof betterAuth>;
+});
+
+export type AuthType = {
+  user: typeof auth.$Infer.Session.user | null;
+  session: typeof auth.$Infer.Session.session | null;
+};

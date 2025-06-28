@@ -52,12 +52,10 @@ const createApp = () => {
     return next();
   });
 
-  app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
-
   app.use(
     "/api/auth/*",
     cors({
-      origin: "http://localhost:3000",
+      origin: "http://localhost:3001",
       allowHeaders: ["Content-Type", "Authorization"],
       allowMethods: ["POST", "GET", "OPTIONS"],
       exposeHeaders: ["Content-Length"],
@@ -65,6 +63,8 @@ const createApp = () => {
       credentials: true,
     }),
   );
+
+  app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
   app.notFound(notFound);
   app.onError(onError);
