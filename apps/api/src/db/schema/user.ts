@@ -6,7 +6,7 @@ import {
   integer,
   uuid,
 } from "drizzle-orm/pg-core";
-import { sql, relations } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import post from "./post";
 import comment from "./comment";
 import like from "./like";
@@ -16,9 +16,12 @@ import follow from "./follow";
 import block from "./block";
 import notification from "./notification";
 import userSubscription from "./userSubscription";
+import { uuidv7 } from "uuidv7";
 
 const user = pgTable("user", {
-  id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
+  id: text("id")
+    .$defaultFn(() => uuidv7())
+    .primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified")

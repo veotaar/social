@@ -6,15 +6,19 @@ import {
   varchar,
   index,
   uniqueIndex,
+  text,
 } from "drizzle-orm/pg-core";
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import post from "./post";
+import { uuidv7 } from "uuidv7";
 
 const postImage = pgTable(
   "post_image",
   {
-    id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    postId: uuid("post_id")
+    id: text("id")
+      .$defaultFn(() => uuidv7())
+      .primaryKey(),
+    postId: text("post_id")
       .notNull()
       .references(() => post.id, { onDelete: "cascade" }),
     imageUrl: varchar("image_url", { length: 500 }).notNull(),

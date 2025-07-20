@@ -3,10 +3,10 @@ CREATE TYPE "public"."notification_type" AS ENUM('like', 'comment', 'follow', 'f
 CREATE TYPE "public"."subscription_plan_type" AS ENUM('free', 'premium', 'pro');--> statement-breakpoint
 CREATE TYPE "public"."subscription_status" AS ENUM('active', 'cancelled', 'expired', 'pending');--> statement-breakpoint
 CREATE TABLE "account" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"account_id" text NOT NULL,
 	"provider_id" text NOT NULL,
-	"user_id" uuid NOT NULL,
+	"user_id" text NOT NULL,
 	"access_token" text,
 	"refresh_token" text,
 	"id_token" text,
@@ -19,17 +19,17 @@ CREATE TABLE "account" (
 );
 --> statement-breakpoint
 CREATE TABLE "block" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
-	"blocker_id" uuid NOT NULL,
-	"blocked_id" uuid NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
+	"blocker_id" text NOT NULL,
+	"blocked_id" text NOT NULL,
 	"created_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "comment" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
-	"author_id" uuid NOT NULL,
-	"post_id" uuid NOT NULL,
-	"parent_comment_id" uuid,
+	"id" text PRIMARY KEY NOT NULL,
+	"author_id" text NOT NULL,
+	"post_id" text NOT NULL,
+	"parent_comment_id" text,
 	"content" text NOT NULL,
 	"image_url" varchar(500),
 	"likes_count" integer DEFAULT 0,
@@ -40,47 +40,47 @@ CREATE TABLE "comment" (
 );
 --> statement-breakpoint
 CREATE TABLE "follow" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
-	"follower_id" uuid NOT NULL,
-	"following_id" uuid NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
+	"follower_id" text NOT NULL,
+	"following_id" text NOT NULL,
 	"created_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "follow_request" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
-	"follower_id" uuid NOT NULL,
-	"following_id" uuid NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
+	"follower_id" text NOT NULL,
+	"following_id" text NOT NULL,
 	"status" "follow_request_status" DEFAULT 'pending',
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "like" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
-	"user_id" uuid NOT NULL,
-	"post_id" uuid,
-	"comment_id" uuid,
+	"id" text PRIMARY KEY NOT NULL,
+	"user_id" text NOT NULL,
+	"post_id" text,
+	"comment_id" text,
 	"created_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "notification" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
-	"recipient_id" uuid NOT NULL,
-	"sender_id" uuid,
+	"id" text PRIMARY KEY NOT NULL,
+	"recipient_id" text NOT NULL,
+	"sender_id" text,
 	"type" "notification_type" NOT NULL,
-	"post_id" uuid,
-	"comment_id" uuid,
-	"follow_request_id" uuid,
-	"share_id" uuid,
+	"post_id" text,
+	"comment_id" text,
+	"follow_request_id" text,
+	"share_id" text,
 	"is_read" boolean DEFAULT false,
 	"created_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "post" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
-	"author_id" uuid NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
+	"author_id" text NOT NULL,
 	"content" text,
-	"shared_post_id" uuid,
+	"shared_post_id" text,
 	"share_comment" text,
 	"likes_count" integer DEFAULT 0,
 	"comments_count" integer DEFAULT 0,
@@ -91,8 +91,8 @@ CREATE TABLE "post" (
 );
 --> statement-breakpoint
 CREATE TABLE "post_image" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
-	"post_id" uuid NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
+	"post_id" text NOT NULL,
 	"image_url" varchar(500) NOT NULL,
 	"alt_text" varchar(255),
 	"order" integer NOT NULL,
@@ -100,27 +100,27 @@ CREATE TABLE "post_image" (
 );
 --> statement-breakpoint
 CREATE TABLE "session" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"expires_at" timestamp NOT NULL,
 	"token" text NOT NULL,
 	"created_at" timestamp NOT NULL,
 	"updated_at" timestamp NOT NULL,
 	"ip_address" text,
 	"user_agent" text,
-	"user_id" uuid NOT NULL,
+	"user_id" text NOT NULL,
 	"impersonated_by" text,
 	CONSTRAINT "session_token_unique" UNIQUE("token")
 );
 --> statement-breakpoint
 CREATE TABLE "share" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
-	"user_id" uuid NOT NULL,
-	"original_post_id" uuid NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
+	"user_id" text NOT NULL,
+	"original_post_id" text NOT NULL,
 	"created_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "subscription_plan" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"name" varchar(50) NOT NULL,
 	"type" "subscription_plan_type" NOT NULL,
 	"price" numeric(10, 2) NOT NULL,
@@ -132,14 +132,14 @@ CREATE TABLE "subscription_plan" (
 );
 --> statement-breakpoint
 CREATE TABLE "two_factor" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"secret" text NOT NULL,
 	"backup_codes" text NOT NULL,
-	"user_id" uuid NOT NULL
+	"user_id" text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "user" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"email" text NOT NULL,
 	"email_verified" boolean NOT NULL,
@@ -162,9 +162,9 @@ CREATE TABLE "user" (
 );
 --> statement-breakpoint
 CREATE TABLE "user_subscription" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
-	"user_id" uuid NOT NULL,
-	"plan_id" uuid NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
+	"user_id" text NOT NULL,
+	"plan_id" text NOT NULL,
 	"status" "subscription_status" NOT NULL,
 	"start_date" timestamp NOT NULL,
 	"end_date" timestamp NOT NULL,
@@ -174,7 +174,7 @@ CREATE TABLE "user_subscription" (
 );
 --> statement-breakpoint
 CREATE TABLE "verification" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v7() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"identifier" text NOT NULL,
 	"value" text NOT NULL,
 	"expires_at" timestamp NOT NULL,

@@ -4,23 +4,27 @@ import {
   uuid,
   index,
   uniqueIndex,
+  text,
 } from "drizzle-orm/pg-core";
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import user from "./user";
 import post from "./post";
 import comment from "./comment";
+import { uuidv7 } from "uuidv7";
 
 const like = pgTable(
   "like",
   {
-    id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    userId: uuid("user_id")
+    id: text("id")
+      .$defaultFn(() => uuidv7())
+      .primaryKey(),
+    userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    postId: uuid("post_id").references(() => post.id, {
+    postId: text("post_id").references(() => post.id, {
       onDelete: "cascade",
     }),
-    commentId: uuid("comment_id").references(() => comment.id, {
+    commentId: text("comment_id").references(() => comment.id, {
       onDelete: "cascade",
     }),
     createdAt: timestamp("created_at").defaultNow(),

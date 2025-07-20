@@ -8,26 +8,21 @@ import {
 } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/db/db";
-import {
-  user,
-  session,
-  account,
-  verification,
-  twoFactor as tf,
-} from "@/db/schema";
+import { table } from "@/db/model";
 import { sendTestEmail } from "./email";
 
 export const auth = betterAuth({
   appName: "Social App",
-  trustedOrigins: ["http://localhost:3001"],
+  basePath: "/api",
+  trustedOrigins: ["http://localhost:3001", "http://localhost:3000"],
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
-      user,
-      session,
-      account,
-      verification,
-      twoFactor: tf,
+      user: table.user,
+      session: table.session,
+      account: table.account,
+      verification: table.verification,
+      twoFactor: table.twoFactor,
     },
   }),
   emailAndPassword: {
@@ -44,12 +39,12 @@ export const auth = betterAuth({
   },
   emailVerification: {
     sendOnSignUp: true,
-    sendVerificationEmail: async ({ user, url }) => {
+    sendVerificationEmail: async ({ user, token }) => {
       await sendTestEmail({
         toEmail: user.email,
         toUser: user.name,
         subject: "Verify your email address",
-        url,
+        token,
       });
     },
   },

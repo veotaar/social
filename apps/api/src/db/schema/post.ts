@@ -8,23 +8,27 @@ import {
   index,
   foreignKey,
 } from "drizzle-orm/pg-core";
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import user from "./user";
 import comment from "./comment";
 import like from "./like";
 import share from "./share";
 import postImage from "./postImage";
 import notification from "./notification";
+// import { createSelectSchema } from "drizzle-zod";
+import { uuidv7 } from "uuidv7";
 
 const post = pgTable(
   "post",
   {
-    id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    authorId: uuid("author_id")
+    id: text("id")
+      .$defaultFn(() => uuidv7())
+      .primaryKey(),
+    authorId: text("author_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     content: text("content"),
-    sharedPostId: uuid("shared_post_id"),
+    sharedPostId: text("shared_post_id"),
     shareComment: text("share_comment"),
     likesCount: integer("likes_count").default(0),
     commentsCount: integer("comments_count").default(0),
@@ -62,5 +66,7 @@ export const postRelations = relations(post, ({ one, many }) => ({
   shares: many(share),
   notifications: many(notification),
 }));
+
+// export const PostSchema = createSelectSchema(post).shape;
 
 export default post;

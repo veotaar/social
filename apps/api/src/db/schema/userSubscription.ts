@@ -5,10 +5,12 @@ import {
   pgEnum,
   uuid,
   index,
+  text,
 } from "drizzle-orm/pg-core";
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import user from "./user";
 import subscriptionPlan from "./subscriptionPlan";
+import { uuidv7 } from "uuidv7";
 
 export const subscriptionStatus = pgEnum("subscription_status", [
   "active",
@@ -20,11 +22,13 @@ export const subscriptionStatus = pgEnum("subscription_status", [
 const userSubscription = pgTable(
   "user_subscription",
   {
-    id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    userId: uuid("user_id")
+    id: text("id")
+      .$defaultFn(() => uuidv7())
+      .primaryKey(),
+    userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    planId: uuid("plan_id")
+    planId: text("plan_id")
       .notNull()
       .references(() => subscriptionPlan.id),
     status: subscriptionStatus("status").notNull(),

@@ -9,23 +9,26 @@ import {
   index,
   foreignKey,
 } from "drizzle-orm/pg-core";
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import user from "./user";
 import post from "./post";
 import like from "./like";
 import notification from "./notification";
+import { uuidv7 } from "uuidv7";
 
 const comment = pgTable(
   "comment",
   {
-    id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    authorId: uuid("author_id")
+    id: text("id")
+      .$defaultFn(() => uuidv7())
+      .primaryKey(),
+    authorId: text("author_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    postId: uuid("post_id")
+    postId: text("post_id")
       .notNull()
       .references(() => post.id, { onDelete: "cascade" }),
-    parentCommentId: uuid("parent_comment_id"),
+    parentCommentId: text("parent_comment_id"),
     content: text("content").notNull(),
     imageUrl: varchar("image_url", { length: 500 }),
     likesCount: integer("likes_count").default(0),

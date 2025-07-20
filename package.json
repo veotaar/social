@@ -1,5 +1,14 @@
 {
   "name": "social-app",
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "turbo": "^2.5.4",
+    "typescript": "5.8.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "bun@1.2.8",
   "private": true,
   "scripts": {
     "build": "turbo run build",
@@ -8,17 +17,5 @@
     "format-and-lint:fix": "biome check . --write",
     "check-types": "turbo run check-types"
   },
-  "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "turbo": "^2.5.3",
-    "typescript": "5.8.2"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "packageManager": "bun@1.2.8",
-  "workspaces": ["apps/*", "packages/*"],
-  "dependencies": {
-    "better-auth": "^1.2.10"
-  }
+  "workspaces": ["apps/*", "packages/*"]
 }

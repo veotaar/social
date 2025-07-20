@@ -4,19 +4,23 @@ import {
   uuid,
   index,
   uniqueIndex,
+  text,
 } from "drizzle-orm/pg-core";
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import user from "./user";
 import post from "./post";
+import { uuidv7 } from "uuidv7";
 
 const share = pgTable(
   "share",
   {
-    id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    userId: uuid("user_id")
+    id: text("id")
+      .$defaultFn(() => uuidv7())
+      .primaryKey(),
+    userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    originalPostId: uuid("original_post_id")
+    originalPostId: text("original_post_id")
       .notNull()
       .references(() => post.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow(),

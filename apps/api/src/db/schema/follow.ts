@@ -4,18 +4,22 @@ import {
   uuid,
   index,
   uniqueIndex,
+  text,
 } from "drizzle-orm/pg-core";
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import user from "@/db/schema/user";
+import { uuidv7 } from "uuidv7";
 
 const follow = pgTable(
   "follow",
   {
-    id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    followerId: uuid("follower_id")
+    id: text("id")
+      .$defaultFn(() => uuidv7())
+      .primaryKey(),
+    followerId: text("follower_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    followingId: uuid("following_id")
+    followingId: text("following_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow(),

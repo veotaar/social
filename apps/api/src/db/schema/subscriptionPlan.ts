@@ -9,8 +9,9 @@ import {
   varchar,
   decimal,
 } from "drizzle-orm/pg-core";
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import userSubscription from "./userSubscription";
+import { uuidv7 } from "uuidv7";
 
 export const subscriptionPlanType = pgEnum("subscription_plan_type", [
   "free",
@@ -19,7 +20,9 @@ export const subscriptionPlanType = pgEnum("subscription_plan_type", [
 ]);
 
 const subscriptionPlan = pgTable("subscription_plan", {
-  id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
+  id: text("id")
+    .$defaultFn(() => uuidv7())
+    .primaryKey(),
   name: varchar("name", { length: 50 }).notNull(),
   type: subscriptionPlanType("type").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),

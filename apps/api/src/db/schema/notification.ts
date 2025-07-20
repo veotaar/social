@@ -5,13 +5,15 @@ import {
   pgEnum,
   uuid,
   index,
+  text,
 } from "drizzle-orm/pg-core";
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import user from "./user";
 import post from "./post";
 import comment from "./comment";
 import share from "./share";
 import followRequest from "./followRequest";
+import { uuidv7 } from "uuidv7";
 
 export const notificationType = pgEnum("notification_type", [
   "like",
@@ -25,25 +27,27 @@ export const notificationType = pgEnum("notification_type", [
 const notification = pgTable(
   "notification",
   {
-    id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    recipientId: uuid("recipient_id")
+    id: text("id")
+      .$defaultFn(() => uuidv7())
+      .primaryKey(),
+    recipientId: text("recipient_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    senderId: uuid("sender_id").references(() => user.id, {
+    senderId: text("sender_id").references(() => user.id, {
       onDelete: "cascade",
     }),
     type: notificationType("type").notNull(),
-    postId: uuid("post_id").references(() => post.id, {
+    postId: text("post_id").references(() => post.id, {
       onDelete: "cascade",
     }),
-    commentId: uuid("comment_id").references(() => comment.id, {
+    commentId: text("comment_id").references(() => comment.id, {
       onDelete: "cascade",
     }),
-    followRequestId: uuid("follow_request_id").references(
+    followRequestId: text("follow_request_id").references(
       () => followRequest.id,
       { onDelete: "cascade" },
     ),
-    shareId: uuid("share_id").references(() => share.id, {
+    shareId: text("share_id").references(() => share.id, {
       onDelete: "cascade",
     }),
     isRead: boolean("is_read").default(false),

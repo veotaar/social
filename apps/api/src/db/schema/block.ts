@@ -4,18 +4,22 @@ import {
   uuid,
   index,
   uniqueIndex,
+  text,
 } from "drizzle-orm/pg-core";
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import user from "@/db/schema/user";
+import { uuidv7 } from "uuidv7";
 
 const block = pgTable(
   "block",
   {
-    id: uuid("id").primaryKey().default(sql`uuid_generate_v7()`),
-    blockerId: uuid("blocker_id")
+    id: text("id")
+      .$defaultFn(() => uuidv7())
+      .primaryKey(),
+    blockerId: text("blocker_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    blockedId: uuid("blocked_id")
+    blockedId: text("blocked_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow(),
