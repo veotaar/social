@@ -6,6 +6,7 @@ import env from "./env";
 import logixlysia from "logixlysia";
 import { betterAuth } from "./modules/auth";
 import { postRoute } from "./modules/post";
+import { blockRoute } from "./modules/block";
 
 const ip = new Elysia()
   .derive({ as: "global" }, ({ server, request }) => ({
@@ -48,6 +49,7 @@ const app = new Elysia()
   )
   .get("/", () => "hello")
   .use(postRoute)
+  .use(blockRoute)
   .listen(env.PORT);
 
 console.log(

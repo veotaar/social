@@ -75,6 +75,7 @@ export const db = {
       post: createInsertSchema(table.post, {
         content: t.String({ maxLength: 1024 }),
       }),
+      block: createInsertSchema(table.block),
     },
     "insert",
   ),
