@@ -5,7 +5,7 @@ import { OpenAPI } from "./lib/authOpenApi";
 import env from "./env";
 import logixlysia from "logixlysia";
 import { betterAuth } from "./modules/auth";
-import { createPost } from "./modules/post";
+import { postRoute } from "./modules/post";
 
 const ip = new Elysia()
   .derive({ as: "global" }, ({ server, request }) => ({
@@ -47,7 +47,7 @@ const app = new Elysia()
     }),
   )
   .get("/", () => "hello")
-  .use(createPost)
+  .use(postRoute)
   .listen(env.PORT);
 
 console.log(
