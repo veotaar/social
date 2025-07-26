@@ -1,7 +1,6 @@
 import { table } from "@/db/model";
 import db from "@/db/db";
-import { and, desc, eq, notInArray, lt } from "drizzle-orm";
-import { block, post, user } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 
 export const blockUser = async ({
   blockerId,
@@ -16,4 +15,21 @@ export const blockUser = async ({
     .returning();
 
   return blockRecord;
+};
+
+export const unblockUser = async ({
+  blockerId,
+  blockedId,
+}: { blockerId: string; blockedId: string }) => {
+  const [deleted] = await db
+    .delete(table.block)
+    .where(
+      and(
+        eq(table.block.blockerId, blockerId),
+        eq(table.block.blockedId, blockedId),
+      ),
+    )
+    .returning();
+
+  return deleted;
 };
