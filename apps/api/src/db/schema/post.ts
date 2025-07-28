@@ -33,14 +33,14 @@ const post = pgTable(
     likesCount: integer("likes_count").default(0),
     commentsCount: integer("comments_count").default(0),
     sharesCount: integer("shares_count").default(0),
-    isDeleted: boolean("is_deleted").default(false),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
+    deletedAt: timestamp("deleted_at"),
   },
   (table) => [
     index("posts_author_id_idx").on(table.authorId),
     index("posts_created_at_idx").on(table.createdAt),
-    index("posts_is_deleted_idx").on(table.isDeleted),
+    index("posts_is_deleted_idx").on(table.deletedAt),
     foreignKey({
       columns: [table.sharedPostId],
       foreignColumns: [table.id],

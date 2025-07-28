@@ -1,6 +1,6 @@
 import { table } from "@/db/model";
 import db from "@/db/db";
-import { and, desc, eq, notInArray, lt } from "drizzle-orm";
+import { and, desc, eq, notInArray, lt, isNull } from "drizzle-orm";
 import { block, post, user } from "@/db/schema";
 
 export const createPost = async ({
@@ -59,6 +59,7 @@ export const getFeedPosts = async ({
       and(
         notInArray(post.authorId, blockedUsersSubQuery),
         notInArray(post.authorId, blockingUsersSubQuery),
+        isNull(post.deletedAt),
         cursor ? lt(post.id, cursor) : undefined,
       ),
     )

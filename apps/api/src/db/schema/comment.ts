@@ -33,16 +33,16 @@ const comment = pgTable(
     imageUrl: varchar("image_url", { length: 500 }),
     likesCount: integer("likes_count").default(0),
     repliesCount: integer("replies_count").default(0),
-    isDeleted: boolean("is_deleted").default(false),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
+    deletedAt: timestamp("deleted_at"),
   },
   (table) => [
     index("comments_author_id_idx").on(table.authorId),
     index("comments_post_id_idx").on(table.postId),
     index("comments_parent_comment_id_idx").on(table.parentCommentId),
     index("comments_created_at_idx").on(table.createdAt),
-    index("comments_is_deleted_idx").on(table.isDeleted),
+    index("comments_is_deleted_idx").on(table.deletedAt),
     foreignKey({
       columns: [table.parentCommentId],
       foreignColumns: [table.id],
