@@ -3,7 +3,6 @@ import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { OpenAPI } from "./lib/authOpenApi";
 import env from "./env";
-import logixlysia from "logixlysia";
 import { betterAuth } from "./modules/auth";
 import { postRoute } from "./modules/post";
 import { blockRoute } from "./modules/block";
@@ -15,20 +14,6 @@ const ip = new Elysia()
   .get("/ip", ({ ip }) => ip);
 
 const app = new Elysia()
-  .use(
-    logixlysia({
-      config: {
-        showStartupMessage: false,
-        timestamp: {
-          translateTime: "yyyy-mm-dd HH:MM:ss.SSS",
-        },
-        logFilePath: "./logs/example.log",
-        ip: true,
-        customLogFormat:
-          "🦊 {now} {level} {duration} {method} {pathname} {status} {message} {ip}",
-      },
-    }),
-  )
   .use(
     cors({
       origin: "http://localhost:3001",
@@ -51,6 +36,8 @@ const app = new Elysia()
   .use(postRoute)
   .use(blockRoute)
   .listen(env.PORT);
+
+export type App = typeof app;
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
