@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { db as model } from "@/db/model";
+import { db as model } from "@api/db/model";
 import { betterAuth } from "../auth";
 import { createPost, getFeedPosts } from "./service";
 

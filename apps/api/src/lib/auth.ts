@@ -7,8 +7,8 @@ import {
   twoFactor,
 } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "@/db/db";
-import { table } from "@/db/model";
+import { db } from "@api/db/db";
+import { table } from "@api/db/model";
 import { sendTestEmail } from "./email";
 
 export const auth = betterAuth({

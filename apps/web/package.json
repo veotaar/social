@@ -8,28 +8,31 @@
   "scripts": {
     "generate-routes": "tsr generate",
     "watch-routes": "tsr watch",
-    "dev": "bun watch-routes & bun --watch src/index.html --port=3001",
+    "dev": "bun watch-routes & bun --bun --watch src/index.html --port=3001 --console",
     "start": "NODE_ENV=production bun src/index.tsx",
     "build": "bun generate-routes && bun run build.ts"
   },
   "dependencies": {
-    "@tanstack/react-form": "^1.12.4",
-    "@tanstack/react-query": "^5.81.5",
-    "@tanstack/react-query-devtools": "^5.81.5",
-    "@tanstack/react-router": "^1.121.40",
-    "@tanstack/react-router-devtools": "^1.121.40",
+    "@elysiajs/eden": "^1.3.2",
+    "@tanstack/react-form": "^1.15.2",
+    "@tanstack/react-query": "^5.84.1",
+    "@tanstack/react-query-devtools": "^5.84.1",
+    "@tanstack/react-router": "^1.130.12",
+    "@tanstack/react-router-devtools": "^1.130.13",
     "bun-plugin-tailwind": "^0.0.14",
-    "daisyui": "^5.0.43",
-    "react": "^19",
-    "react-dom": "^19",
-    "tailwindcss": "^4.0.6",
-    "zod": "^3.25.67"
+    "daisyui": "^5.0.50",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "tailwindcss": "^4.1.11",
+    "zod": "^4.0.14"
   },
   "devDependencies": {
-    "@tanstack/router-cli": "^1.121.40",
-    "@tanstack/router-plugin": "^1.121.40",
+    "@repo/config": "workspace:*",
+    "@tanstack/router-cli": "^1.130.15",
+    "@tanstack/router-plugin": "^1.130.15",
     "@types/bun": "latest",
-    "@types/react": "^19",
-    "@types/react-dom": "^19"
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "elysia": "^1.3.8"
   }
 }

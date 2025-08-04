@@ -1,5 +1,5 @@
-import { table } from "@/db/model";
-import db from "@/db/db";
+import { table } from "@api/db/model";
+import db from "@api/db/db";
 import { and, eq } from "drizzle-orm";
 
 export const blockUser = async ({

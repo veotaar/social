@@ -7,7 +7,7 @@ import {
   text,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import user from "@/db/schema/user";
+import user from "@api/db/schema/user";
 import { uuidv7 } from "uuidv7";
 
 const block = pgTable(

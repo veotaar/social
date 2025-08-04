@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth } from "@api/lib/auth";
 import { Elysia } from "elysia";
 
 export const betterAuth = new Elysia({ name: "better-auth" })

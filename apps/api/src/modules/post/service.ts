@@ -1,7 +1,7 @@
-import { table } from "@/db/model";
-import db from "@/db/db";
+import { table } from "@api/db/model";
+import db from "@api/db/db";
 import { and, desc, eq, notInArray, lt, isNull } from "drizzle-orm";
-import { block, post, user } from "@/db/schema";
+import { block, post, user } from "@api/db/schema";
 
 export const createPost = async ({
   userId,
