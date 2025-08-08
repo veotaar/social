@@ -1,12 +1,15 @@
-import { Elysia, t } from "elysia";
+import { Elysia, t, NotFoundError } from "elysia";
 import { db as model } from "@api/db/model";
 import { betterAuth } from "../auth";
-import { createPost, getFeedPosts } from "./service";
+import { createPost, getFeedPosts, getPost } from "./service";
 
 const { post } = model.insert;
 
 export const postRoute = new Elysia()
   .use(betterAuth)
+  .guard({
+    auth: true,
+  })
   .post(
     "/post",
     async ({ body, user }) => {
@@ -18,7 +21,6 @@ export const postRoute = new Elysia()
       return created;
     },
     {
-      auth: true,
       body: t.Object({
         content: post.content,
       }),
@@ -33,9 +35,25 @@ export const postRoute = new Elysia()
       return posts;
     },
     {
-      auth: true,
       query: t.Object({
         cursor: t.Optional(t.String()),
+      }),
+    },
+  )
+  .get(
+    "/post/:id",
+    async ({ params: { id }, user }) => {
+      const singlePost = await getPost({ postId: id, currentUserId: user.id });
+
+      if (!singlePost) {
+        throw new NotFoundError("Post not found");
+      }
+
+      return singlePost;
+    },
+    {
+      params: t.Object({
+        id: model.select.post.id,
       }),
     },
   );

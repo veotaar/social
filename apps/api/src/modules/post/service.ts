@@ -90,3 +90,55 @@ export const getFeedPosts = async ({
     },
   };
 };
+
+export const getPost = async ({
+  postId,
+  currentUserId,
+}: {
+  postId: string;
+  currentUserId: string;
+}) => {
+  const blockedUsersSubQuery = db
+    .select({ id: block.blockedId })
+    .from(block)
+    .where(eq(block.blockerId, currentUserId));
+
+  const blockingUsersSubQuery = db
+    .select({ id: block.blockerId })
+    .from(block)
+    .where(eq(block.blockedId, currentUserId));
+
+  const result = await db
+    .select({
+      post: {
+        id: post.id,
+        content: post.content,
+        createdAt: post.createdAt,
+        likesCount: post.likesCount,
+        commentsCount: post.commentsCount,
+        sharesCount: post.sharesCount,
+      },
+      author: {
+        id: user.id,
+        username: user.username,
+        displayUsername: user.displayUsername,
+        image: user.image,
+      },
+    })
+    .from(post)
+    .where(
+      and(
+        eq(post.id, postId),
+        notInArray(post.authorId, blockedUsersSubQuery),
+        notInArray(post.authorId, blockingUsersSubQuery),
+        isNull(post.deletedAt),
+      ),
+    )
+    .leftJoin(user, eq(post.authorId, user.id));
+
+  if (result.length === 0) {
+    return null;
+  }
+
+  return result[0];
+};
