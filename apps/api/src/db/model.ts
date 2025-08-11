@@ -73,7 +73,10 @@ export const db = {
   insert: spreads(
     {
       post: createInsertSchema(table.post, {
-        content: t.String({ maxLength: 1024 }),
+        content: t.String({ maxLength: 10000 }),
+      }),
+      comment: createInsertSchema(table.comment, {
+        content: t.String({ maxLength: 5000 }),
       }),
       block: createInsertSchema(table.block),
     },
@@ -82,6 +85,9 @@ export const db = {
   select: spreads(
     {
       post: createSelectSchema(table.post, {
+        id: t.String({ format: "uuid" }),
+      }),
+      comment: createSelectSchema(table.comment, {
         id: t.String({ format: "uuid" }),
       }),
     },
