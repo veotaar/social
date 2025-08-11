@@ -6,6 +6,7 @@ import env from "./env";
 import { betterAuth } from "./modules/auth";
 import { postRoute } from "./modules/post";
 import { blockRoute } from "./modules/block";
+import { commentRoute } from "./modules/comment";
 
 const ip = new Elysia()
   .derive({ as: "global" }, ({ server, request }) => ({
@@ -35,6 +36,7 @@ const app = new Elysia()
   .get("/", () => "hello")
   .use(postRoute)
   .use(blockRoute)
+  .use(commentRoute)
   .listen(env.PORT);
 
 export type App = typeof app;
