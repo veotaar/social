@@ -7,6 +7,7 @@ import { betterAuth } from "./modules/auth";
 import { postRoute } from "./modules/post";
 import { blockRoute } from "./modules/block";
 import { commentRoute } from "./modules/comment";
+import { likeRoute } from "./modules/like";
 
 const ip = new Elysia()
   .derive({ as: "global" }, ({ server, request }) => ({
@@ -37,6 +38,7 @@ const app = new Elysia()
   .use(postRoute)
   .use(blockRoute)
   .use(commentRoute)
+  .use(likeRoute)
   .listen(env.PORT);
 
 export type App = typeof app;
