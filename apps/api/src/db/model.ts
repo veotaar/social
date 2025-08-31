@@ -31,6 +31,10 @@ import userSubscription, {
   subscriptionStatus,
 } from "./schema/userSubscription";
 import verification from "./schema/verification";
+import postMention, { postMentionRelations } from "./schema/postMention";
+import commentMention, {
+  commentMentionRelations,
+} from "./schema/commentMention";
 
 export const table = {
   account,
@@ -65,6 +69,10 @@ export const table = {
   userRelations,
   userSubscriptionRelations,
   subscriptionStatus,
+  postMention,
+  commentMention,
+  postMentionRelations,
+  commentMentionRelations,
 } as const;
 
 export type Table = typeof table;
