@@ -18,6 +18,8 @@ export const createPost = async ({
   return created;
 };
 
+export const INITIAL_CURSOR = "initial";
+
 export const getFeedPosts = async ({
   currentUserId,
   limit = 10,
@@ -25,7 +27,7 @@ export const getFeedPosts = async ({
 }: {
   currentUserId: string;
   limit?: number;
-  cursor?: string;
+  cursor: string;
 }) => {
   const blockedUsersSubQuery = db
     .select({ id: block.blockedId })
@@ -36,6 +38,8 @@ export const getFeedPosts = async ({
     .select({ id: block.blockerId })
     .from(block)
     .where(eq(block.blockedId, currentUserId));
+
+  const applyCursor = cursor !== INITIAL_CURSOR;
 
   const feed = await db
     .select({
@@ -51,6 +55,7 @@ export const getFeedPosts = async ({
         id: user.id,
         username: user.username,
         displayUsername: user.displayUsername,
+        name: user.name,
         image: user.image,
       },
     })
@@ -60,7 +65,7 @@ export const getFeedPosts = async ({
         notInArray(post.authorId, blockedUsersSubQuery),
         notInArray(post.authorId, blockingUsersSubQuery),
         isNull(post.deletedAt),
-        cursor ? lt(post.id, cursor) : undefined,
+        applyCursor ? lt(post.id, cursor) : undefined,
       ),
     )
     .orderBy(desc(post.id))

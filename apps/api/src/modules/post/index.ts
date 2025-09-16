@@ -1,7 +1,7 @@
 import { Elysia, t, NotFoundError } from "elysia";
 import { db as model } from "@api/db/model";
 import { betterAuth } from "../auth";
-import { createPost, getFeedPosts, getPost } from "./service";
+import { createPost, getFeedPosts, getPost, INITIAL_CURSOR } from "./service";
 
 const { post } = model.insert;
 
@@ -36,7 +36,7 @@ export const postRoute = new Elysia()
     },
     {
       query: t.Object({
-        cursor: t.Optional(t.String()),
+        cursor: t.String(),
       }),
     },
   )
