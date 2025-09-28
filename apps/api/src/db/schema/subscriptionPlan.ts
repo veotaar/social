@@ -9,7 +9,7 @@ import {
   varchar,
   decimal,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import userSubscription from "./userSubscription";
 import { uuidv7 } from "uuidv7";
 
@@ -29,8 +29,12 @@ const subscriptionPlan = pgTable("subscription_plan", {
   duration: integer("duration").notNull(), // in days
   features: text("features").array(),
   isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { mode: "string" })
+    .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { mode: "string" })
+    .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
+    .notNull(),
 });
 
 export const subscriptionPlanRelations = relations(

@@ -5,7 +5,7 @@ import {
   uniqueIndex,
   index,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import user from "./user";
 import post from "./post";
 import { uuidv7 } from "uuidv7";
@@ -22,7 +22,9 @@ const postMention = pgTable(
     mentionedUserId: text("mentioned_user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").defaultNow(),
+    createdAt: timestamp("created_at", { mode: "string" })
+      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
+      .notNull(),
   },
   (table) => [
     uniqueIndex("post_mentions_post_user_idx").on(

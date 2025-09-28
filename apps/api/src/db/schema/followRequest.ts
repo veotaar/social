@@ -7,7 +7,7 @@ import {
   uniqueIndex,
   text,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import user from "./user";
 import notification from "./notification";
 import { uuidv7 } from "uuidv7";
@@ -31,8 +31,12 @@ const followRequest = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     status: followRequestStatus("status").default("pending"),
-    createdAt: timestamp("created_at").defaultNow(),
-    updatedAt: timestamp("updated_at").defaultNow(),
+    createdAt: timestamp("created_at", { mode: "string" })
+      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { mode: "string" })
+      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
+      .notNull(),
   },
   (table) => [
     uniqueIndex("follow_requests_follower_following_idx").on(

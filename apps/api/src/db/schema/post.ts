@@ -8,7 +8,7 @@ import {
   index,
   foreignKey,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import user from "./user";
 import comment from "./comment";
 import like from "./like";
@@ -30,11 +30,15 @@ const post = pgTable(
     content: text("content"),
     sharedPostId: text("shared_post_id"),
     shareComment: text("share_comment"),
-    likesCount: integer("likes_count").default(0),
-    commentsCount: integer("comments_count").default(0),
-    sharesCount: integer("shares_count").default(0),
-    createdAt: timestamp("created_at").defaultNow(),
-    updatedAt: timestamp("updated_at").defaultNow(),
+    likesCount: integer("likes_count").default(0).notNull(),
+    commentsCount: integer("comments_count").default(0).notNull(),
+    sharesCount: integer("shares_count").default(0).notNull(),
+    createdAt: timestamp("created_at", { mode: "string" })
+      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`) // TODO: fix other timestamps
+      .notNull(),
+    updatedAt: timestamp("updated_at", { mode: "string" })
+      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
+      .notNull(),
     deletedAt: timestamp("deleted_at"),
   },
   (table) => [

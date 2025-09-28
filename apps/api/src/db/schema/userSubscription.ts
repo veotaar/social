@@ -7,7 +7,7 @@ import {
   index,
   text,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import user from "./user";
 import subscriptionPlan from "./subscriptionPlan";
 import { uuidv7 } from "uuidv7";
@@ -35,8 +35,12 @@ const userSubscription = pgTable(
     startDate: timestamp("start_date").notNull(),
     endDate: timestamp("end_date").notNull(),
     autoRenew: boolean("auto_renew").default(true),
-    createdAt: timestamp("created_at").defaultNow(),
-    updatedAt: timestamp("updated_at").defaultNow(),
+    createdAt: timestamp("created_at", { mode: "string" })
+      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { mode: "string" })
+      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
+      .notNull(),
   },
   (table) => [
     index("user_subscriptions_user_id_idx").on(table.userId),

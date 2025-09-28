@@ -6,7 +6,7 @@ import {
   uniqueIndex,
   text,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import user from "./user";
 import post from "./post";
 import comment from "./comment";
@@ -27,7 +27,9 @@ const like = pgTable(
     commentId: text("comment_id").references(() => comment.id, {
       onDelete: "cascade",
     }),
-    createdAt: timestamp("created_at").defaultNow(),
+    createdAt: timestamp("created_at", { mode: "string" })
+      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
+      .notNull(),
   },
   (table) => [
     uniqueIndex("likes_user_post_idx").on(table.userId, table.postId),

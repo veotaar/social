@@ -7,7 +7,7 @@ import {
   index,
   text,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import user from "./user";
 import post from "./post";
 import comment from "./comment";
@@ -51,7 +51,9 @@ const notification = pgTable(
       onDelete: "cascade",
     }),
     isRead: boolean("is_read").default(false),
-    createdAt: timestamp("created_at").defaultNow(),
+    createdAt: timestamp("created_at", { mode: "string" })
+      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
+      .notNull(),
   },
   (table) => [
     index("notifications_recipient_id_idx").on(table.recipientId),

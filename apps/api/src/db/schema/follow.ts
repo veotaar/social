@@ -6,7 +6,7 @@ import {
   uniqueIndex,
   text,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import user from "@api/db/schema/user";
 import { uuidv7 } from "uuidv7";
 
@@ -22,7 +22,9 @@ const follow = pgTable(
     followingId: text("following_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").defaultNow(),
+    createdAt: timestamp("created_at", { mode: "string" })
+      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
+      .notNull(),
   },
   (table) => [
     uniqueIndex("follows_follower_following_idx").on(

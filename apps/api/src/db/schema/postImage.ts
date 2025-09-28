@@ -8,7 +8,7 @@ import {
   uniqueIndex,
   text,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import post from "./post";
 import { uuidv7 } from "uuidv7";
 
@@ -24,7 +24,9 @@ const postImage = pgTable(
     imageUrl: varchar("image_url", { length: 500 }).notNull(),
     altText: varchar("alt_text", { length: 255 }),
     order: integer("order").notNull(),
-    createdAt: timestamp("created_at").defaultNow(),
+    createdAt: timestamp("created_at", { mode: "string" })
+      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
+      .notNull(),
   },
   (table) => [
     index("post_images_post_id_idx").on(table.postId),

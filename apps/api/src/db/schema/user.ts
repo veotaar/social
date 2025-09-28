@@ -6,7 +6,7 @@ import {
   integer,
   uuid,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import post from "./post";
 import comment from "./comment";
 import like from "./like";
@@ -28,11 +28,11 @@ const user = pgTable("user", {
     .$defaultFn(() => !1)
     .notNull(),
   image: text("image"),
-  createdAt: timestamp("created_at")
-    .$defaultFn(() => new Date())
+  createdAt: timestamp("created_at", { mode: "string" })
+    .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
     .notNull(),
-  updatedAt: timestamp("updated_at")
-    .$defaultFn(() => new Date())
+  updatedAt: timestamp("updated_at", { mode: "string" })
+    .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
     .notNull(),
   twoFactorEnabled: boolean("two_factor_enabled"),
   role: text("role").default("user"),

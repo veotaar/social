@@ -9,7 +9,7 @@ import {
   index,
   foreignKey,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import user from "./user";
 import post from "./post";
 import like from "./like";
@@ -33,8 +33,12 @@ const comment = pgTable(
     imageUrl: varchar("image_url", { length: 500 }),
     likesCount: integer("likes_count").default(0),
     repliesCount: integer("replies_count").default(0),
-    createdAt: timestamp("created_at").defaultNow(),
-    updatedAt: timestamp("updated_at").defaultNow(),
+    createdAt: timestamp("created_at", { mode: "string" })
+      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { mode: "string" })
+      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
+      .notNull(),
     deletedAt: timestamp("deleted_at"),
   },
   (table) => [

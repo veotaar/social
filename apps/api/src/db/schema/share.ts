@@ -6,7 +6,7 @@ import {
   uniqueIndex,
   text,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import user from "./user";
 import post from "./post";
 import { uuidv7 } from "uuidv7";
@@ -23,7 +23,9 @@ const share = pgTable(
     originalPostId: text("original_post_id")
       .notNull()
       .references(() => post.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").defaultNow(),
+    createdAt: timestamp("created_at", { mode: "string" })
+      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
+      .notNull(),
   },
   (table) => [
     uniqueIndex("shares_user_original_post_idx").on(
