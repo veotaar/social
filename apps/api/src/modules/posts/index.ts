@@ -9,8 +9,9 @@ import {
   deletePost,
   updatePost,
 } from "./service";
+import { createComment, getPostComments } from "./comments/service";
 
-const { post } = model.insert;
+const { post, comment } = model.insert;
 
 export const postsRoute = new Elysia()
   .use(betterAuth)
@@ -47,43 +48,32 @@ export const postsRoute = new Elysia()
       }),
     },
   )
-  .get(
-    "/posts/:postid",
-    async ({ params: { postid }, user }) => {
-      const singlePost = await getPost({
-        postId: postid,
-        currentUserId: user.id,
-      });
+  .guard({
+    params: t.Object({
+      postid: model.select.post.id,
+    }),
+  })
+  .get("/posts/:postid", async ({ params: { postid }, user }) => {
+    const singlePost = await getPost({
+      postId: postid,
+      currentUserId: user.id,
+    });
 
-      if (!singlePost) {
-        throw new NotFoundError("Post not found");
-      }
+    if (!singlePost) {
+      throw new NotFoundError("Post not found");
+    }
 
-      return singlePost;
-    },
-    {
-      params: t.Object({
-        postid: model.select.post.id,
-      }),
-    },
-  )
-  .delete(
-    "/posts/:postid",
-    async ({ params: { postid }, user }) => {
-      const deletedPost = await deletePost({ postId: postid, userId: user.id });
+    return singlePost;
+  })
+  .delete("/posts/:postid", async ({ params: { postid }, user }) => {
+    const deletedPost = await deletePost({ postId: postid, userId: user.id });
 
-      if (!deletedPost) {
-        throw new NotFoundError("Post not found or not authorized to delete");
-      }
+    if (!deletedPost) {
+      throw new NotFoundError("Post not found or not authorized to delete");
+    }
 
-      return { message: "Post deleted successfully" };
-    },
-    {
-      params: t.Object({
-        postid: model.select.post.id,
-      }),
-    },
-  )
+    return { message: "Post deleted successfully" };
+  })
   .patch(
     "/posts/:postid",
     async ({ params: { postid }, body, user }) => {
@@ -100,11 +90,47 @@ export const postsRoute = new Elysia()
       return updatedPost;
     },
     {
-      params: t.Object({
-        postid: model.select.post.id,
-      }),
       body: t.Object({
         content: t.String(),
+      }),
+    },
+  )
+  .post(
+    "/posts/:postid/comments",
+    async ({ body, user, params }) => {
+      const created = await createComment({
+        userId: user.id,
+        postId: params.postid,
+        content: body.content,
+        parentCommentId: body.parentCommentId,
+        imageUrl: body.imageUrl,
+      });
+      return created;
+    },
+    {
+      body: t.Object({
+        content: comment.content,
+        parentCommentId: t.Optional(comment.parentCommentId),
+        imageUrl: t.Optional(comment.imageUrl),
+      }),
+    },
+  )
+  .get(
+    "/posts/:postid/comments",
+    async ({ params: { postid }, query, user }) => {
+      const { cursor, limit } = query;
+      const data = await getPostComments({
+        postId: postid,
+        currentUserId: user.id,
+        cursor,
+        limit,
+      });
+      return data;
+    },
+    {
+      query: t.Object({
+        cursor: t.Optional(t.String()),
+        limit: t.Optional(t.Number({ minimum: 1, maximum: 50 })),
       }),
     },
   );
