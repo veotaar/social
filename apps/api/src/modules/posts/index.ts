@@ -1,15 +1,22 @@
-import { Elysia, t, NotFoundError } from "elysia";
 import { db as model } from "@api/db/model";
+import { Elysia, NotFoundError, t } from "elysia";
 import { betterAuth } from "../auth";
+import { createComment, getPostComments } from "./comments/service";
 import {
+  getPostLikes,
+  likeComment,
+  likePost,
+  unlikeComment,
+  unlikePost,
+} from "./likes/service";
+import {
+  INITIAL_CURSOR,
   createPost,
+  deletePost,
   getFeedPosts,
   getPost,
-  INITIAL_CURSOR,
-  deletePost,
   updatePost,
 } from "./service";
-import { createComment, getPostComments } from "./comments/service";
 
 const { post, comment } = model.insert;
 
@@ -92,6 +99,39 @@ export const postsRoute = new Elysia()
     {
       body: t.Object({
         content: t.String(),
+      }),
+    },
+  )
+  .post("/posts/:postid/likes", async ({ user, params: { postid } }) => {
+    const liked = await likePost({
+      userId: user.id,
+      postId: postid,
+    });
+
+    return liked;
+  })
+  .delete("/posts/:postid/likes", async ({ user, params: { postid } }) => {
+    const unliked = await unlikePost({
+      userId: user.id,
+      postId: postid,
+    });
+
+    return unliked;
+  })
+  .get(
+    "/posts/:postid/likes",
+    async ({ user, query, params: { postid } }) => {
+      const { cursor } = query;
+      const likes = await getPostLikes({
+        userId: user.id,
+        postId: postid,
+        cursor,
+      });
+      return likes;
+    },
+    {
+      query: t.Object({
+        cursor: t.String(),
       }),
     },
   )
