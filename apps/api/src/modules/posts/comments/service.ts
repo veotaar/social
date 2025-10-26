@@ -1,7 +1,7 @@
-import { table } from "@api/db/model";
 import db from "@api/db/db";
-import { eq, and, isNull, desc, notInArray, lt, sql } from "drizzle-orm";
-import { comment, post, block, user } from "@api/db/schema";
+import { table } from "@api/db/model";
+import { block, comment, post, user } from "@api/db/schema";
+import { and, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 
 export const createComment = async ({
   userId,
@@ -43,9 +43,11 @@ export const createComment = async ({
 };
 
 export const deleteComment = async ({
+  postId,
   commentId,
   userId,
 }: {
+  postId: string;
   commentId: string;
   userId: string;
 }) => {
@@ -60,6 +62,7 @@ export const deleteComment = async ({
       ),
     );
   if (!existing) return null;
+  if (existing.postId !== postId) return null;
 
   await db
     .update(table.comment)
@@ -76,18 +79,20 @@ export const deleteComment = async ({
 };
 
 export const updateComment = async ({
+  postId,
   commentId,
   userId,
   content,
   imageUrl,
 }: {
+  postId: string;
   commentId: string;
   userId: string;
   content?: string;
   imageUrl?: string | null;
 }) => {
   const [existing] = await db
-    .select({ id: comment.id })
+    .select({ id: comment.id, postId: comment.postId })
     .from(comment)
     .where(
       and(
@@ -97,6 +102,7 @@ export const updateComment = async ({
       ),
     );
   if (!existing) return null;
+  if (existing.postId !== postId) return null;
 
   const [updated] = await db
     .update(table.comment)
@@ -147,6 +153,7 @@ export const getPostComments = async ({
         username: user.username,
         displayUsername: user.displayUsername,
         image: user.image,
+        name: user.name,
       },
     })
     .from(comment)

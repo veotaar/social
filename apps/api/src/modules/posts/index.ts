@@ -1,7 +1,12 @@
 import { db as model } from "@api/db/model";
 import { Elysia, NotFoundError, t } from "elysia";
 import { betterAuth } from "../auth";
-import { createComment, getPostComments } from "./comments/service";
+import {
+  createComment,
+  deleteComment,
+  getPostComments,
+  updateComment,
+} from "./comments/service";
 import {
   getPostLikes,
   likeComment,
@@ -172,5 +177,77 @@ export const postsRoute = new Elysia()
         cursor: t.Optional(t.String()),
         limit: t.Optional(t.Number({ minimum: 1, maximum: 50 })),
       }),
+    },
+  )
+  .guard({
+    params: t.Object({
+      postid: model.select.post.id,
+      commentid: model.select.comment.id,
+    }),
+  })
+  .patch(
+    "/posts/:postid/comments/:commentid",
+    async ({ params: { commentid, postid }, body, user }) => {
+      const updatedComment = await updateComment({
+        postId: postid,
+        commentId: commentid,
+        userId: user.id,
+        content: body.content,
+        imageUrl: body.imageUrl,
+      });
+
+      if (!updatedComment) {
+        throw new NotFoundError(
+          "Comment not found or not authorized to update",
+        );
+      }
+
+      return updatedComment;
+    },
+    {
+      body: t.Object({
+        content: t.String(),
+        imageUrl: t.Optional(t.String()),
+      }),
+    },
+  )
+  .delete(
+    "/posts/:postid/comments/:commentid",
+    async ({ params: { commentid, postid }, user }) => {
+      const deletedComment = await deleteComment({
+        postId: postid,
+        commentId: commentid,
+        userId: user.id,
+      });
+
+      if (!deletedComment) {
+        throw new NotFoundError(
+          "Comment not found or not authorized to delete",
+        );
+      }
+
+      return { message: "Comment deleted successfully" };
+    },
+  )
+  .post(
+    "/posts/:postid/comments/:commentid/likes",
+    async ({ user, params: { commentid } }) => {
+      const liked = await likeComment({
+        userId: user.id,
+        commentId: commentid,
+      });
+
+      return liked;
+    },
+  )
+  .delete(
+    "/posts/:postid/comments/:commentid/likes",
+    async ({ user, params: { commentid } }) => {
+      const unliked = await unlikeComment({
+        userId: user.id,
+        commentId: commentid,
+      });
+
+      return unliked;
     },
   );
