@@ -2,6 +2,69 @@ import db from "@api/db/db";
 import { table } from "@api/db/model";
 import { and, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 
+export const getCommentLikes = async ({
+  userId,
+  commentId,
+  limit = 10,
+  cursor,
+}: { userId: string; commentId: string; limit?: number; cursor: string }) => {
+  const blockedUsersSubQuery = db
+    .select({ id: table.block.blockedId })
+    .from(table.block)
+    .where(eq(table.block.blockerId, userId));
+
+  const blockingUsersSubQuery = db
+    .select({ id: table.block.blockerId })
+    .from(table.block)
+    .where(eq(table.block.blockedId, userId));
+
+  const applyCursor = cursor !== "initial";
+
+  const likedBy = await db
+    .select({
+      id: table.like.id,
+      userId: table.user.id,
+      username: table.user.username,
+      name: table.user.name,
+      image: table.user.image,
+    })
+    .from(table.like)
+    .where(
+      and(
+        notInArray(table.like.userId, blockedUsersSubQuery),
+        notInArray(table.like.userId, blockingUsersSubQuery),
+        eq(table.like.commentId, commentId),
+        applyCursor ? lt(table.like.id, cursor) : undefined,
+      ),
+    )
+    .orderBy(desc(table.like.id))
+    .limit(limit + 1)
+    .leftJoin(table.user, eq(table.user.id, table.like.userId));
+
+  let hasMore = false;
+  let nextCursor: string | null = null;
+
+  if (likedBy.length > limit) {
+    hasMore = true;
+    likedBy.pop();
+  }
+
+  if (likedBy.length > 0) {
+    const lastLike = likedBy[likedBy.length - 1];
+    if (lastLike) {
+      nextCursor = lastLike.id;
+    }
+  }
+
+  return {
+    likes: likedBy,
+    pagination: {
+      hasMore,
+      nextCursor,
+    },
+  };
+};
+
 export const getPostLikes = async ({
   userId,
   postId,
