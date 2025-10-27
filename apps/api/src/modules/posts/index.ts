@@ -8,6 +8,7 @@ import {
   updateComment,
 } from "./comments/service";
 import {
+  getCommentLikes,
   getPostLikes,
   likeComment,
   likePost,
@@ -249,5 +250,22 @@ export const postsRoute = new Elysia()
       });
 
       return unliked;
+    },
+  )
+  .get(
+    "/posts/:postid/comments/:commentid/likes",
+    async ({ user, query, params: { commentid } }) => {
+      const { cursor } = query;
+      const likes = await getCommentLikes({
+        userId: user.id,
+        commentId: commentid,
+        cursor,
+      });
+      return likes;
+    },
+    {
+      query: t.Object({
+        cursor: t.String(),
+      }),
     },
   );
