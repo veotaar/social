@@ -1,4 +1,4 @@
-import { Type, type Static } from "@sinclair/typebox";
+import { type Static, Type } from "@sinclair/typebox";
 import { TypeCompiler } from "@sinclair/typebox/compiler";
 import { Value } from "@sinclair/typebox/value";
 
@@ -18,6 +18,10 @@ const EnvSchema = Type.Object({
   BETTER_AUTH_SECRET: Type.String(),
   BETTER_AUTH_URL: Type.String(),
   DATABASE_URL: Type.String(),
+  S3_ACCESS_KEY_ID: Type.String(),
+  S3_SECRET_ACCESS_KEY: Type.String(),
+  S3_BUCKET_NAME: Type.String(),
+  S3_ENDPOINT: Type.String(),
 });
 
 export type Env = Static<typeof EnvSchema>;
