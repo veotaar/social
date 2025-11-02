@@ -20,5 +20,6 @@
       "@api": ["src/index.ts"],
       "@api/*": ["src/*"]
     }
-  }
+  },
+  "exclude": ["node_modules", "dist"]
 }

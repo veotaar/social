@@ -7,12 +7,6 @@ import { betterAuth } from "./modules/auth";
 import { blockRoute } from "./modules/block";
 import { postsRoute } from "./modules/posts";
 
-const ip = new Elysia()
-  .derive({ as: "global" }, ({ server, request }) => ({
-    ip: server?.requestIP(request),
-  }))
-  .get("/ip", ({ ip }) => ip);
-
 const app = new Elysia()
   .use(
     cors({
@@ -23,7 +17,6 @@ const app = new Elysia()
     }),
   )
   .use(betterAuth)
-  .use(ip)
   .use(
     swagger({
       documentation: {
