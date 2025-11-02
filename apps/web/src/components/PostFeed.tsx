@@ -1,6 +1,8 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { client } from "@web/lib/api-client";
+import { cn } from "@web/lib/utils";
 import React from "react";
+import Post from "./Post";
 
 const PostFeed = () => {
   const {
@@ -34,17 +36,13 @@ const PostFeed = () => {
   ) : status === "error" ? (
     <p>Error: {error.message}</p>
   ) : (
-    <>
+    <div>
       {data.pages.map((group) => (
         <React.Fragment
           key={group.pagination.hasMore ? group.pagination.nextCursor : "end"}
         >
           {group.posts.map((post) => (
-            <div key={post.post.id}>
-              <p className="text-sm text-gray-500">by {post.author?.name}</p>
-              <p>{post.post.content}</p>
-              <hr />
-            </div>
+            <Post key={post.post.id} post={post} />
           ))}
         </React.Fragment>
       ))}
@@ -62,7 +60,7 @@ const PostFeed = () => {
         </button>
       </div>
       <div>{isFetching && !isFetchingNextPage ? "Fetching..." : null}</div>
-    </>
+    </div>
   );
 };
 

@@ -1,25 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
-import { signUp } from "@/lib/auth-client";
+import { signUp } from "@web/lib/auth-client";
 import { useForm } from "@tanstack/react-form";
 import z from "zod/v4";
 import { useMutation } from "@tanstack/react-query";
-import type { AnyFieldApi } from "@tanstack/react-form";
+
+import FieldInfo from "../components/FieldInfo";
 
 export const Route = createFileRoute("/register")({
   component: RegisterComponent,
 });
-
-function FieldInfo({ field }: { field: AnyFieldApi }) {
-  return (
-    <>
-      {field.state.meta.isTouched && !field.state.meta.isValid ? (
-        <em>{field.state.meta.errors.join(",")}</em>
-      ) : null}
-      {field.state.meta.isValidating ? "Validating..." : null}
-    </>
-  );
-}
 
 const registerFormSchema = z.object({
   name: z.string().min(5).max(30),

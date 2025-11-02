@@ -36,7 +36,7 @@ function Index() {
   }
 
   return (
-    <div className="p-2 w-4xl m-auto h-screen">
+    <div className="p-2 w-4xl m-auto h-full">
       <div>
         <p>Signed in as {session.data.user.name}</p>
         <p>

@@ -1,52 +1,119 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
+import FieldInfo from "../components/FieldInfo";
+import { signIn } from "@web/lib/auth-client";
+import { useForm } from "@tanstack/react-form";
+import z from "zod/v4";
+import { useMutation } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/login")({
   component: LoginComponent,
 });
 
+const loginFormSchema = z.object({
+  email: z.email(),
+  password: z.string().min(8).max(100),
+});
+
+const defaultValues: z.input<typeof loginFormSchema> = {
+  email: "",
+  password: "",
+};
+
 function LoginComponent() {
+  const navigate = Route.useNavigate();
+
+  const signInUserMutation = useMutation({
+    mutationFn: async (value: z.infer<typeof loginFormSchema>) => {
+      await signIn.email({
+        email: value.email,
+        password: value.password,
+        callbackURL: "/",
+      });
+    },
+    onSuccess: async () => {
+      await navigate({ to: "/" });
+    },
+  });
+
+  const form = useForm({
+    defaultValues,
+    validators: {
+      onChange: loginFormSchema,
+    },
+    onSubmit: async ({ value, formApi }) => {
+      await signInUserMutation.mutateAsync(value);
+      formApi.reset();
+    },
+  });
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-base-200">
       <div className="card w-96 bg-base-100 shadow-xl">
         <div className="card-body">
           <h2 className="card-title text-3xl mb-6 justify-center">Login</h2>
-          <form>
-            <div className="mb-4">
-              <label className="label" htmlFor="email">
-                <span className="label-text">Email</span>
-              </label>
-              <input
-                type="email"
-                id="email"
-                placeholder="email@example.com"
-                className="input input-bordered w-full"
-                required
-              />
-            </div>
-            <div className="mb-6">
-              <label className="label" htmlFor="password">
-                <span className="label-text">Password</span>
-              </label>
-              <input
-                type="password"
-                id="password"
-                placeholder="password"
-                className="input input-bordered w-full"
-                required
-              />
-            </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            <form.Field
+              name="email"
+              children={(field) => (
+                <div className="mb-4">
+                  <label className="label" htmlFor="email">
+                    <span className="label-text">Email</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    placeholder="email@example.com"
+                    className="input input-bordered w-full"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    required
+                  />
+                  <FieldInfo field={field} />
+                </div>
+              )}
+            />
+
+            <form.Field
+              name="password"
+              children={(field) => (
+                <div className="mb-6">
+                  <label className="label" htmlFor="password">
+                    <span className="label-text">password</span>
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    placeholder="password"
+                    className="input input-bordered w-full"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    required
+                  />
+                  <FieldInfo field={field} />
+                </div>
+              )}
+            />
+
             <div className="mt-6">
-              <button type="submit" className="btn btn-primary w-full">
-                Login
+              <button
+                type="submit"
+                className="btn btn-primary w-full"
+                onClick={form.handleSubmit}
+              >
+                {signInUserMutation.isPending ? "Loading..." : "Login"}
               </button>
             </div>
           </form>
-          <div className="flex gap-1 justify-center mt-6">
-            <Link to="/" className="text-blue-500 hover:underline">
-              Don't have an account? Register
+          <div className="flex justify-center mt-6">
+            <Link to="/register" className="text-blue-500 hover:underline">
+              Don't have an account? Sign up.
             </Link>
-            <Link to="/">Forgot password?</Link>
           </div>
         </div>
       </div>
