@@ -1,9 +1,9 @@
+import { useForm } from "@tanstack/react-form";
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 import { signUp } from "@web/lib/auth-client";
-import { useForm } from "@tanstack/react-form";
 import z from "zod/v4";
-import { useMutation } from "@tanstack/react-query";
 
 import FieldInfo from "../components/FieldInfo";
 
@@ -32,7 +32,7 @@ function RegisterComponent() {
         email: value.email,
         password: value.password,
         name: value.name,
-        role: "user",
+        // role: "user",
         callbackURL: "/",
       });
     },
