@@ -16,7 +16,7 @@ const PostFeed = () => {
   } = useInfiniteQuery({
     queryKey: ["posts", "feed"],
     queryFn: async ({ pageParam }) => {
-      const { data, error } = await client.post.get({
+      const { data, error } = await client.posts.get({
         query: { cursor: pageParam },
       });
       if (error) throw error.status;

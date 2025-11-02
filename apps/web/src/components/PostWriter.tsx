@@ -19,7 +19,7 @@ const PostWriter = ({
   const queryClient = useQueryClient();
 
   const postMutation = useMutation({
-    mutationFn: () => client.post.post({ content }),
+    mutationFn: () => client.posts.post({ content }),
     onSuccess: () => {
       setContent("");
       queryClient.invalidateQueries({ queryKey: ["posts"] });
