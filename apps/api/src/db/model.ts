@@ -81,7 +81,7 @@ export const db = {
   insert: spreads(
     {
       post: createInsertSchema(table.post, {
-        content: t.String({ maxLength: 10000 }),
+        content: t.String({ maxLength: 10000, minLength: 1 }),
       }),
       comment: createInsertSchema(table.comment, {
         content: t.String({ maxLength: 5000 }),

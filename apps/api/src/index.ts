@@ -1,13 +1,11 @@
-import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
-import { OpenAPI } from "./lib/authOpenApi";
+import { Elysia } from "elysia";
 import env from "./env";
+import { OpenAPI } from "./lib/authOpenApi";
 import { betterAuth } from "./modules/auth";
-import { postRoute } from "./modules/post";
 import { blockRoute } from "./modules/block";
-import { commentRoute } from "./modules/comment";
-import { likeRoute } from "./modules/like";
+import { postsRoute } from "./modules/posts";
 
 const ip = new Elysia()
   .derive({ as: "global" }, ({ server, request }) => ({
@@ -35,10 +33,8 @@ const app = new Elysia()
     }),
   )
   .get("/", () => "hello")
-  .use(postRoute)
+  .use(postsRoute)
   .use(blockRoute)
-  .use(commentRoute)
-  .use(likeRoute)
   .listen(env.PORT);
 
 export type App = typeof app;
