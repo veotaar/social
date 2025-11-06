@@ -154,7 +154,12 @@ export const likePost = async ({
     .set({ likesCount: sql`${table.post.likesCount} + 1` })
     .where(eq(table.post.id, postId));
 
-  return likeRecord;
+  const [post] = await db
+    .select({ likesCount: table.post.likesCount })
+    .from(table.post)
+    .where(eq(table.post.id, postId));
+
+  return { ...likeRecord, likesCount: post?.likesCount ?? 0 };
 };
 
 export const unlikePost = async ({
@@ -182,7 +187,12 @@ export const unlikePost = async ({
       .where(and(eq(table.post.id, postId), sql`${table.post.likesCount} > 0`));
   }
 
-  return deleted;
+  const [post] = await db
+    .select({ likesCount: table.post.likesCount })
+    .from(table.post)
+    .where(eq(table.post.id, postId));
+
+  return { ...deleted, likesCount: post?.likesCount ?? 0 };
 };
 
 export const likeComment = async ({
@@ -213,7 +223,12 @@ export const likeComment = async ({
     .set({ likesCount: sql`${table.comment.likesCount} + 1` })
     .where(eq(table.comment.id, commentId));
 
-  return likeRecord;
+  const [comment] = await db
+    .select({ likesCount: table.comment.likesCount })
+    .from(table.comment)
+    .where(eq(table.comment.id, commentId));
+
+  return { ...likeRecord, likesCount: comment?.likesCount ?? 0 };
 };
 
 export const unlikeComment = async ({
@@ -250,5 +265,10 @@ export const unlikeComment = async ({
       );
   }
 
-  return deleted;
+  const [comment] = await db
+    .select({ likesCount: table.comment.likesCount })
+    .from(table.comment)
+    .where(eq(table.comment.id, commentId));
+
+  return { ...deleted, likesCount: comment?.likesCount ?? 0 };
 };
