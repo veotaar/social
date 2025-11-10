@@ -12,7 +12,9 @@ export const Route = createFileRoute("/register")({
 });
 
 const registerFormSchema = z.object({
-  name: z.string().min(5).max(30),
+  name: z.string().min(5).max(64),
+  username: z.string().min(5).max(30),
+  displayUsername: z.string().min(0).max(30).optional(),
   email: z.email(),
   password: z.string().min(8).max(100),
 });
@@ -21,6 +23,8 @@ const defaultValues: z.input<typeof registerFormSchema> = {
   name: "",
   email: "",
   password: "",
+  username: "",
+  displayUsername: "",
 };
 
 function RegisterComponent() {
@@ -32,7 +36,8 @@ function RegisterComponent() {
         email: value.email,
         password: value.password,
         name: value.name,
-        // role: "user",
+        username: value.username,
+        displayUsername: value.displayUsername,
         callbackURL: "/",
       });
     },
@@ -53,10 +58,10 @@ function RegisterComponent() {
   });
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-base-200">
+    <div className="flex min-h-screen items-center justify-center bg-base-200">
       <div className="card w-96 bg-base-100 shadow-xl">
         <div className="card-body">
-          <h2 className="card-title text-3xl mb-6 justify-center">Register</h2>
+          <h2 className="card-title mb-6 justify-center text-3xl">Register</h2>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -106,6 +111,47 @@ function RegisterComponent() {
             />
 
             <form.Field
+              name="username"
+              children={(field) => (
+                <div className="mb-4">
+                  <label className="label" htmlFor="username">
+                    <span className="label-text">Username</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="username"
+                    placeholder="username"
+                    className="input input-bordered w-full"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    required
+                  />
+                  <FieldInfo field={field} />
+                </div>
+              )}
+            />
+
+            <form.Field
+              name="displayUsername"
+              children={(field) => (
+                <div className="mb-4">
+                  <label className="label" htmlFor="displayUsername">
+                    <span className="label-text">Display Username</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="displayUsername"
+                    placeholder="display username"
+                    className="input input-bordered w-full"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  <FieldInfo field={field} />
+                </div>
+              )}
+            />
+
+            <form.Field
               name="password"
               children={(field) => (
                 <div className="mb-6">
@@ -136,7 +182,7 @@ function RegisterComponent() {
               </button>
             </div>
           </form>
-          <div className="flex justify-center mt-6">
+          <div className="mt-6 flex justify-center">
             <Link to="/login" className="text-blue-500 hover:underline">
               Already have an account? Login
             </Link>
