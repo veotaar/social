@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSession } from "@web/lib/auth-client";
 import { Link } from "@tanstack/react-router";
-import PostWriter from "@web/components/PostWriter";
-import PostFeed from "@web/components/PostFeed";
+import PostFeed from "@web/components/post/PostFeed";
+import PostWriter from "@web/components/post/PostWriter";
+import { useSession } from "@web/lib/auth-client";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -13,7 +13,7 @@ function Index() {
 
   if (session.isPending) {
     return (
-      <div className="p-2 h-screen flex items-center justify-center">
+      <div className="flex h-screen items-center justify-center p-2">
         <div>Loading...</div>
       </div>
     );
@@ -21,7 +21,7 @@ function Index() {
 
   if (!session.data) {
     return (
-      <div className="p-2 h-screen">
+      <div className="h-screen p-2">
         <div>
           <p>You are not signed in.</p>
           <p>
@@ -36,7 +36,7 @@ function Index() {
   }
 
   return (
-    <div className="p-2 w-4xl m-auto h-full">
+    <div className="m-auto h-full w-4xl p-2">
       <div>
         <p>Signed in as {session.data.user.name}</p>
         <p>

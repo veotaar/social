@@ -85,8 +85,8 @@ const RadialProgress = ({
       </svg>
 
       {showLabel && (
-        <div className="absolute inset-0 grid place-items-center select-none">
-          <span className="text-sm font-medium tabular-nums text-gray-700 dark:text-gray-200">
+        <div className="absolute inset-0 grid select-none place-items-center">
+          <span className="font-medium text-gray-700 text-sm tabular-nums dark:text-gray-200">
             {pctText}
           </span>
         </div>

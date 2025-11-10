@@ -1,10 +1,10 @@
+import { useForm } from "@tanstack/react-form";
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
-import FieldInfo from "../components/FieldInfo";
 import { signIn } from "@web/lib/auth-client";
-import { useForm } from "@tanstack/react-form";
 import z from "zod/v4";
-import { useMutation } from "@tanstack/react-query";
+import FieldInfo from "../components/FieldInfo";
 
 export const Route = createFileRoute("/login")({
   component: LoginComponent,
@@ -48,10 +48,10 @@ function LoginComponent() {
   });
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-base-200">
+    <div className="flex min-h-screen items-center justify-center bg-base-200">
       <div className="card w-96 bg-base-100 shadow-xl">
         <div className="card-body">
-          <h2 className="card-title text-3xl mb-6 justify-center">Login</h2>
+          <h2 className="card-title mb-6 justify-center text-3xl">Login</h2>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -110,7 +110,7 @@ function LoginComponent() {
               </button>
             </div>
           </form>
-          <div className="flex justify-center mt-6">
+          <div className="mt-6 flex justify-center">
             <Link to="/register" className="text-blue-500 hover:underline">
               Don't have an account? Sign up.
             </Link>

@@ -28,6 +28,16 @@
       "recommended": true,
       "correctness": {
         "noChildrenProp": "off"
+      },
+      "nursery": {
+        "useSortedClasses": {
+          "level": "error",
+          "options": {
+            "attributes": ["classList"],
+            "functions": ["clsx", "cva", "tw", "tw.*"]
+          },
+          "fix": "safe"
+        }
       }
     }
   },
