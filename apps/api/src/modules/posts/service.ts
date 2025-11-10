@@ -131,6 +131,7 @@ export const getPost = async ({
       },
       author: {
         id: user.id,
+        name: user.name,
         username: user.username,
         displayUsername: user.displayUsername,
         image: user.image,

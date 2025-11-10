@@ -147,6 +147,7 @@ export const getPostComments = async ({
         createdAt: comment.createdAt,
         likesCount: comment.likesCount,
         repliesCount: comment.repliesCount,
+        parentCommentId: comment.parentCommentId,
       },
       author: {
         id: user.id,
