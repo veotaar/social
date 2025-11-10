@@ -26,7 +26,7 @@ const Avatar = ({ name, image }: AvatarData) => {
   if (image) {
     return (
       <div className="avatar">
-        <div className="w-24 rounded-full">
+        <div className="w-14 rounded-full">
           <img src={image} alt="User avatar" />
         </div>
       </div>
@@ -35,7 +35,7 @@ const Avatar = ({ name, image }: AvatarData) => {
 
   return (
     <div className="avatar">
-      <div className="w-24 rounded-full">
+      <div className="w-14 rounded-full">
         <img src={avatar} alt="User avatar" />
       </div>
     </div>

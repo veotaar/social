@@ -1,8 +1,8 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
+import Post from "@web/components/post/Post";
 import { client } from "@web/lib/api-client";
 import { cn } from "@web/lib/utils";
 import React from "react";
-import Post from "./Post";
 
 const PostFeed = () => {
   const {

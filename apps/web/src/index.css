@@ -1,7 +1,8 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 @plugin "daisyui" {
   /* biome-ignore lint/correctness/noUnknownProperty: r */
-  themes: light --default, dark --prefersdark, abyss, silk;
+  themes: light --default, dark --prefersdark, abyss, silk, dracula;
 }
 @media (prefers-reduced-motion) {
   *,

@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { client } from "@web/lib/api-client";
 import { cn } from "@web/lib/utils";
 import { useState } from "react";
-import RadialProgress from "./RadialProgress";
+import RadialProgress from "../RadialProgress";
 
 interface PostWriterProps {
   placeholder?: string;
@@ -32,14 +32,14 @@ const PostWriter = ({
     <div className="card bg-base-100 shadow-md">
       <div className="card-body">
         <textarea
-          className="textarea textarea-bordered w-full min-h-24 resize-none text-base"
+          className="textarea textarea-bordered min-h-24 w-full resize-none text-base"
           placeholder={placeholder}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           maxLength={maxLength}
         />
 
-        <div className="flex items-center justify-end gap-2 mt-4">
+        <div className="mt-4 flex items-center justify-end gap-2">
           <RadialProgress
             max={100}
             min={0}
