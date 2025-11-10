@@ -1,6 +1,7 @@
 import db from "@api/db/db";
 import { table } from "@api/db/model";
 import { and, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
+import { getPost } from "../service";
 
 export const getCommentLikes = async ({
   userId,
@@ -154,12 +155,14 @@ export const likePost = async ({
     .set({ likesCount: sql`${table.post.likesCount} + 1` })
     .where(eq(table.post.id, postId));
 
-  const [post] = await db
-    .select({ likesCount: table.post.likesCount })
-    .from(table.post)
-    .where(eq(table.post.id, postId));
+  // const [post] = await db
+  //   .select({ likesCount: table.post.likesCount })
+  //   .from(table.post)
+  //   .where(eq(table.post.id, postId));
 
-  return { ...likeRecord, likesCount: post?.likesCount ?? 0 };
+  const updatedPost = await getPost({ postId, currentUserId: userId });
+
+  return updatedPost;
 };
 
 export const unlikePost = async ({
@@ -187,12 +190,16 @@ export const unlikePost = async ({
       .where(and(eq(table.post.id, postId), sql`${table.post.likesCount} > 0`));
   }
 
-  const [post] = await db
-    .select({ likesCount: table.post.likesCount })
-    .from(table.post)
-    .where(eq(table.post.id, postId));
+  // const [post] = await db
+  //   .select({ likesCount: table.post.likesCount })
+  //   .from(table.post)
+  //   .where(eq(table.post.id, postId));
+  //
+  const updatedPost = await getPost({ postId, currentUserId: userId });
+  //
 
-  return { ...deleted, likesCount: post?.likesCount ?? 0 };
+  return updatedPost;
+  // return { ...deleted, likesCount: post?.likesCount ?? 0 };
 };
 
 export const likeComment = async ({

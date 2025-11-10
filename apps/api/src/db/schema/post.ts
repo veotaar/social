@@ -34,7 +34,7 @@ const post = pgTable(
     commentsCount: integer("comments_count").default(0).notNull(),
     sharesCount: integer("shares_count").default(0).notNull(),
     createdAt: timestamp("created_at", { mode: "string" })
-      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`) // TODO: fix other timestamps
+      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
       .notNull(),
     updatedAt: timestamp("updated_at", { mode: "string" })
       .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
