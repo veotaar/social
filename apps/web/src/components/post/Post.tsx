@@ -11,6 +11,7 @@ import Comment from "./Comment";
 import { useState } from "react";
 import { cn } from "@web/lib/utils";
 import { useSendComment } from "@web/hooks/useSendComment";
+import { Link } from "@tanstack/react-router";
 
 export type PostData = Omit<
   Treaty.Data<typeof client.posts.get>,
@@ -67,6 +68,10 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
     );
   };
 
+  if (!author) {
+    return null;
+  }
+
   return (
     <>
       <div className="card mb-4 flex flex-col gap-2 rounded-md border p-6">
@@ -74,10 +79,18 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
           <Avatar
             name={author ? author.name : ""}
             image={author ? author.image : null}
+            size="md"
           />
 
           <div>
-            <p className="">@{author?.username}</p>
+            <Link
+              to="/profile/$userid"
+              params={{ userid: author.id }}
+              resetScroll={true}
+            >
+              <p className="">@{author?.username}</p>
+            </Link>
+
             <span className="font-bold">{author?.name} &middot; </span>
             <span
               className="lg:tooltip"
