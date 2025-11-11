@@ -98,6 +98,9 @@ export const db = {
       comment: createSelectSchema(table.comment, {
         id: t.String({ format: "uuid" }),
       }),
+      user: createSelectSchema(table.user, {
+        id: t.String({ format: "uuid" }),
+      }),
     },
     "select",
   ),
