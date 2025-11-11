@@ -45,6 +45,7 @@ const user = pgTable("user", {
   followersCount: integer("followers_count"),
   followingCount: integer("following_count"),
   postsCount: integer("posts_count"),
+  commentsCount: integer("comments_count"),
 });
 
 export const userRelations = relations(user, ({ many, one }) => ({
