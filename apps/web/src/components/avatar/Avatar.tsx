@@ -1,20 +1,15 @@
 import { shapes } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
-import type { Treaty } from "@elysiajs/eden";
-import type { client } from "@web/lib/api-client";
 import { useMemo } from "react";
+import { cn } from "@web/lib/utils";
 
-type AvatarData = Pick<
-  NonNullable<
-    Omit<
-      Treaty.Data<typeof client.posts.get>,
-      "pagination"
-    >["posts"][number]["author"]
-  >,
-  "name" | "image"
->;
+type AvatarProps = {
+  name: string;
+  image?: string | null;
+  size?: "sm" | "md" | "lg";
+};
 
-const Avatar = ({ name, image }: AvatarData) => {
+const Avatar = ({ name, image, size }: AvatarProps) => {
   // TODO: remove useMemo later to take advantage of react compiler
   const avatar = useMemo(() => {
     return createAvatar(shapes, {
@@ -26,7 +21,16 @@ const Avatar = ({ name, image }: AvatarData) => {
   if (image) {
     return (
       <div className="avatar">
-        <div className="w-14 rounded-full">
+        <div
+          className={cn(
+            {
+              "w-10": size === "sm",
+              "w-14": size === "md" || !size,
+              "w-16": size === "lg",
+            },
+            "rounded-full",
+          )}
+        >
           <img src={image} alt="User avatar" />
         </div>
       </div>
@@ -35,7 +39,16 @@ const Avatar = ({ name, image }: AvatarData) => {
 
   return (
     <div className="avatar">
-      <div className="w-14 rounded-full">
+      <div
+        className={cn(
+          {
+            "w-10": size === "sm",
+            "w-14": size === "md" || !size,
+            "w-16": size === "lg",
+          },
+          "rounded-full",
+        )}
+      >
         <img src={avatar} alt="User avatar" />
       </div>
     </div>

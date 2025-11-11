@@ -23,6 +23,7 @@ const Comment = ({ comment, author }: CommentProps) => {
         <Avatar
           name={author ? author.name : ""}
           image={author ? author.image : null}
+          size="sm"
         />
         <span className="font-bold">@{author?.username}</span>
         <span
