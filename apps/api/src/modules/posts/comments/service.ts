@@ -39,6 +39,11 @@ export const createComment = async ({
     .set({ commentsCount: sql`${post.commentsCount} + 1` })
     .where(eq(post.id, postId));
 
+  await db
+    .update(table.user)
+    .set({ commentsCount: sql`${table.user.commentsCount} + 1` })
+    .where(eq(table.user.id, userId));
+
   return created;
 };
 
@@ -74,6 +79,11 @@ export const deleteComment = async ({
     .update(table.post)
     .set({ commentsCount: sql`${post.commentsCount} - 1` })
     .where(and(eq(post.id, existing.postId), sql`${post.commentsCount} > 0`));
+
+  await db
+    .update(table.user)
+    .set({ commentsCount: sql`${table.user.commentsCount} - 1` })
+    .where(eq(table.user.id, userId));
 
   return true;
 };

@@ -42,10 +42,10 @@ const user = pgTable("user", {
   username: text("username").unique(),
   displayUsername: text("display_username"),
   bio: text("bio"),
-  followersCount: integer("followers_count"),
-  followingCount: integer("following_count"),
-  postsCount: integer("posts_count"),
-  commentsCount: integer("comments_count"),
+  followersCount: integer("followers_count").default(0),
+  followingCount: integer("following_count").default(0),
+  postsCount: integer("posts_count").default(0),
+  commentsCount: integer("comments_count").default(0),
 });
 
 export const userRelations = relations(user, ({ many, one }) => ({

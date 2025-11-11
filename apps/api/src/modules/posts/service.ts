@@ -15,6 +15,11 @@ export const createPost = async ({
     })
     .returning();
 
+  await db
+    .update(table.user)
+    .set({ postsCount: sql`${table.user.postsCount} + 1` })
+    .where(eq(table.user.id, userId));
+
   return created;
 };
 
@@ -186,6 +191,11 @@ export const deletePost = async ({
     })
     .where(and(eq(post.id, postId), eq(post.authorId, userId)))
     .returning();
+
+  await db
+    .update(table.user)
+    .set({ postsCount: sql`${table.user.postsCount} - 1` })
+    .where(eq(table.user.id, userId));
 
   return deleted;
 };
