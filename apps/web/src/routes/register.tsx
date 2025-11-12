@@ -2,8 +2,9 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
-import { signUp } from "@web/lib/auth-client";
+import { signUp, signIn } from "@web/lib/auth-client";
 import z from "zod/v4";
+import { LogIn } from "lucide-react";
 
 import FieldInfo from "../components/FieldInfo";
 
@@ -29,6 +30,14 @@ const defaultValues: z.input<typeof registerFormSchema> = {
 
 function RegisterComponent() {
   const navigate = Route.useNavigate();
+
+  const handleGuestLogin = async () => {
+    const user = await signIn.anonymous();
+
+    if (!user) return;
+
+    await navigate({ to: "/" });
+  };
 
   const signupUserMutation = useMutation({
     mutationFn: async (value: z.infer<typeof registerFormSchema>) => {
@@ -186,6 +195,17 @@ function RegisterComponent() {
             <Link to="/login" className="text-blue-500 hover:underline">
               Already have an account? Login
             </Link>
+          </div>
+          <div className="divider">OR</div>
+          <div>
+            <button
+              type="button"
+              onClick={() => handleGuestLogin()}
+              className="btn btn-dash btn-primary mt-4 w-full"
+            >
+              One Click Guest Login
+              <LogIn />
+            </button>
           </div>
         </div>
       </div>
