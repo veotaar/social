@@ -11,6 +11,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@api/db/db";
 import { table } from "@api/db/model";
 import { sendTestEmail } from "./email";
+import env from "@api/env";
 
 export const auth = betterAuth({
   appName: "Social App",
@@ -51,8 +52,15 @@ export const auth = betterAuth({
     },
   },
   rateLimit: {
+    enabled: env.NODE_ENV !== "development",
     customRules: {
       "/get-session": false,
+      "/sign-in/anonymous": async (request) => {
+        return {
+          window: 3600, // seconds (1 hour)
+          max: 1, // max 1 request per window per IP
+        };
+      },
     },
   },
   emailAndPassword: {
