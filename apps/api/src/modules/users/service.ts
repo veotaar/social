@@ -2,6 +2,15 @@ import db from "@api/db/db";
 import { table } from "@api/db/model";
 import { block, like, post, user } from "@api/db/schema";
 import { and, or, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
+import { auth } from "@api/lib/auth";
+
+class ConflictError extends Error {
+  status = 409;
+
+  constructor(public message: string) {
+    super(message);
+  }
+}
 
 export const getUserById = async ({
   id,
@@ -36,4 +45,55 @@ export const getUserById = async ({
     .where(eq(user.id, id));
 
   return foundUser;
+};
+
+export const editUserProfile = async ({
+  targetUserId,
+  currentUserId,
+  name,
+  username,
+  displayUsername,
+  bio,
+  image,
+}: {
+  targetUserId: string;
+  currentUserId: string;
+  name?: string;
+  username?: string;
+  displayUsername?: string;
+  bio?: string;
+  image?: string | null;
+}) => {
+  if (targetUserId !== currentUserId) return null;
+
+  const [userSnapshot] = await db
+    .select()
+    .from(table.user)
+    .where(eq(table.user.id, currentUserId));
+
+  if (!userSnapshot) return null;
+
+  if (username && username !== userSnapshot.username) {
+    const { available } = await auth.api.isUsernameAvailable({
+      body: {
+        username,
+      },
+    });
+
+    if (!available) throw new ConflictError("Username is already taken");
+  }
+
+  const [user] = await db
+    .update(table.user)
+    .set({
+      name: name ?? userSnapshot.name,
+      username: username ?? userSnapshot.username,
+      displayUsername: displayUsername ?? userSnapshot.displayUsername,
+      bio: bio ?? userSnapshot.bio,
+      image: image !== undefined ? image : userSnapshot.image,
+    })
+    .where(eq(table.user.id, currentUserId))
+    .returning();
+
+  return user;
 };
