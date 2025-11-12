@@ -58,7 +58,7 @@ export function Navbar() {
               <div className="dropdown dropdown-end p-0">
                 <button
                   type="button"
-                  className="btn btn-ghost flex items-center gap-2 p-6 hover:bg-neutral"
+                  className="btn btn-ghost flex items-center gap-2 p-6 hover:bg-base-200"
                 >
                   <Avatar
                     name={session.data.user.name}

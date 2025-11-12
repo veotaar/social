@@ -74,7 +74,7 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
 
   return (
     <>
-      <div className="card mb-4 flex flex-col gap-2 rounded-md border p-6">
+      <div className="card mt-4 mb-4 flex flex-col gap-2 rounded-md border border-base-300 bg-base-100 p-6 shadow-sm">
         <div className="flex items-center gap-4">
           <Avatar
             name={author ? author.name : ""}
