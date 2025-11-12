@@ -5,7 +5,7 @@ import { Link } from "@tanstack/react-router";
 import { signIn } from "@web/lib/auth-client";
 import z from "zod/v4";
 import FieldInfo from "../components/FieldInfo";
-import { LogIn } from "lucide-react";
+import GuestLoginButton from "@web/components/guest-login-button/GuestLogin";
 
 export const Route = createFileRoute("/login")({
   component: LoginComponent,
@@ -23,14 +23,6 @@ const defaultValues: z.input<typeof loginFormSchema> = {
 
 function LoginComponent() {
   const navigate = Route.useNavigate();
-
-  const handleGuestLogin = async () => {
-    const user = await signIn.anonymous();
-
-    if (!user) return;
-
-    await navigate({ to: "/" });
-  };
 
   const signInUserMutation = useMutation({
     mutationFn: async (value: z.infer<typeof loginFormSchema>) => {
@@ -125,16 +117,7 @@ function LoginComponent() {
             </Link>
           </div>
           <div className="divider">OR</div>
-          <div>
-            <button
-              type="button"
-              onClick={() => handleGuestLogin()}
-              className="btn btn-dash btn-primary mt-4 w-full"
-            >
-              One Click Guest Login
-              <LogIn />
-            </button>
-          </div>
+          <GuestLoginButton />
         </div>
       </div>
     </div>
