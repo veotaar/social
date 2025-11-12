@@ -46,6 +46,7 @@ const user = pgTable("user", {
   followingCount: integer("following_count").default(0),
   postsCount: integer("posts_count").default(0),
   commentsCount: integer("comments_count").default(0),
+  isAnonymous: boolean("is_anonymous").default(false),
 });
 
 export const userRelations = relations(user, ({ many, one }) => ({

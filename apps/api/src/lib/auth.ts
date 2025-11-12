@@ -5,6 +5,7 @@ import {
   admin,
   username,
   twoFactor,
+  anonymous,
 } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@api/db/db";
@@ -25,6 +26,35 @@ export const auth = betterAuth({
       twoFactor: table.twoFactor,
     },
   }),
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user, ctx) => {
+          if (ctx?.path !== "/sign-in/anonymous") {
+            return {
+              data: {
+                ...user,
+              },
+            };
+          }
+
+          return {
+            data: {
+              ...user,
+              username: `anon_${crypto.randomUUID().split("-")[0]}`,
+              displayUsername: `anon_${crypto.randomUUID().split("-")[0]}`,
+              bio: "anonymous user",
+            },
+          };
+        },
+      },
+    },
+  },
+  rateLimit: {
+    customRules: {
+      "/get-session": false,
+    },
+  },
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
@@ -100,6 +130,10 @@ export const auth = betterAuth({
       },
       minUsernameLength: 5,
       maxUsernameLength: 30,
+    }),
+    anonymous({
+      emailDomainName: "example.com",
+      generateName: () => `Anon_${crypto.randomUUID().split("-")[0]}`,
     }),
   ],
 });
