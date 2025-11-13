@@ -13,15 +13,17 @@ const CommentButton = ({
   onClick,
 }: CommentButtonProps) => {
   return (
-    <div className="group flex w-min items-center">
-      <button className="btn btn-circle" type="button" onClick={onClick}>
-        <MessageCircle className={cn("group-hover:stroke-primary")} />
-      </button>
-      <p
-        className={cn(
-          "group-hover:text-primary",
-        )}
+    <div className="group/comment-button flex w-min items-center">
+      <button
+        className="btn btn-circle btn-ghost hover:border-0 hover:bg-primary/10"
+        type="button"
+        onClick={onClick}
       >
+        <MessageCircle
+          className={cn("group-hover/comment-button:stroke-primary")}
+        />
+      </button>
+      <p className={cn("group-hover/comment-button:text-primary")}>
         {commentsCount}
       </p>
     </div>

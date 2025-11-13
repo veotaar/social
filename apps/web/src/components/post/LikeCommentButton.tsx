@@ -18,15 +18,16 @@ const LikeCommentButton = ({
   const toggleLike = useToggleCommentLike();
 
   return (
-    <div className="group flex w-min items-center">
+    <div className="group flex w-min items-center justify-start">
       <button
-        className="btn btn-circle"
+        className="btn btn-circle btn-ghost btn-sm hover:border-0 hover:bg-primary/10"
         type="button"
         onClick={() =>
           toggleLike.mutate({ postId, commentId, like: !likedByUser })
         }
       >
         <Heart
+          size={18}
           className={cn("group-hover:stroke-primary", {
             "fill-primary stroke-primary": likedByUser,
           })}

@@ -73,14 +73,10 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
   }
 
   return (
-    <>
-      <div className="card mt-4 mb-4 flex flex-col gap-2 rounded-md border border-base-300 bg-base-100 p-6 shadow-sm">
+    <div>
+      <div className="card group/post mt-4 mb-4 flex flex-col gap-2 rounded-md border border-base-300 bg-base-200 p-6 shadow-sm">
         <div className="flex items-center gap-4">
-          <Avatar
-            name={author ? author.name : ""}
-            image={author ? author.image : null}
-            size="md"
-          />
+          <Avatar name={author.name} image={author.image} size="sm" />
 
           <div>
             <Link
@@ -88,10 +84,12 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
               params={{ userid: author.id }}
               resetScroll={true}
             >
-              <p className="">@{author?.username}</p>
+              <div className="flex items-center gap-2">
+                <p className="font-bold">{author.displayUsername}</p>
+                <p className="">@{author.username}</p>
+              </div>
             </Link>
 
-            <span className="font-bold">{author?.name} &middot; </span>
             <span
               className="lg:tooltip"
               data-tip={new Date(post.createdAt).toLocaleString()}
@@ -102,7 +100,7 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
             </span>
           </div>
 
-          <div className="ml-auto">
+          <div className={cn("ml-auto opacity-0 group-hover/post:opacity-100")}>
             <EllipsisVertical />
           </div>
         </div>
@@ -155,7 +153,7 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
         )}
 
         <button
-          className={cn("btn btn-sm mt-2", {
+          className={cn("btn btn-ghost btn-sm mt-2", {
             hidden: post.commentsCount <= 0,
           })}
           type="button"
@@ -165,26 +163,13 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
         </button>
 
         {showComments && (
-          <div className="mt-4">
+          <div>
             {status === "pending" ? (
               <p>Loading comments...</p>
             ) : status === "error" ? (
               <p>Error loading comments: {error.message}</p>
             ) : (
-              <div>
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => fetchNextPage()}
-                    disabled={!hasNextPage || isFetching}
-                  >
-                    {isFetchingNextPage
-                      ? "Loading more..."
-                      : hasNextPage
-                        ? "Load More"
-                        : "Nothing more to load"}
-                  </button>
-                </div>
+              <div className="mt-2 flex flex-col">
                 {data.pages.map((group) => (
                   <div
                     key={
@@ -202,12 +187,28 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
                     ))}
                   </div>
                 ))}
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => fetchNextPage()}
+                    className={cn("btn btn-ghost btn-block", {
+                      hidden: !hasNextPage,
+                    })}
+                    disabled={!hasNextPage || isFetching}
+                  >
+                    {isFetchingNextPage
+                      ? "Loading more..."
+                      : hasNextPage
+                        ? "Load More"
+                        : "Loaded all comments"}
+                  </button>
+                </div>
               </div>
             )}
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

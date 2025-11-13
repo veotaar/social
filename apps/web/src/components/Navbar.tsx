@@ -1,13 +1,15 @@
 import { useSession, signOut } from "@web/lib/auth-client";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import Avatar from "./avatar/Avatar";
 import ThemeController from "./theme-controller/ThemeController";
 
 export function Navbar() {
   const session = useSession();
+  const navigate = useNavigate();
 
   const logout = async () => {
     await signOut();
+    await navigate({ to: "/" });
   };
 
   return (
@@ -18,7 +20,7 @@ export function Navbar() {
         </Link>
       </div>
       <div className="flex-none">
-        <ul className="menu menu-horizontal px-1">
+        <ul className="menu menu-horizontal items-center px-1">
           <li>
             {!session.data && (
               <Link to="/login" className="[&.active]:font-bold">
@@ -38,7 +40,7 @@ export function Navbar() {
               <div className="dropdown dropdown-end p-0">
                 <button
                   type="button"
-                  className="btn btn-ghost flex items-center gap-2 p-6 hover:bg-base-200"
+                  className="btn btn-ghost flex items-center gap-2 p-4"
                 >
                   <Avatar
                     name={session.data.user.name}

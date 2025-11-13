@@ -12,14 +12,14 @@ const LikeButton = ({ postId, likeCount, likedByUser }: LikeButtonProps) => {
   const toggleLike = useToggleLike();
 
   return (
-    <div className="group flex w-min items-center">
+    <div className="group/like-button flex w-min items-center">
       <button
-        className="btn btn-circle"
+        className="btn btn-circle btn-ghost hover:border-0 hover:bg-primary/10"
         type="button"
         onClick={() => toggleLike.mutate({ postId, like: !likedByUser })}
       >
         <Heart
-          className={cn("group-hover:stroke-primary", {
+          className={cn("group-hover/like-button:stroke-primary", {
             "fill-primary stroke-primary": likedByUser,
           })}
         />
@@ -27,7 +27,7 @@ const LikeButton = ({ postId, likeCount, likedByUser }: LikeButtonProps) => {
       <p
         className={cn(
           { "text-primary": likedByUser },
-          "group-hover:text-primary",
+          "group-hover/like-button:text-primary",
         )}
       >
         {likeCount}

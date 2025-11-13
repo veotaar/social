@@ -29,7 +29,7 @@ const PostWriter = ({
   const usedPercent = Math.round((content.length / maxLength) * 100);
 
   return (
-    <div className="card bg-base-100 shadow-md">
+    <div className="card rounded-md border border-base-300 bg-base-200 shadow-sm">
       <div className="card-body">
         <textarea
           className="textarea textarea-bordered min-h-24 w-full resize-none text-base"
