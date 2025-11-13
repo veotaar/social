@@ -75,7 +75,9 @@ function LoginComponent() {
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
                   />
-                  <FieldInfo field={field} />
+                  <div className="min-h-6">
+                    <FieldInfo field={field} />
+                  </div>
                 </div>
               )}
             />
@@ -96,7 +98,9 @@ function LoginComponent() {
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
                   />
-                  <FieldInfo field={field} />
+                  <div className="min-h-6">
+                    <FieldInfo field={field} />
+                  </div>
                 </div>
               )}
             />

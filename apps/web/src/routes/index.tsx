@@ -37,15 +37,6 @@ function Index() {
 
   return (
     <div className="m-auto h-full w-4xl p-2">
-      <div>
-        <p>Signed in as {session.data.user.name}</p>
-        <p>
-          email verified:{" "}
-          <span className="text-green-600">
-            {session.data.user.emailVerified ? "true" : "false"}
-          </span>
-        </p>
-      </div>
       <PostWriter />
       <PostFeed />
     </div>

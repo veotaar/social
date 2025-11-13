@@ -24,8 +24,6 @@ export function Navbar() {
 
   const session = useSession();
 
-  console.log(session);
-
   const logout = async () => {
     await signOut();
   };

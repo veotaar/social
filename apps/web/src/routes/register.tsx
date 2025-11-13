@@ -72,7 +72,7 @@ function RegisterComponent() {
             <form.Field
               name="name"
               children={(field) => (
-                <div>
+                <div className="mb-4">
                   <label className="label" htmlFor="name">
                     <span className="label-text">Name</span>
                   </label>
@@ -85,7 +85,9 @@ function RegisterComponent() {
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
                   />
-                  <FieldInfo field={field} />
+                  <div className="min-h-6">
+                    <FieldInfo field={field} />
+                  </div>
                 </div>
               )}
             />
@@ -106,7 +108,9 @@ function RegisterComponent() {
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
                   />
-                  <FieldInfo field={field} />
+                  <div className="min-h-6">
+                    <FieldInfo field={field} />
+                  </div>
                 </div>
               )}
             />
@@ -127,7 +131,9 @@ function RegisterComponent() {
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
                   />
-                  <FieldInfo field={field} />
+                  <div className="min-h-6">
+                    <FieldInfo field={field} />
+                  </div>
                 </div>
               )}
             />
@@ -147,7 +153,9 @@ function RegisterComponent() {
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
-                  <FieldInfo field={field} />
+                  <div className="min-h-6">
+                    <FieldInfo field={field} />
+                  </div>
                 </div>
               )}
             />
@@ -168,7 +176,9 @@ function RegisterComponent() {
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
                   />
-                  <FieldInfo field={field} />
+                  <div className="min-h-6">
+                    <FieldInfo field={field} />
+                  </div>
                 </div>
               )}
             />

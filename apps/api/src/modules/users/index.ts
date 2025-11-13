@@ -19,7 +19,7 @@ export const usersRoute = new Elysia()
 
     return foundUser;
   })
-  .patch(
+  .put(
     "/users/:userid",
     async ({ user, params: { userid }, body }) => {
       const editedUser = await editUserProfile({
