@@ -1,27 +1,9 @@
 import { useSession, signOut } from "@web/lib/auth-client";
 import { Link } from "@tanstack/react-router";
 import Avatar from "./avatar/Avatar";
-import { useState, useEffect } from "react";
+import ThemeController from "./theme-controller/ThemeController";
 
 export function Navbar() {
-  const [isdark, setIsdark] = useState<boolean>(() => {
-    const theme = localStorage.getItem("theme");
-    if (theme === "dark") {
-      return true;
-    }
-    return false;
-  });
-
-  useEffect(() => {
-    if (isdark) {
-      document.documentElement.dataset.theme = "dracula";
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.dataset.theme = "silk";
-      localStorage.setItem("theme", "light");
-    }
-  }, [isdark]);
-
   const session = useSession();
 
   const logout = async () => {
@@ -94,16 +76,8 @@ export function Navbar() {
               </div>
             )}
           </li>
-          <li className="justify-center">
-            <div className="tooltip tooltip-bottom" data-tip="Theme">
-              <input
-                type="checkbox"
-                value={isdark ? "dracula" : "silk"}
-                checked={isdark}
-                onChange={() => setIsdark(!isdark)}
-                className="toggle theme-controller "
-              />
-            </div>
+          <li className="">
+            <ThemeController />
           </li>
         </ul>
       </div>
