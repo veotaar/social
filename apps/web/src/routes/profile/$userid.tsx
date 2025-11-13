@@ -1,6 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { client } from "@web/lib/api-client";
 import { QueryClient } from "@tanstack/react-query";
+import { useSession } from "@web/lib/auth-client";
+import { UserPen } from "lucide-react";
 
 export const Route = createFileRoute("/profile/$userid")({
   component: RouteComponent,
@@ -18,6 +20,12 @@ export const Route = createFileRoute("/profile/$userid")({
 
 function RouteComponent() {
   const userData = Route.useLoaderData();
+
+  const { userid } = Route.useParams();
+
+  const { data } = useSession();
+
+  const isOwnProfile = data?.user.id === userid;
 
   const joinDate = new Date(userData.createdAt).toLocaleDateString("en-US", {
     month: "long",
@@ -43,20 +51,25 @@ function RouteComponent() {
           </div>
 
           <div className="grow text-center md:text-left">
-            <h1 className="font-bold text-3xl text-base-content">
-              {userData.name}
-            </h1>
-            {userData.displayUsername && (
-              <p className="mt-1 text-base-content/70 text-lg">
-                @{userData.displayUsername}
-              </p>
-            )}
-            {userData.username &&
-              userData.username !== userData.displayUsername && (
-                <p className="text-base-content/60 text-sm">
-                  ({userData.username})
-                </p>
+            <div className="flex flex-col items-center gap-4 md:flex-row md:items-start md:justify-between">
+              <div>
+                <h1 className="font-bold text-3xl text-base-content">
+                  {userData.displayUsername}
+                </h1>
+                {userData.username && (
+                  <p className="mt-1 text-base-content/70 text-lg">
+                    @{userData.username}
+                  </p>
+                )}
+              </div>
+
+              {isOwnProfile && (
+                <Link to="/profile/edit" className="btn btn-outline gap-2">
+                  <UserPen className="h-4 w-4" />
+                  Edit Profile
+                </Link>
               )}
+            </div>
 
             {userData.bio && (
               <p className="mt-4 max-w-2xl text-base-content/80">
