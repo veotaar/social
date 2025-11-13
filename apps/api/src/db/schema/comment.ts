@@ -31,7 +31,7 @@ const comment = pgTable(
     parentCommentId: text("parent_comment_id"),
     content: text("content").notNull(),
     imageUrl: varchar("image_url", { length: 500 }),
-    likesCount: integer("likes_count").default(0),
+    likesCount: integer("likes_count").default(0).notNull(),
     repliesCount: integer("replies_count").default(0),
     createdAt: timestamp("created_at", { mode: "string" })
       .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)

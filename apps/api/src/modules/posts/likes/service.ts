@@ -231,11 +231,11 @@ export const likeComment = async ({
     .where(eq(table.comment.id, commentId));
 
   const [comment] = await db
-    .select({ likesCount: table.comment.likesCount })
+    .select()
     .from(table.comment)
     .where(eq(table.comment.id, commentId));
 
-  return { ...likeRecord, likesCount: comment?.likesCount ?? 0 };
+  return comment;
 };
 
 export const unlikeComment = async ({
@@ -273,9 +273,9 @@ export const unlikeComment = async ({
   }
 
   const [comment] = await db
-    .select({ likesCount: table.comment.likesCount })
+    .select()
     .from(table.comment)
     .where(eq(table.comment.id, commentId));
 
-  return { ...deleted, likesCount: comment?.likesCount ?? 0 };
+  return comment;
 };

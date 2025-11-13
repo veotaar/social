@@ -1,6 +1,6 @@
 import db from "@api/db/db";
 import { table } from "@api/db/model";
-import { block, comment, post, user } from "@api/db/schema";
+import { block, comment, like, post, user } from "@api/db/schema";
 import { and, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 
 export const createComment = async ({
@@ -151,6 +151,7 @@ export const getPostComments = async ({
   const rows = await db
     .select({
       comment: {
+        postId: comment.postId,
         id: comment.id,
         content: comment.content,
         imageUrl: comment.imageUrl,
@@ -158,6 +159,7 @@ export const getPostComments = async ({
         likesCount: comment.likesCount,
         repliesCount: comment.repliesCount,
         parentCommentId: comment.parentCommentId,
+        likedByCurrentUser: sql<boolean>`CASE WHEN ${like.id} IS NOT NULL THEN true ELSE false END`,
       },
       author: {
         id: user.id,
@@ -179,6 +181,10 @@ export const getPostComments = async ({
     )
     .orderBy(desc(comment.id))
     .leftJoin(user, eq(comment.authorId, user.id))
+    .leftJoin(
+      like,
+      and(eq(like.commentId, comment.id), eq(like.userId, currentUserId)),
+    )
     .limit(limit + 1);
 
   let hasMore = false;
@@ -201,4 +207,56 @@ export const getPostComments = async ({
       nextCursor,
     },
   };
+};
+
+export const getSingleComment = async ({
+  currentUserId,
+  postId,
+  commentId,
+}: {
+  currentUserId: string;
+  postId: string;
+  commentId: string;
+}) => {
+  const blockedUsersSubQuery = db
+    .select({ id: block.blockedId })
+    .from(block)
+    .where(eq(block.blockerId, currentUserId));
+
+  const blockingUsersSubQuery = db
+    .select({ id: block.blockerId })
+    .from(block)
+    .where(eq(block.blockedId, currentUserId));
+
+  const [row] = await db
+    .select({
+      comment: {
+        postId: comment.postId,
+        id: comment.id,
+        content: comment.content,
+        imageUrl: comment.imageUrl,
+        createdAt: comment.createdAt,
+        likesCount: comment.likesCount,
+        repliesCount: comment.repliesCount,
+        parentCommentId: comment.parentCommentId,
+        likedByCurrentUser: sql<boolean>`CASE WHEN ${like.id} IS NOT NULL THEN true ELSE false END`,
+      },
+    })
+    .from(comment)
+    .where(
+      and(
+        eq(comment.postId, postId),
+        eq(comment.id, commentId),
+        isNull(comment.deletedAt),
+        notInArray(comment.authorId, blockedUsersSubQuery),
+        notInArray(comment.authorId, blockingUsersSubQuery),
+      ),
+    )
+    .leftJoin(user, eq(comment.authorId, user.id))
+    .leftJoin(
+      like,
+      and(eq(like.commentId, comment.id), eq(like.userId, currentUserId)),
+    );
+
+  return row;
 };
