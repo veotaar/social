@@ -48,7 +48,7 @@ export const usersRoute = new Elysia()
     },
   )
   .post(
-    "/users/:userid/follow-requests",
+    "/users/:userid/followRequests",
     async ({ user, params: { userid } }) => {
       const followRequest = await createFollowRequest({
         currentUserId: user.id,
@@ -60,7 +60,7 @@ export const usersRoute = new Elysia()
     },
   )
   .get(
-    "/users/:userid/follow-requests",
+    "/users/:userid/followRequests",
     async ({ user, params: { userid } }) => {
       if (user.id !== userid) throw new ForbiddenError("Forbidden");
 
@@ -72,7 +72,7 @@ export const usersRoute = new Elysia()
     },
   )
   .put(
-    "/users/:userid/follow-requests/:followRequestId/status",
+    "/users/:userid/followRequests/:followRequestId/status",
     async ({ user, params: { userid, followRequestId }, body }) => {
       const updatedFollowRequest = await updateFollowRequestStatus({
         currentUserId: user.id,

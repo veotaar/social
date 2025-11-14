@@ -103,6 +103,21 @@ export const createFollowRequest = async ({
 }) => {
   if (currentUserId !== followerId) return null;
 
+  // check for blocks between users
+  const blockRecords = await db
+    .select()
+    .from(block)
+    .where(
+      or(
+        and(eq(block.blockerId, followerId), eq(block.blockedId, followeeId)),
+        and(eq(block.blockerId, followeeId), eq(block.blockedId, followerId)),
+      ),
+    );
+
+  if (blockRecords.length > 0) {
+    throw new ForbiddenError("Cannot send follow request due to block");
+  }
+
   const [existingRequest] = await db
     .select()
     .from(table.followRequest)
@@ -209,9 +224,52 @@ export const getFollowRequests = async ({
 }: {
   userId: string;
 }) => {
-  const followRequests = await db
-    .select()
+  // Get sent follow requests (where user is the follower)
+  const sentRequests = await db
+    .select({
+      id: table.followRequest.id,
+      followerId: table.followRequest.followerId,
+      followeeId: table.followRequest.followeeId,
+      status: table.followRequest.status,
+      createdAt: table.followRequest.createdAt,
+      updatedAt: table.followRequest.updatedAt,
+      followee: {
+        id: user.id,
+        username: user.username,
+        displayUsername: user.displayUsername,
+        name: user.name,
+        image: user.image,
+      },
+    })
     .from(table.followRequest)
+    .innerJoin(user, eq(table.followRequest.followeeId, user.id))
+    .where(
+      and(
+        eq(table.followRequest.followerId, userId),
+        eq(table.followRequest.status, "pending"),
+      ),
+    )
+    .orderBy(desc(table.followRequest.createdAt));
+
+  // Get received follow requests (where user is the followee)
+  const receivedRequests = await db
+    .select({
+      id: table.followRequest.id,
+      followerId: table.followRequest.followerId,
+      followeeId: table.followRequest.followeeId,
+      status: table.followRequest.status,
+      createdAt: table.followRequest.createdAt,
+      updatedAt: table.followRequest.updatedAt,
+      follower: {
+        id: user.id,
+        username: user.username,
+        displayUsername: user.displayUsername,
+        name: user.name,
+        image: user.image,
+      },
+    })
+    .from(table.followRequest)
+    .innerJoin(user, eq(table.followRequest.followerId, user.id))
     .where(
       and(
         eq(table.followRequest.followeeId, userId),
@@ -220,5 +278,8 @@ export const getFollowRequests = async ({
     )
     .orderBy(desc(table.followRequest.createdAt));
 
-  return followRequests;
+  return {
+    sent: sentRequests,
+    received: receivedRequests,
+  };
 };
