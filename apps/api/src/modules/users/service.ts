@@ -4,30 +4,7 @@ import { block, like, post, user } from "@api/db/schema";
 import { and, or, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 import { auth } from "@api/lib/auth";
 import { NotFoundError } from "elysia";
-
-class ConflictError extends Error {
-  status = 409;
-
-  constructor(public message: string) {
-    super(message);
-  }
-}
-
-class UnauthorizedError extends Error {
-  status = 401;
-
-  constructor(public message: string) {
-    super(message);
-  }
-}
-
-class ForbiddenError extends Error {
-  status = 403;
-
-  constructor(public message: string) {
-    super(message);
-  }
-}
+import { ConflictError, ForbiddenError } from "@api/lib/error";
 
 export const getUserById = async ({
   id,
@@ -225,4 +202,23 @@ export const updateFollowRequestStatus = async ({
   });
 
   return updatedRequest;
+};
+
+export const getFollowRequests = async ({
+  userId,
+}: {
+  userId: string;
+}) => {
+  const followRequests = await db
+    .select()
+    .from(table.followRequest)
+    .where(
+      and(
+        eq(table.followRequest.followeeId, userId),
+        eq(table.followRequest.status, "pending"),
+      ),
+    )
+    .orderBy(desc(table.followRequest.createdAt));
+
+  return followRequests;
 };

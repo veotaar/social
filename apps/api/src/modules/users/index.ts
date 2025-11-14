@@ -6,7 +6,9 @@ import {
   editUserProfile,
   createFollowRequest,
   updateFollowRequestStatus,
+  getFollowRequests,
 } from "./service";
+import { ForbiddenError } from "@api/lib/error";
 
 const { user } = model.select;
 
@@ -55,6 +57,18 @@ export const usersRoute = new Elysia()
       });
 
       return followRequest;
+    },
+  )
+  .get(
+    "/users/:userid/follow-requests",
+    async ({ user, params: { userid } }) => {
+      if (user.id !== userid) throw new ForbiddenError("Forbidden");
+
+      const followRequests = await getFollowRequests({
+        userId: userid,
+      });
+
+      return followRequests;
     },
   )
   .put(
