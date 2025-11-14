@@ -3,9 +3,26 @@ import { table } from "@api/db/model";
 import { block, like, post, user } from "@api/db/schema";
 import { and, or, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 import { auth } from "@api/lib/auth";
+import { NotFoundError } from "elysia";
 
 class ConflictError extends Error {
   status = 409;
+
+  constructor(public message: string) {
+    super(message);
+  }
+}
+
+class UnauthorizedError extends Error {
+  status = 401;
+
+  constructor(public message: string) {
+    super(message);
+  }
+}
+
+class ForbiddenError extends Error {
+  status = 403;
 
   constructor(public message: string) {
     super(message);
@@ -71,7 +88,7 @@ export const editUserProfile = async ({
     .from(table.user)
     .where(eq(table.user.id, currentUserId));
 
-  if (!userSnapshot) return null;
+  if (!userSnapshot) throw new NotFoundError("User not found");
 
   if (username && username !== userSnapshot.username) {
     const { available } = await auth.api.isUsernameAvailable({
@@ -133,4 +150,79 @@ export const createFollowRequest = async ({
     .returning();
 
   return followRequest;
+};
+
+export const updateFollowRequestStatus = async ({
+  currentUserId,
+  targetUserId,
+  followRequestId,
+  newStatus,
+}: {
+  currentUserId: string;
+  targetUserId: string;
+  followRequestId: string;
+  newStatus: "accepted" | "rejected" | "cancelled";
+}) => {
+  const [followRequest] = await db
+    .select()
+    .from(table.followRequest)
+    .where(eq(table.followRequest.id, followRequestId));
+
+  if (!followRequest) throw new NotFoundError("Follow request not found");
+  if (followRequest.status !== "pending") throw new ConflictError("Conflict");
+  if (followRequest.followeeId !== targetUserId)
+    throw new ForbiddenError("Forbidden");
+
+  if (
+    (newStatus === "accepted" || newStatus === "rejected") &&
+    followRequest.followeeId !== currentUserId
+  ) {
+    throw new ForbiddenError(
+      "Only the followee can accept or reject the follow request",
+    );
+  }
+
+  if (newStatus === "cancelled" && followRequest.followerId !== currentUserId) {
+    throw new ForbiddenError("Only the follower can cancel the follow request");
+  }
+
+  const updatedRequest = await db.transaction(async (tx) => {
+    const [updatedRequest] = await tx
+      .update(table.followRequest)
+      .set({
+        status: newStatus,
+      })
+      .where(eq(table.followRequest.id, followRequestId))
+      .returning();
+
+    // If the follow request is accepted, create a follow record
+    if (newStatus === "accepted") {
+      await tx
+        .insert(table.follow)
+        .values({
+          followerId: followRequest.followerId,
+          followeeId: followRequest.followeeId,
+        })
+        .returning();
+
+      // Update followersCount and followingCount
+      await tx
+        .update(table.user)
+        .set({
+          followersCount: sql`${table.user.followersCount} + 1`,
+        })
+        .where(eq(table.user.id, followRequest.followeeId));
+
+      await tx
+        .update(table.user)
+        .set({
+          followingCount: sql`${table.user.followingCount} + 1`,
+        })
+        .where(eq(table.user.id, followRequest.followerId));
+    }
+
+    return updatedRequest;
+  });
+
+  return updatedRequest;
 };

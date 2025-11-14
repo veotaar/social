@@ -16,6 +16,7 @@ export const followRequestStatus = pgEnum("follow_request_status", [
   "pending",
   "accepted",
   "rejected",
+  "cancelled",
 ]);
 
 const followRequest = pgTable(

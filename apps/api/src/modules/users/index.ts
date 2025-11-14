@@ -1,7 +1,12 @@
 import { db as model } from "@api/db/model";
 import { Elysia, NotFoundError, t } from "elysia";
 import { betterAuth } from "../auth";
-import { getUserById, editUserProfile, createFollowRequest } from "./service";
+import {
+  getUserById,
+  editUserProfile,
+  createFollowRequest,
+  updateFollowRequestStatus,
+} from "./service";
 
 const { user } = model.select;
 
@@ -50,5 +55,27 @@ export const usersRoute = new Elysia()
       });
 
       return followRequest;
+    },
+  )
+  .put(
+    "/users/:userid/follow-requests/:followRequestId/status",
+    async ({ user, params: { userid, followRequestId }, body }) => {
+      const updatedFollowRequest = await updateFollowRequestStatus({
+        currentUserId: user.id,
+        targetUserId: userid,
+        followRequestId,
+        newStatus: body.status,
+      });
+
+      return updatedFollowRequest;
+    },
+    {
+      body: t.Object({
+        status: t.Union([
+          t.Literal("accepted"),
+          t.Literal("rejected"),
+          t.Literal("cancelled"),
+        ]),
+      }),
     },
   );
