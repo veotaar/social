@@ -1,6 +1,6 @@
 import db from "@api/db/db";
 import { table } from "@api/db/model";
-import { block, like, post, user } from "@api/db/schema";
+import { block, like, post, user, follow } from "@api/db/schema";
 import { and, or, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 import { auth } from "@api/lib/auth";
 import { NotFoundError } from "elysia";
@@ -34,9 +34,24 @@ export const getUserById = async ({
       commentsCount: user.commentsCount,
       createdAt: user.createdAt,
       banned: user.banned,
+      isFollowing: sql<boolean>`CASE WHEN ${follow.id} IS NOT NULL THEN true ELSE false END`,
+      isFollowedBy: sql<boolean>`CASE WHEN follow_back.id IS NOT NULL THEN true ELSE false END`,
     })
     .from(table.user)
+    .leftJoin(
+      follow,
+      and(eq(follow.followerId, currentUserId), eq(follow.followeeId, user.id)),
+    )
+    .leftJoin(
+      sql`${follow} AS follow_back`,
+      and(
+        eq(sql`follow_back.follower_id`, user.id),
+        eq(sql`follow_back.followee_id`, currentUserId),
+      ),
+    )
     .where(eq(user.id, id));
+
+  if (!foundUser) return null;
 
   return foundUser;
 };
