@@ -1,7 +1,7 @@
 import { db as model } from "@api/db/model";
 import { Elysia, NotFoundError, t } from "elysia";
 import { betterAuth } from "../auth";
-import { getUserById, editUserProfile } from "./service";
+import { getUserById, editUserProfile, createFollowRequest } from "./service";
 
 const { user } = model.select;
 
@@ -38,5 +38,17 @@ export const usersRoute = new Elysia()
         bio: t.Optional(t.String()),
         image: t.Optional(t.Union([t.String(), t.Null()])),
       }),
+    },
+  )
+  .post(
+    "/users/:userid/follow-requests",
+    async ({ user, params: { userid } }) => {
+      const followRequest = await createFollowRequest({
+        currentUserId: user.id,
+        followerId: user.id,
+        followeeId: userid,
+      });
+
+      return followRequest;
     },
   );

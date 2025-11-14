@@ -27,10 +27,10 @@ const followRequest = pgTable(
     followerId: text("follower_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    followingId: text("following_id")
+    followeeId: text("followee_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    status: followRequestStatus("status").default("pending"),
+    status: followRequestStatus("status").default("pending").notNull(),
     createdAt: timestamp("created_at", { mode: "string" })
       .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
       .notNull(),
@@ -39,12 +39,12 @@ const followRequest = pgTable(
       .notNull(),
   },
   (table) => [
-    uniqueIndex("follow_requests_follower_following_idx").on(
+    uniqueIndex("follow_requests_follower_followee_idx").on(
       table.followerId,
-      table.followingId,
+      table.followeeId,
     ),
     index("follow_requests_follower_id_idx").on(table.followerId),
-    index("follow_requests_following_id_idx").on(table.followingId),
+    index("follow_requests_followee_id_idx").on(table.followeeId),
     index("follow_requests_status_idx").on(table.status),
   ],
 );
@@ -58,7 +58,7 @@ export const followRequestRelations = relations(
       relationName: "sentFollowRequests",
     }),
     following: one(user, {
-      fields: [followRequest.followingId],
+      fields: [followRequest.followeeId],
       references: [user.id],
       relationName: "receivedFollowRequests",
     }),

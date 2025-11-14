@@ -97,3 +97,40 @@ export const editUserProfile = async ({
 
   return user;
 };
+
+export const createFollowRequest = async ({
+  currentUserId,
+  followerId,
+  followeeId,
+}: {
+  currentUserId: string;
+  followerId: string;
+  followeeId: string;
+}) => {
+  if (currentUserId !== followerId) return null;
+
+  const [existingRequest] = await db
+    .select()
+    .from(table.followRequest)
+    .where(
+      and(
+        eq(table.followRequest.followerId, followerId),
+        eq(table.followRequest.followeeId, followeeId),
+        eq(table.followRequest.status, "pending"),
+      ),
+    );
+
+  if (existingRequest) {
+    throw new ConflictError("Follow request already exists");
+  }
+
+  const [followRequest] = await db
+    .insert(table.followRequest)
+    .values({
+      followerId,
+      followeeId,
+    })
+    .returning();
+
+  return followRequest;
+};
