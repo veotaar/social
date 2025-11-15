@@ -17,6 +17,9 @@ const app = new Elysia()
       allowedHeaders: ["Content-Type", "Authorization"],
     }),
   )
+  .onRequest(({ request }) => {
+    console.log(`${request.method} ${request.url}`);
+  })
   .use(betterAuth)
   .use(
     swagger({

@@ -40,10 +40,6 @@ const followRequest = pgTable(
       .notNull(),
   },
   (table) => [
-    uniqueIndex("follow_requests_follower_followee_idx").on(
-      table.followerId,
-      table.followeeId,
-    ),
     index("follow_requests_follower_id_idx").on(table.followerId),
     index("follow_requests_followee_id_idx").on(table.followeeId),
     index("follow_requests_status_idx").on(table.status),

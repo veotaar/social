@@ -71,6 +71,13 @@ export const usersRoute = new Elysia()
       return followRequests;
     },
   )
+  .guard({
+    auth: true,
+    params: t.Object({
+      userid: user.id,
+      followRequestId: t.String(),
+    }),
+  })
   .put(
     "/users/:userid/followRequests/:followRequestId/status",
     async ({ user, params: { userid, followRequestId }, body }) => {
