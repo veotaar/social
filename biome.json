@@ -27,7 +27,9 @@
     "rules": {
       "recommended": true,
       "correctness": {
-        "noChildrenProp": "off"
+        "noChildrenProp": "off",
+        "useExhaustiveDependencies": "error",
+        "useHookAtTopLevel": "error"
       },
       "nursery": {
         "useSortedClasses": {
