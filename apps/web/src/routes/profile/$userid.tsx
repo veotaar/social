@@ -4,6 +4,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { useSession } from "@web/lib/auth-client";
 import { UserPen } from "lucide-react";
 import Avatar from "@web/components/avatar/Avatar";
+import FollowButton from "@web/components/follow-button/FollowButton";
 
 export const Route = createFileRoute("/profile/$userid")({
   component: RouteComponent,
@@ -57,6 +58,11 @@ function RouteComponent() {
                   <UserPen className="h-4 w-4" />
                   Edit Profile
                 </Link>
+              )}
+              {!isOwnProfile && (
+                <div>
+                  <FollowButton userId={userid} isFollowedBy isFollowing />
+                </div>
               )}
             </div>
 
