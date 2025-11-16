@@ -6,6 +6,7 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Navbar } from "@web/components/Navbar";
+import { Sidebar } from "@web/components/sidebar/Sidebar";
 import type { QueryClient } from "@tanstack/react-query";
 
 export const Route = createRootRouteWithContext<{
@@ -17,9 +18,14 @@ export const Route = createRootRouteWithContext<{
 function RootComponent() {
   return (
     <>
-      <Navbar />
-      <Outlet />
-      <TanStackRouterDevtools />
+      <div className="flex max-h-svh">
+        <Sidebar />
+        <div className="grow overflow-scroll">
+          <Outlet />
+        </div>
+      </div>
+      {/* <Navbar /> */}
+      {/* <TanStackRouterDevtools /> */}
       <ReactQueryDevtools />
     </>
   );
