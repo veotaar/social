@@ -2,6 +2,10 @@ import db from "@api/db/db";
 import { table } from "@api/db/model";
 import { and, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 import { getPost } from "../service";
+import {
+  createNotification,
+  removeNotification,
+} from "@api/modules/users/notifications/service";
 
 export const getCommentLikes = async ({
   userId,
@@ -162,6 +166,15 @@ export const likePost = async ({
 
   const updatedPost = await getPost({ postId, currentUserId: userId });
 
+  if (updatedPost?.author) {
+    await createNotification({
+      senderId: userId,
+      recipientId: updatedPost.author.id,
+      postId: postId,
+      type: "like",
+    });
+  }
+
   return updatedPost;
 };
 
@@ -196,7 +209,15 @@ export const unlikePost = async ({
   //   .where(eq(table.post.id, postId));
   //
   const updatedPost = await getPost({ postId, currentUserId: userId });
-  //
+
+  if (updatedPost?.author) {
+    await removeNotification({
+      senderId: userId,
+      recipientId: updatedPost.author.id,
+      postId: postId,
+      type: "like",
+    });
+  }
 
   return updatedPost;
   // return { ...deleted, likesCount: post?.likesCount ?? 0 };
@@ -234,6 +255,13 @@ export const likeComment = async ({
     .select()
     .from(table.comment)
     .where(eq(table.comment.id, commentId));
+
+  await createNotification({
+    senderId: userId,
+    recipientId: comment.authorId,
+    commentId: commentId,
+    type: "like",
+  });
 
   return comment;
 };
@@ -276,6 +304,13 @@ export const unlikeComment = async ({
     .select()
     .from(table.comment)
     .where(eq(table.comment.id, commentId));
+
+  await removeNotification({
+    senderId: userId,
+    recipientId: comment.authorId,
+    commentId: commentId,
+    type: "like",
+  });
 
   return comment;
 };

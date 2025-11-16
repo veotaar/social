@@ -13,6 +13,7 @@ import post from "./post";
 import comment from "./comment";
 import share from "./share";
 import followRequest from "./followRequest";
+import follow from "./follow";
 import { uuidv7 } from "uuidv7";
 
 export const notificationType = pgEnum("notification_type", [
@@ -20,6 +21,7 @@ export const notificationType = pgEnum("notification_type", [
   "comment",
   "follow",
   "follow_request",
+  "follow_accepted",
   "mention",
   "share",
 ]);
@@ -33,9 +35,11 @@ const notification = pgTable(
     recipientId: text("recipient_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    senderId: text("sender_id").references(() => user.id, {
-      onDelete: "cascade",
-    }),
+    senderId: text("sender_id")
+      .notNull()
+      .references(() => user.id, {
+        onDelete: "cascade",
+      }),
     type: notificationType("type").notNull(),
     postId: text("post_id").references(() => post.id, {
       onDelete: "cascade",
@@ -47,13 +51,20 @@ const notification = pgTable(
       () => followRequest.id,
       { onDelete: "cascade" },
     ),
+    followId: text("follow_id").references(() => follow.id, {
+      onDelete: "cascade",
+    }),
     shareId: text("share_id").references(() => share.id, {
       onDelete: "cascade",
     }),
-    isRead: boolean("is_read").default(false),
+    isRead: boolean("is_read").default(false).notNull(),
     createdAt: timestamp("created_at", { mode: "string" })
       .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
       .notNull(),
+    updatedAt: timestamp("updated_at", { mode: "string" })
+      .default(sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`)
+      .notNull(),
+    deletedAt: timestamp("deleted_at"),
   },
   (table) => [
     index("notifications_recipient_id_idx").on(table.recipientId),
@@ -61,6 +72,7 @@ const notification = pgTable(
     index("notifications_type_idx").on(table.type),
     index("notifications_is_read_idx").on(table.isRead),
     index("notifications_created_at_idx").on(table.createdAt),
+    index("notifications_is_deleted_idx").on(table.deletedAt),
   ],
 );
 
@@ -86,6 +98,10 @@ export const notificationRelations = relations(notification, ({ one }) => ({
   followRequest: one(followRequest, {
     fields: [notification.followRequestId],
     references: [followRequest.id],
+  }),
+  follow: one(follow, {
+    fields: [notification.followId],
+    references: [follow.id],
   }),
   share: one(share, {
     fields: [notification.shareId],

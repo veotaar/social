@@ -5,6 +5,10 @@ import { and, or, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 import { auth } from "@api/lib/auth";
 import { NotFoundError } from "elysia";
 import { ConflictError, ForbiddenError } from "@api/lib/error";
+import {
+  createNotification,
+  removeNotification,
+} from "@api/modules/users/notifications/service";
 
 export const getUserById = async ({
   id,
@@ -156,6 +160,13 @@ export const createFollowRequest = async ({
     })
     .returning();
 
+  await createNotification({
+    senderId: followerId,
+    recipientId: followeeId,
+    followRequestId: followRequest.id,
+    type: "follow_request",
+  });
+
   return followRequest;
 };
 
@@ -226,6 +237,23 @@ export const updateFollowRequestStatus = async ({
           followingCount: sql`${table.user.followingCount} + 1`,
         })
         .where(eq(table.user.id, followRequest.followerId));
+
+      // Create notification for accepted follow request
+      await createNotification({
+        senderId: followRequest.followeeId,
+        recipientId: followRequest.followerId,
+        followId: followRequest.id,
+        type: "follow_accepted",
+      });
+    }
+
+    if (newStatus === "cancelled") {
+      await removeNotification({
+        senderId: followRequest.followerId,
+        recipientId: followRequest.followeeId,
+        followRequestId: followRequest.id,
+        type: "follow_request",
+      });
     }
 
     return updatedRequest;

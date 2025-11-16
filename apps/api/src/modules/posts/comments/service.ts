@@ -2,6 +2,10 @@ import db from "@api/db/db";
 import { table } from "@api/db/model";
 import { block, comment, like, post, user } from "@api/db/schema";
 import { and, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
+import {
+  createNotification,
+  removeNotification,
+} from "@api/modules/users/notifications/service";
 
 export const createComment = async ({
   userId,
@@ -17,7 +21,7 @@ export const createComment = async ({
   imageUrl?: string | null;
 }) => {
   const postExists = await db
-    .select({ id: post.id })
+    .select({ id: post.id, authorId: post.authorId })
     .from(post)
     .where(and(eq(post.id, postId), isNull(post.deletedAt)));
   if (postExists.length === 0) return null;
@@ -44,6 +48,13 @@ export const createComment = async ({
     .set({ commentsCount: sql`${table.user.commentsCount} + 1` })
     .where(eq(table.user.id, userId));
 
+  await createNotification({
+    senderId: userId,
+    recipientId: postExists[0].authorId,
+    postId: postId,
+    type: "comment",
+  });
+
   return created;
 };
 
@@ -57,7 +68,11 @@ export const deleteComment = async ({
   userId: string;
 }) => {
   const [existing] = await db
-    .select({ id: comment.id, postId: comment.postId })
+    .select({
+      id: comment.id,
+      postId: comment.postId,
+      postAuthorId: post.authorId,
+    })
     .from(comment)
     .where(
       and(
@@ -65,7 +80,9 @@ export const deleteComment = async ({
         eq(comment.authorId, userId),
         isNull(comment.deletedAt),
       ),
-    );
+    )
+    .leftJoin(post, eq(comment.postId, post.id));
+
   if (!existing) return null;
   if (existing.postId !== postId) return null;
 
@@ -84,6 +101,15 @@ export const deleteComment = async ({
     .update(table.user)
     .set({ commentsCount: sql`${table.user.commentsCount} - 1` })
     .where(eq(table.user.id, userId));
+
+  if (existing.postAuthorId) {
+    await removeNotification({
+      senderId: userId,
+      recipientId: existing.postAuthorId,
+      postId: postId,
+      type: "comment",
+    });
+  }
 
   return true;
 };
