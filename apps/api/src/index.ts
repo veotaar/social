@@ -18,7 +18,12 @@ const app = new Elysia()
     }),
   )
   .onRequest(({ request }) => {
-    console.log(`${request.method} ${request.url}`);
+    if (request.method === "OPTIONS" || env.NODE_ENV === "production") {
+      return;
+    }
+    if (request.url.endsWith("/api/get-session")) {
+      console.log(Date.now(), "+++++++ [SESSION REQUEST] ++++++");
+    }
   })
   .use(betterAuth)
   .use(
