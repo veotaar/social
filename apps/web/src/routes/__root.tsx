@@ -8,10 +8,14 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Navbar } from "@web/components/Navbar";
 import { Sidebar } from "@web/components/sidebar/Sidebar";
 import type { QueryClient } from "@tanstack/react-query";
+import type { AuthContextType } from "@web/lib/auth-context";
 
-export const Route = createRootRouteWithContext<{
+type RootRouteContext = {
   queryClient: QueryClient;
-}>()({
+  auth: AuthContextType;
+};
+
+export const Route = createRootRouteWithContext<RootRouteContext>()({
   component: RootComponent,
 });
 

@@ -1,0 +1,43 @@
+import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { AuthProvider, useAuth } from "@web/lib/auth-context";
+
+// Import the generated route tree
+import { routeTree } from "./routeTree.gen";
+
+const queryClient = new QueryClient();
+
+// Create a new router instance
+const router = createRouter({
+  routeTree,
+  context: {
+    // biome-ignore lint/style/noNonNullAssertion: e
+    auth: undefined!,
+    queryClient,
+  },
+  defaultPreload: "intent",
+  scrollRestoration: true,
+  defaultViewTransition: true,
+});
+
+// Register the router instance for type safety
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+const InnerApp = () => {
+  const auth = useAuth();
+  return <RouterProvider router={router} context={{ auth }} />;
+};
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+      <InnerApp />
+    </AuthProvider>
+  </QueryClientProvider>
+);
+
+export default App;

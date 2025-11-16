@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useSession } from "@web/lib/auth-client";
 import { client } from "@web/lib/api-client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,6 +8,14 @@ import { useForm } from "@tanstack/react-form";
 import FieldInfo from "@web/components/FieldInfo";
 
 export const Route = createFileRoute("/profile/edit")({
+  beforeLoad: async ({ context: { auth } }) => {
+    if (!auth.isAuthenticated) {
+      throw redirect({
+        to: "/login",
+        search: { redirect: "/profile/edit" },
+      });
+    }
+  },
   component: RouteComponent,
 });
 
@@ -22,26 +30,21 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 function RouteComponent() {
-  const { data: sessionData } = useSession();
+  const { auth } = Route.useRouteContext();
+
+  // biome-ignore lint/style/noNonNullAssertion: session is checked in beforeLoad
+  const sessionData = auth.session!;
+
   const queryClient = useQueryClient();
   const navigate = Route.useNavigate();
 
-  if (!sessionData) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-base-200">
-        <div className="alert alert-warning">
-          <span>Please log in to edit your profile.</span>
-        </div>
-      </div>
-    );
-  }
-
   const { data: userData, isLoading } = useQuery({
     enabled: !!sessionData,
-    queryKey: ["user", sessionData.user.id],
+    queryKey: ["user", sessionData?.user.id],
     queryFn: async () => {
       const { data, error } = await client
-        .users({ userid: sessionData.user.id })
+        // biome-ignore lint/style/noNonNullAssertion: query only runs if sessionData is defined
+        .users({ userid: sessionData!.user.id })
         .get();
       if (error) throw error.status;
       return data;

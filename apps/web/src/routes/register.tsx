@@ -1,14 +1,24 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 import { signUp } from "@web/lib/auth-client";
-import z from "zod/v4";
+import { zodValidator } from "@tanstack/zod-adapter";
+import { z } from "zod";
+import FieldInfo from "../components/FieldInfo";
 import GuestLoginButton from "@web/components/guest-login-button/GuestLogin";
 
-import FieldInfo from "../components/FieldInfo";
+const registerSearchSchema = z.object({
+  redirect: z.string().default("/"),
+});
 
 export const Route = createFileRoute("/register")({
+  validateSearch: zodValidator(registerSearchSchema),
+  beforeLoad: ({ search, context: { auth } }) => {
+    if (auth.isAuthenticated) {
+      throw redirect({ to: search.redirect });
+    }
+  },
   component: RegisterComponent,
 });
 

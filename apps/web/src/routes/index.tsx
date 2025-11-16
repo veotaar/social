@@ -54,7 +54,7 @@ function Index() {
   }
 
   return (
-    <div className="m-auto h-full w-4xl p-2">
+    <div className="m-auto mt-12 h-full max-w-3xl p-2">
       <PostWriter />
       <PostFeed />
     </div>
