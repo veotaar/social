@@ -91,6 +91,10 @@ export const createNotification = async ({
   followId?: string;
   type: "follow_request" | "like" | "comment" | "follow" | "follow_accepted";
 }) => {
+  if (senderId === recipientId) {
+    return null;
+  }
+
   const [newNotification] = await db
     .insert(table.notification)
     .values({
