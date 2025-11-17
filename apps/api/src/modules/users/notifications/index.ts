@@ -1,11 +1,12 @@
 import { db as model } from "@api/db/model";
-import { Elysia, NotFoundError, t } from "elysia";
+import { Elysia, NotFoundError, t, status } from "elysia";
 import { betterAuth } from "@api/modules/auth";
 import {
   getNotifications,
   markNotificationAsRead,
   markNotificationAsUnread,
   markNotificationsAsRead,
+  deleteNotification,
 } from "./service";
 import { ForbiddenError } from "@api/lib/error";
 
@@ -66,6 +67,25 @@ export const notificationsRoute = new Elysia()
       notificationid: t.String(),
     }),
   })
+  .delete(
+    "/users/:userid/notifications/:notificationid",
+    async ({ user, params: { userid, notificationid } }) => {
+      if (user.id !== userid) {
+        throw new ForbiddenError("Access denied");
+      }
+
+      const deleted = await deleteNotification({
+        notificationId: notificationid,
+        currentUserId: userid,
+      });
+
+      if (!deleted) {
+        throw new NotFoundError("Notification not found");
+      }
+
+      return status(204);
+    },
+  )
   .put(
     "/users/:userid/notifications/:notificationid/read",
     async ({ user, params: { userid, notificationid } }) => {

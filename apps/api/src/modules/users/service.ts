@@ -245,6 +245,13 @@ export const updateFollowRequestStatus = async ({
         followId: followRequest.id,
         type: "follow_accepted",
       });
+
+      await removeNotification({
+        senderId: followRequest.followerId,
+        recipientId: followRequest.followeeId,
+        followRequestId: followRequest.id,
+        type: "follow_accepted",
+      });
     }
 
     if (newStatus === "cancelled") {

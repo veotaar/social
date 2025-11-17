@@ -181,6 +181,25 @@ export const removeNotification = async ({
         ),
       );
   }
+
+  if (type === "follow_accepted" && followRequestId) {
+    return await db
+      .update(table.notification)
+      .set({
+        deletedAt: sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')`,
+        isRead: true,
+      })
+      .where(
+        and(
+          eq(table.notification.senderId, senderId),
+          eq(table.notification.recipientId, recipientId),
+          eq(table.notification.followRequestId, followRequestId),
+          eq(table.notification.type, type),
+        ),
+      );
+  }
+
+  return null;
 };
 
 export const markNotificationAsRead = async ({
@@ -286,4 +305,46 @@ export const markNotificationsAsRead = async ({
     .returning();
 
   return updatedNotifications;
+};
+
+export const deleteNotification = async ({
+  notificationId,
+  currentUserId,
+}: {
+  notificationId: string;
+  currentUserId: string;
+}) => {
+  // check if notification exists and belongs to current user
+  const [existingNotification] = await db
+    .select({
+      id: table.notification.id,
+      recipientId: table.notification.recipientId,
+    })
+    .from(table.notification)
+    .where(
+      and(
+        eq(table.notification.id, notificationId),
+        eq(table.notification.recipientId, currentUserId),
+      ),
+    );
+
+  if (
+    !existingNotification ||
+    existingNotification.recipientId !== currentUserId
+  ) {
+    return null;
+  }
+
+  const deletedNotification = await db
+    .update(table.notification)
+    .set({ deletedAt: sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')` })
+    .where(
+      and(
+        eq(table.notification.id, notificationId),
+        eq(table.notification.recipientId, currentUserId),
+      ),
+    )
+    .returning();
+
+  return deletedNotification;
 };
