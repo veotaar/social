@@ -1,7 +1,7 @@
 import db from "@api/db/db";
 import { table } from "@api/db/model";
 import { user } from "@api/db/schema";
-import { and, desc, eq, isNull, lt, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, lt, sql } from "drizzle-orm";
 
 export const INITIAL_CURSOR = "initial";
 
@@ -177,4 +177,109 @@ export const removeNotification = async ({
         ),
       );
   }
+};
+
+export const markNotificationAsRead = async ({
+  notificationId,
+  currentUserId,
+}: {
+  notificationId: string;
+  currentUserId: string;
+}) => {
+  // check if notification exists and belongs to current user
+  const [existingNotification] = await db
+    .select({
+      id: table.notification.id,
+      recipientId: table.notification.recipientId,
+    })
+    .from(table.notification)
+    .where(
+      and(
+        eq(table.notification.id, notificationId),
+        eq(table.notification.recipientId, currentUserId),
+      ),
+    );
+
+  if (
+    !existingNotification ||
+    existingNotification.recipientId !== currentUserId
+  ) {
+    return null;
+  }
+
+  const [updatedNotification] = await db
+    .update(table.notification)
+    .set({ isRead: true })
+    .where(
+      and(
+        eq(table.notification.id, notificationId),
+        eq(table.notification.recipientId, currentUserId),
+      ),
+    )
+    .returning();
+
+  return updatedNotification;
+};
+
+export const markNotificationAsUnread = async ({
+  notificationId,
+  currentUserId,
+}: {
+  notificationId: string;
+  currentUserId: string;
+}) => {
+  // check if notification exists and belongs to current user
+  const [existingNotification] = await db
+    .select({
+      id: table.notification.id,
+      recipientId: table.notification.recipientId,
+    })
+    .from(table.notification)
+    .where(
+      and(
+        eq(table.notification.id, notificationId),
+        eq(table.notification.recipientId, currentUserId),
+      ),
+    );
+
+  if (
+    !existingNotification ||
+    existingNotification.recipientId !== currentUserId
+  ) {
+    return null;
+  }
+
+  const [updatedNotification] = await db
+    .update(table.notification)
+    .set({ isRead: false })
+    .where(
+      and(
+        eq(table.notification.id, notificationId),
+        eq(table.notification.recipientId, currentUserId),
+      ),
+    )
+    .returning();
+
+  return updatedNotification;
+};
+
+export const markNotificationsAsRead = async ({
+  notificationIds,
+  currentUserId,
+}: {
+  notificationIds: string[];
+  currentUserId: string;
+}) => {
+  const updatedNotifications = await db
+    .update(table.notification)
+    .set({ isRead: true })
+    .where(
+      and(
+        eq(table.notification.recipientId, currentUserId),
+        inArray(table.notification.id, notificationIds),
+      ),
+    )
+    .returning();
+
+  return updatedNotifications;
 };
