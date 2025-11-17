@@ -80,7 +80,7 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
 
           <div>
             <Link
-              to="/profile/$userid"
+              to="/users/$userid"
               params={{ userid: author.id }}
               resetScroll={true}
             >

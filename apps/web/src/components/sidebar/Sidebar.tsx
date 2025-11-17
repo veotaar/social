@@ -75,15 +75,17 @@ export function Sidebar() {
               <span>Home</span>
             </Link>
 
-            <Link
-              to="/notifications"
-              className="btn btn-ghost justify-start gap-3"
-              activeProps={{ className: "btn-active" }}
-              onClick={closeMenu}
-            >
-              <Bell size={20} />
-              <span>Notifications</span>
-            </Link>
+            {session.data && (
+              <Link
+                to="/notifications"
+                className="btn btn-ghost justify-start gap-3"
+                activeProps={{ className: "btn-active" }}
+                onClick={closeMenu}
+              >
+                <Bell size={20} />
+                <span>Notifications</span>
+              </Link>
+            )}
 
             <Link
               to="/bookmarks"
@@ -99,7 +101,7 @@ export function Sidebar() {
           <div className="flex flex-col gap-2">
             {session.data && (
               <Link
-                to="/profile/$userid"
+                to="/users/$userid"
                 params={{ userid: session.data.user.id }}
                 className="btn btn-ghost justify-start gap-3"
                 activeProps={{ className: "btn-active" }}

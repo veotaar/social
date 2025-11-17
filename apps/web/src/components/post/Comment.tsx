@@ -34,7 +34,7 @@ const Comment = ({ comment, author }: CommentProps) => {
 
       <div>
         <div className="flex items-center gap-2">
-          <Link to="/profile/$userid" params={{ userid: author.id }}>
+          <Link to="/users/$userid" params={{ userid: author.id }}>
             <div className="group/comment-author flex gap-2">
               <p className="group-hover/comment-author:text-primary">
                 {author.displayUsername}

@@ -6,7 +6,7 @@ import { UserPen } from "lucide-react";
 import Avatar from "@web/components/avatar/Avatar";
 import FollowButton from "@web/components/follow-button/FollowButton";
 
-export const Route = createFileRoute("/profile/$userid")({
+export const Route = createFileRoute("/users/$userid/")({
   component: RouteComponent,
   loader: async ({ params: { userid }, context: { queryClient } }) => {
     return queryClient.ensureQueryData({
@@ -54,7 +54,7 @@ function RouteComponent() {
               </div>
 
               {isOwnProfile && (
-                <Link to="/profile/edit" className="btn btn-outline gap-2">
+                <Link to="/users/edit" className="btn btn-outline gap-2">
                   <UserPen className="h-4 w-4" />
                   Edit Profile
                 </Link>

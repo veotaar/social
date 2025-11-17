@@ -7,12 +7,12 @@ import z from "zod/v4";
 import { useForm } from "@tanstack/react-form";
 import FieldInfo from "@web/components/FieldInfo";
 
-export const Route = createFileRoute("/profile/edit")({
+export const Route = createFileRoute("/users/edit")({
   beforeLoad: async ({ context: { auth } }) => {
     if (!auth.isAuthenticated) {
       throw redirect({
         to: "/login",
-        search: { redirect: "/profile/edit" },
+        search: { redirect: "/users/edit" },
       });
     }
   },
@@ -81,7 +81,7 @@ function RouteComponent() {
         queryKey: ["user", sessionData.user.id],
       });
       await navigate({
-        to: `/profile/${sessionData.user.id}`,
+        to: `/users/${sessionData.user.id}`,
         reloadDocument: true,
       });
     },
@@ -280,7 +280,7 @@ function RouteComponent() {
                 type="button"
                 className="btn btn-ghost flex-1"
                 onClick={() =>
-                  navigate({ to: `/profile/${sessionData.user.id}` })
+                  navigate({ to: `/users/${sessionData.user.id}` })
                 }
                 disabled={updateUserMutation.isPending}
               >

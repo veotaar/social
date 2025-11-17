@@ -16,8 +16,8 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProfileEditRouteImport } from './routes/profile/edit'
-import { Route as ProfileUseridRouteImport } from './routes/profile/$userid'
+import { Route as UsersEditRouteImport } from './routes/users/edit'
+import { Route as UsersUseridIndexRouteImport } from './routes/users/$userid/index'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -54,14 +54,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProfileEditRoute = ProfileEditRouteImport.update({
-  id: '/profile/edit',
-  path: '/profile/edit',
+const UsersEditRoute = UsersEditRouteImport.update({
+  id: '/users/edit',
+  path: '/users/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProfileUseridRoute = ProfileUseridRouteImport.update({
-  id: '/profile/$userid',
-  path: '/profile/$userid',
+const UsersUseridIndexRoute = UsersUseridIndexRouteImport.update({
+  id: '/users/$userid/',
+  path: '/users/$userid/',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -73,8 +73,8 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof NotificationsRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
-  '/profile/$userid': typeof ProfileUseridRoute
-  '/profile/edit': typeof ProfileEditRoute
+  '/users/edit': typeof UsersEditRoute
+  '/users/$userid': typeof UsersUseridIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -84,8 +84,8 @@ export interface FileRoutesByTo {
   '/notifications': typeof NotificationsRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
-  '/profile/$userid': typeof ProfileUseridRoute
-  '/profile/edit': typeof ProfileEditRoute
+  '/users/edit': typeof UsersEditRoute
+  '/users/$userid': typeof UsersUseridIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -96,8 +96,8 @@ export interface FileRoutesById {
   '/notifications': typeof NotificationsRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
-  '/profile/$userid': typeof ProfileUseridRoute
-  '/profile/edit': typeof ProfileEditRoute
+  '/users/edit': typeof UsersEditRoute
+  '/users/$userid/': typeof UsersUseridIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -109,8 +109,8 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/register'
     | '/settings'
-    | '/profile/$userid'
-    | '/profile/edit'
+    | '/users/edit'
+    | '/users/$userid'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -120,8 +120,8 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/register'
     | '/settings'
-    | '/profile/$userid'
-    | '/profile/edit'
+    | '/users/edit'
+    | '/users/$userid'
   id:
     | '__root__'
     | '/'
@@ -131,8 +131,8 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/register'
     | '/settings'
-    | '/profile/$userid'
-    | '/profile/edit'
+    | '/users/edit'
+    | '/users/$userid/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -143,8 +143,8 @@ export interface RootRouteChildren {
   NotificationsRoute: typeof NotificationsRoute
   RegisterRoute: typeof RegisterRoute
   SettingsRoute: typeof SettingsRoute
-  ProfileUseridRoute: typeof ProfileUseridRoute
-  ProfileEditRoute: typeof ProfileEditRoute
+  UsersEditRoute: typeof UsersEditRoute
+  UsersUseridIndexRoute: typeof UsersUseridIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -198,18 +198,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/profile/edit': {
-      id: '/profile/edit'
-      path: '/profile/edit'
-      fullPath: '/profile/edit'
-      preLoaderRoute: typeof ProfileEditRouteImport
+    '/users/edit': {
+      id: '/users/edit'
+      path: '/users/edit'
+      fullPath: '/users/edit'
+      preLoaderRoute: typeof UsersEditRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/profile/$userid': {
-      id: '/profile/$userid'
-      path: '/profile/$userid'
-      fullPath: '/profile/$userid'
-      preLoaderRoute: typeof ProfileUseridRouteImport
+    '/users/$userid/': {
+      id: '/users/$userid/'
+      path: '/users/$userid'
+      fullPath: '/users/$userid'
+      preLoaderRoute: typeof UsersUseridIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -223,8 +223,8 @@ const rootRouteChildren: RootRouteChildren = {
   NotificationsRoute: NotificationsRoute,
   RegisterRoute: RegisterRoute,
   SettingsRoute: SettingsRoute,
-  ProfileUseridRoute: ProfileUseridRoute,
-  ProfileEditRoute: ProfileEditRoute,
+  UsersEditRoute: UsersEditRoute,
+  UsersUseridIndexRoute: UsersUseridIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

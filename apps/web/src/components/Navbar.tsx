@@ -59,7 +59,7 @@ export function Navbar() {
                 <ul className="menu menu-md dropdown-content z-1 mt-3 w-52 rounded-box bg-base-100 p-2 shadow">
                   <li>
                     <Link
-                      to="/profile/$userid"
+                      to="/users/$userid"
                       params={{ userid: session.data.user.id }}
                     >
                       Profile
