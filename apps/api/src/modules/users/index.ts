@@ -9,7 +9,7 @@ import {
   getFollowRequests,
 } from "./service";
 import { ForbiddenError } from "@api/lib/error";
-import { notificationsRoute } from "./notifications";
+// import { notificationsRoute } from "./notifications";
 
 const { user } = model.select;
 
@@ -72,7 +72,6 @@ export const usersRoute = new Elysia()
       return followRequests;
     },
   )
-  .use(notificationsRoute)
   .guard({
     auth: true,
     params: t.Object({

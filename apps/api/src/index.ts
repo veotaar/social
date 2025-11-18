@@ -7,6 +7,7 @@ import { betterAuth } from "./modules/auth";
 import { blockRoute } from "./modules/block";
 import { postsRoute } from "./modules/posts";
 import { usersRoute } from "./modules/users";
+import { notificationsRoute } from "./modules/users/notifications";
 
 const app = new Elysia()
   .use(
@@ -38,6 +39,7 @@ const app = new Elysia()
   .use(postsRoute)
   .use(blockRoute)
   .use(usersRoute)
+  .use(notificationsRoute)
   .listen(env.PORT);
 
 export type App = typeof app;
