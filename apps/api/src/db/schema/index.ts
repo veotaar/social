@@ -7,7 +7,8 @@ export {
   followRequestRelations,
   followRequestStatus,
 } from "./followRequest";
-export { default as like, likeRelations } from "./like";
+export { default as commentLike, commentLikeRelations } from "./commentLike";
+export { default as postLike, postLikeRelations } from "./postLike";
 export {
   default as notification,
   notificationRelations,

@@ -17,7 +17,8 @@ import follow from "./follow";
 import { uuidv7 } from "uuidv7";
 
 export const notificationType = pgEnum("notification_type", [
-  "like",
+  "comment_like",
+  "post_like",
   "comment",
   "follow",
   "follow_request",

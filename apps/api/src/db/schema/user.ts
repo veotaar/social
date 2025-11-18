@@ -9,7 +9,8 @@ import {
 import { relations, sql } from "drizzle-orm";
 import post from "./post";
 import comment from "./comment";
-import like from "./like";
+import postLike from "./postLike";
+import commentLike from "./commentLike";
 import share from "./share";
 import followRequest from "./followRequest";
 import follow from "./follow";
@@ -52,7 +53,8 @@ const user = pgTable("user", {
 export const userRelations = relations(user, ({ many, one }) => ({
   posts: many(post),
   comments: many(comment),
-  likes: many(like),
+  postLikes: many(postLike),
+  commentLikes: many(commentLike),
   shares: many(share),
   sentFollowRequests: many(followRequest, {
     relationName: "sentFollowRequests",

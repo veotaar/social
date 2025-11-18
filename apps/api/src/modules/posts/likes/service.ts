@@ -27,24 +27,24 @@ export const getCommentLikes = async ({
 
   const likedBy = await db
     .select({
-      id: table.like.id,
+      id: table.commentLike.id,
       userId: table.user.id,
       username: table.user.username,
       name: table.user.name,
       image: table.user.image,
     })
-    .from(table.like)
+    .from(table.commentLike)
     .where(
       and(
-        notInArray(table.like.userId, blockedUsersSubQuery),
-        notInArray(table.like.userId, blockingUsersSubQuery),
-        eq(table.like.commentId, commentId),
-        applyCursor ? lt(table.like.id, cursor) : undefined,
+        notInArray(table.commentLike.userId, blockedUsersSubQuery),
+        notInArray(table.commentLike.userId, blockingUsersSubQuery),
+        eq(table.commentLike.commentId, commentId),
+        applyCursor ? lt(table.commentLike.id, cursor) : undefined,
       ),
     )
-    .orderBy(desc(table.like.id))
+    .orderBy(desc(table.commentLike.id))
     .limit(limit + 1)
-    .leftJoin(table.user, eq(table.user.id, table.like.userId));
+    .leftJoin(table.user, eq(table.user.id, table.commentLike.userId));
 
   let hasMore = false;
   let nextCursor: string | null = null;
@@ -90,24 +90,24 @@ export const getPostLikes = async ({
 
   const likedBy = await db
     .select({
-      id: table.like.id,
+      id: table.postLike.id,
       userId: table.user.id,
       username: table.user.username,
       name: table.user.name,
       image: table.user.image,
     })
-    .from(table.like)
+    .from(table.postLike)
     .where(
       and(
-        notInArray(table.like.userId, blockedUsersSubQuery),
-        notInArray(table.like.userId, blockingUsersSubQuery),
-        eq(table.like.postId, postId),
-        applyCursor ? lt(table.like.id, cursor) : undefined,
+        notInArray(table.postLike.userId, blockedUsersSubQuery),
+        notInArray(table.postLike.userId, blockingUsersSubQuery),
+        eq(table.postLike.postId, postId),
+        applyCursor ? lt(table.postLike.id, cursor) : undefined,
       ),
     )
-    .orderBy(desc(table.like.id))
+    .orderBy(desc(table.postLike.id))
     .limit(limit + 1)
-    .leftJoin(table.user, eq(table.user.id, table.like.userId));
+    .leftJoin(table.user, eq(table.user.id, table.postLike.userId));
 
   let hasMore = false;
   let nextCursor: string | null = null;
@@ -138,16 +138,18 @@ export const likePost = async ({
   postId,
 }: { userId: string; postId: string }) => {
   const existingLike = await db
-    .select({ id: table.like.id })
-    .from(table.like)
-    .where(and(eq(table.like.userId, userId), eq(table.like.postId, postId)));
+    .select({ id: table.postLike.id })
+    .from(table.postLike)
+    .where(
+      and(eq(table.postLike.userId, userId), eq(table.postLike.postId, postId)),
+    );
 
   if (existingLike.length > 0) {
     return null;
   }
 
   const [likeRecord] = await db
-    .insert(table.like)
+    .insert(table.postLike)
     .values({
       userId,
       postId,
@@ -171,7 +173,7 @@ export const likePost = async ({
       senderId: userId,
       recipientId: updatedPost.author.id,
       postId: postId,
-      type: "like",
+      type: "post_like",
     });
   }
 
@@ -183,17 +185,21 @@ export const unlikePost = async ({
   postId,
 }: { userId: string; postId: string }) => {
   const existingLike = await db
-    .select({ id: table.like.id })
-    .from(table.like)
-    .where(and(eq(table.like.userId, userId), eq(table.like.postId, postId)));
+    .select({ id: table.postLike.id })
+    .from(table.postLike)
+    .where(
+      and(eq(table.postLike.userId, userId), eq(table.postLike.postId, postId)),
+    );
 
   if (existingLike.length === 0) {
     return null;
   }
 
   const [deleted] = await db
-    .delete(table.like)
-    .where(and(eq(table.like.userId, userId), eq(table.like.postId, postId)))
+    .delete(table.postLike)
+    .where(
+      and(eq(table.postLike.userId, userId), eq(table.postLike.postId, postId)),
+    )
     .returning();
 
   if (deleted) {
@@ -215,7 +221,7 @@ export const unlikePost = async ({
       senderId: userId,
       recipientId: updatedPost.author.id,
       postId: postId,
-      type: "like",
+      type: "post_like",
     });
   }
 
@@ -226,12 +232,16 @@ export const unlikePost = async ({
 export const likeComment = async ({
   userId,
   commentId,
-}: { userId: string; commentId: string }) => {
+  postId,
+}: { userId: string; commentId: string; postId: string }) => {
   const existingLike = await db
-    .select({ id: table.like.id })
-    .from(table.like)
+    .select({ id: table.commentLike.id })
+    .from(table.commentLike)
     .where(
-      and(eq(table.like.userId, userId), eq(table.like.commentId, commentId)),
+      and(
+        eq(table.commentLike.userId, userId),
+        eq(table.commentLike.commentId, commentId),
+      ),
     );
 
   if (existingLike.length > 0) {
@@ -239,12 +249,15 @@ export const likeComment = async ({
   }
 
   const [likeRecord] = await db
-    .insert(table.like)
+    .insert(table.commentLike)
     .values({
       userId,
       commentId,
+      postId,
     })
     .returning();
+
+  console.log("comment-like record:", likeRecord);
 
   await db
     .update(table.comment)
@@ -260,7 +273,7 @@ export const likeComment = async ({
     senderId: userId,
     recipientId: comment.authorId,
     commentId: commentId,
-    type: "like",
+    type: "comment_like",
   });
 
   return comment;
@@ -271,10 +284,13 @@ export const unlikeComment = async ({
   commentId,
 }: { userId: string; commentId: string }) => {
   const existingLike = await db
-    .select({ id: table.like.id })
-    .from(table.like)
+    .select({ id: table.commentLike.id })
+    .from(table.commentLike)
     .where(
-      and(eq(table.like.userId, userId), eq(table.like.commentId, commentId)),
+      and(
+        eq(table.commentLike.userId, userId),
+        eq(table.commentLike.commentId, commentId),
+      ),
     );
 
   if (existingLike.length === 0) {
@@ -282,9 +298,12 @@ export const unlikeComment = async ({
   }
 
   const [deleted] = await db
-    .delete(table.like)
+    .delete(table.commentLike)
     .where(
-      and(eq(table.like.userId, userId), eq(table.like.commentId, commentId)),
+      and(
+        eq(table.commentLike.userId, userId),
+        eq(table.commentLike.commentId, commentId),
+      ),
     )
     .returning();
 
@@ -309,7 +328,7 @@ export const unlikeComment = async ({
     senderId: userId,
     recipientId: comment.authorId,
     commentId: commentId,
-    type: "like",
+    type: "comment_like",
   });
 
   return comment;

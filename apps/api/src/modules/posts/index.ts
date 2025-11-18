@@ -232,10 +232,11 @@ export const postsRoute = new Elysia()
   )
   .post(
     "/posts/:postid/comments/:commentid/likes",
-    async ({ user, params: { commentid } }) => {
+    async ({ user, params: { commentid, postid } }) => {
       const liked = await likeComment({
         userId: user.id,
         commentId: commentid,
+        postId: postid,
       });
 
       return liked;

@@ -12,7 +12,7 @@ import {
 import { relations, sql } from "drizzle-orm";
 import user from "./user";
 import post from "./post";
-import like from "./like";
+import commentLike from "./commentLike";
 import notification from "./notification";
 import { uuidv7 } from "uuidv7";
 
@@ -70,7 +70,7 @@ export const commentRelations = relations(comment, ({ one, many }) => ({
     relationName: "parentComment",
   }),
   replies: many(comment, { relationName: "parentComment" }),
-  likes: many(like),
+  likes: many(commentLike),
   notifications: many(notification),
 }));
 

@@ -20,6 +20,7 @@ export const getNotifications = async ({
     .select({
       notification: {
         id: table.notification.id,
+        recipientId: table.notification.recipientId,
         type: table.notification.type,
         postId: table.notification.postId,
         commentId: table.notification.commentId,
@@ -89,7 +90,13 @@ export const createNotification = async ({
   commentId?: string;
   followRequestId?: string;
   followId?: string;
-  type: "follow_request" | "like" | "comment" | "follow" | "follow_accepted";
+  type:
+    | "follow_request"
+    | "comment_like"
+    | "post_like"
+    | "comment"
+    | "follow"
+    | "follow_accepted";
 }) => {
   if (senderId === recipientId) {
     return null;
@@ -124,9 +131,15 @@ export const removeNotification = async ({
   postId?: string;
   commentId?: string;
   followRequestId?: string;
-  type: "follow_request" | "like" | "comment" | "follow" | "follow_accepted";
+  type:
+    | "follow_request"
+    | "comment_like"
+    | "post_like"
+    | "comment"
+    | "follow"
+    | "follow_accepted";
 }) => {
-  if (type === "like" && postId) {
+  if (type === "post_like" && postId) {
     return await db
       .update(table.notification)
       .set({ deletedAt: sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')` })
@@ -140,7 +153,7 @@ export const removeNotification = async ({
       );
   }
 
-  if (type === "like" && commentId) {
+  if (type === "comment_like" && commentId) {
     return await db
       .update(table.notification)
       .set({ deletedAt: sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')` })

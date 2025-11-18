@@ -11,7 +11,7 @@ import {
 import { relations, sql } from "drizzle-orm";
 import user from "./user";
 import comment from "./comment";
-import like from "./like";
+import postLike from "./postLike";
 import share from "./share";
 import postImage from "./postImage";
 import notification from "./notification";
@@ -66,7 +66,7 @@ export const postRelations = relations(post, ({ one, many }) => ({
   sharesOfThisPost: many(post, { relationName: "sharedPost" }),
   images: many(postImage),
   comments: many(comment),
-  likes: many(like),
+  likes: many(postLike),
   shares: many(share),
   notifications: many(notification),
 }));

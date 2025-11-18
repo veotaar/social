@@ -1,6 +1,6 @@
 import db from "@api/db/db";
 import { table } from "@api/db/model";
-import { block, like, post, user } from "@api/db/schema";
+import { block, postLike, post, user } from "@api/db/schema";
 import { and, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 
 export const createPost = async ({
@@ -55,7 +55,7 @@ export const getFeedPosts = async ({
         likesCount: post.likesCount,
         commentsCount: post.commentsCount,
         sharesCount: post.sharesCount,
-        likedByCurrentUser: sql<boolean>`CASE WHEN ${like.id} IS NOT NULL THEN true ELSE false END`,
+        likedByCurrentUser: sql<boolean>`CASE WHEN ${postLike.id} IS NOT NULL THEN true ELSE false END`,
       },
       author: {
         id: user.id,
@@ -78,8 +78,8 @@ export const getFeedPosts = async ({
     .limit(limit + 1)
     .leftJoin(user, eq(post.authorId, user.id))
     .leftJoin(
-      like,
-      and(eq(like.postId, post.id), eq(like.userId, currentUserId)),
+      postLike,
+      and(eq(postLike.postId, post.id), eq(postLike.userId, currentUserId)),
     );
 
   let hasMore = false;
@@ -132,7 +132,7 @@ export const getPost = async ({
         likesCount: post.likesCount,
         commentsCount: post.commentsCount,
         sharesCount: post.sharesCount,
-        likedByCurrentUser: sql<boolean>`CASE WHEN ${like.id} IS NOT NULL THEN true ELSE false END`,
+        likedByCurrentUser: sql<boolean>`CASE WHEN ${postLike.id} IS NOT NULL THEN true ELSE false END`,
       },
       author: {
         id: user.id,
@@ -153,8 +153,8 @@ export const getPost = async ({
     )
     .leftJoin(user, eq(post.authorId, user.id))
     .leftJoin(
-      like,
-      and(eq(like.postId, post.id), eq(like.userId, currentUserId)),
+      postLike,
+      and(eq(postLike.postId, post.id), eq(postLike.userId, currentUserId)),
     );
 
   if (result.length === 0) {

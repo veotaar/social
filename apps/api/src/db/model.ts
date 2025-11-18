@@ -11,7 +11,8 @@ import followRequest, {
   followRequestRelations,
   followRequestStatus,
 } from "./schema/followRequest";
-import like, { likeRelations } from "./schema/like";
+import postLike, { postLikeRelations } from "./schema/postLike";
+import commentLike, { commentLikeRelations } from "./schema/commentLike";
 import notification, {
   notificationRelations,
   notificationType,
@@ -42,7 +43,8 @@ export const table = {
   comment,
   follow,
   followRequest,
-  like,
+  commentLike,
+  postLike,
   notification,
   post,
   postImage,
@@ -58,7 +60,8 @@ export const table = {
   followRelations,
   followRequestRelations,
   followRequestStatus,
-  likeRelations,
+  commentLikeRelations,
+  postLikeRelations,
   notificationRelations,
   notificationType,
   postRelations,

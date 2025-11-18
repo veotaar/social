@@ -1,6 +1,6 @@
 import db from "@api/db/db";
 import { table } from "@api/db/model";
-import { block, comment, like, post, user } from "@api/db/schema";
+import { block, comment, commentLike, post, user } from "@api/db/schema";
 import { and, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 import {
   createNotification,
@@ -185,7 +185,7 @@ export const getPostComments = async ({
         likesCount: comment.likesCount,
         repliesCount: comment.repliesCount,
         parentCommentId: comment.parentCommentId,
-        likedByCurrentUser: sql<boolean>`CASE WHEN ${like.id} IS NOT NULL THEN true ELSE false END`,
+        likedByCurrentUser: sql<boolean>`CASE WHEN ${commentLike.id} IS NOT NULL THEN true ELSE false END`,
       },
       author: {
         id: user.id,
@@ -208,8 +208,11 @@ export const getPostComments = async ({
     .orderBy(desc(comment.id))
     .leftJoin(user, eq(comment.authorId, user.id))
     .leftJoin(
-      like,
-      and(eq(like.commentId, comment.id), eq(like.userId, currentUserId)),
+      commentLike,
+      and(
+        eq(commentLike.commentId, comment.id),
+        eq(commentLike.userId, currentUserId),
+      ),
     )
     .limit(limit + 1);
 
@@ -265,7 +268,7 @@ export const getSingleComment = async ({
         likesCount: comment.likesCount,
         repliesCount: comment.repliesCount,
         parentCommentId: comment.parentCommentId,
-        likedByCurrentUser: sql<boolean>`CASE WHEN ${like.id} IS NOT NULL THEN true ELSE false END`,
+        likedByCurrentUser: sql<boolean>`CASE WHEN ${commentLike.id} IS NOT NULL THEN true ELSE false END`,
       },
     })
     .from(comment)
@@ -280,8 +283,11 @@ export const getSingleComment = async ({
     )
     .leftJoin(user, eq(comment.authorId, user.id))
     .leftJoin(
-      like,
-      and(eq(like.commentId, comment.id), eq(like.userId, currentUserId)),
+      commentLike,
+      and(
+        eq(commentLike.commentId, comment.id),
+        eq(commentLike.userId, currentUserId),
+      ),
     );
 
   return row;
