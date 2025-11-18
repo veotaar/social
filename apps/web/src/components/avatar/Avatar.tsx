@@ -1,4 +1,4 @@
-import { avataaars } from "@dicebear/collection";
+import { shapes } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
 import { useMemo } from "react";
 import { cn } from "@web/lib/utils";
@@ -12,7 +12,7 @@ type AvatarProps = {
 const Avatar = ({ name, image, size }: AvatarProps) => {
   // TODO: remove useMemo later to take advantage of react compiler
   const avatar = useMemo(() => {
-    return createAvatar(avataaars, {
+    return createAvatar(shapes, {
       seed: name,
       size: 128,
       backgroundColor: ["b6e3f4", "c0aede", "d1d4f9"],

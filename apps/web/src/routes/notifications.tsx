@@ -3,6 +3,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { client } from "@web/lib/api-client";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { cn } from "@web/lib/utils";
+import NotificationList from "@web/components/notification/NotificationList";
 
 export const Route = createFileRoute("/notifications")({
   beforeLoad: async ({ context: { auth } }) => {
@@ -60,28 +61,10 @@ function RouteComponent() {
     });
 
   return (
-    <div className="m-auto mt-12 h-full max-w-3xl p-2">
+    <div className="m-auto mt-12 min-h-svh max-w-3xl p-2">
       {data?.pages.map((group) => (
         <React.Fragment key={group.pagination.nextCursor ?? "final"}>
-          {group.notifications.map((notifications) => (
-            <div
-              key={notifications.notification.id}
-              className={cn(
-                "mb-4 rounded-lg border p-4",
-                !notifications.notification.isRead && "bg-base-200",
-              )}
-            >
-              <p>
-                <strong>{notifications.sender?.displayUsername}</strong> -{" "}
-                {notifications.notification.type}
-              </p>
-              <p className="text-base-content/70 text-sm">
-                {new Date(
-                  notifications.notification.createdAt,
-                ).toLocaleString()}
-              </p>
-            </div>
-          ))}
+          <NotificationList notifications={group.notifications} />
         </React.Fragment>
       ))}
       {hasNextPage && (
