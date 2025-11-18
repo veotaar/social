@@ -272,6 +272,7 @@ export const likeComment = async ({
   await createNotification({
     senderId: userId,
     recipientId: comment.authorId,
+    postId: postId,
     commentId: commentId,
     type: "comment_like",
   });
