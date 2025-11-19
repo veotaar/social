@@ -65,6 +65,19 @@ export function Sidebar() {
       >
         <div className="flex h-full flex-col justify-between pt-16">
           <div className="flex flex-1 flex-col gap-2">
+            {session.data && (
+              <Link
+                to="/users/$userid"
+                params={{ userid: session.data.user.id }}
+                className="btn btn-ghost justify-start gap-3"
+                activeProps={{ className: "btn-active" }}
+                onClick={closeMenu}
+              >
+                <User size={20} />
+                <span>Profile</span>
+              </Link>
+            )}
+
             <Link
               to="/"
               className="btn btn-ghost justify-start gap-3"
@@ -72,7 +85,7 @@ export function Sidebar() {
               onClick={closeMenu}
             >
               <Home size={20} />
-              <span>Home</span>
+              <span>Feed</span>
             </Link>
 
             {session.data && (
@@ -99,19 +112,6 @@ export function Sidebar() {
           </div>
 
           <div className="flex flex-col gap-2">
-            {session.data && (
-              <Link
-                to="/users/$userid"
-                params={{ userid: session.data.user.id }}
-                className="btn btn-ghost justify-start gap-3"
-                activeProps={{ className: "btn-active" }}
-                onClick={closeMenu}
-              >
-                <User size={20} />
-                <span>Profile</span>
-              </Link>
-            )}
-
             <Link
               to="/settings"
               className="btn btn-ghost justify-start gap-3"

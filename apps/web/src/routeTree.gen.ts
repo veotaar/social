@@ -18,6 +18,11 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UsersEditRouteImport } from './routes/users/edit'
 import { Route as UsersUseridIndexRouteImport } from './routes/users/$userid/index'
+import { Route as PostsPostidIndexRouteImport } from './routes/posts/$postid/index'
+import { Route as UsersUseridFollowRequestsRouteImport } from './routes/users/$userid/follow-requests'
+import { Route as PostsPostidEditRouteImport } from './routes/posts/$postid/edit'
+import { Route as PostsPostidCommentsCommentidIndexRouteImport } from './routes/posts/$postid/comments/$commentid/index'
+import { Route as PostsPostidCommentsCommentidEditRouteImport } from './routes/posts/$postid/comments/$commentid/edit'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -64,6 +69,34 @@ const UsersUseridIndexRoute = UsersUseridIndexRouteImport.update({
   path: '/users/$userid/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PostsPostidIndexRoute = PostsPostidIndexRouteImport.update({
+  id: '/posts/$postid/',
+  path: '/posts/$postid/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsersUseridFollowRequestsRoute =
+  UsersUseridFollowRequestsRouteImport.update({
+    id: '/users/$userid/follow-requests',
+    path: '/users/$userid/follow-requests',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const PostsPostidEditRoute = PostsPostidEditRouteImport.update({
+  id: '/posts/$postid/edit',
+  path: '/posts/$postid/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PostsPostidCommentsCommentidIndexRoute =
+  PostsPostidCommentsCommentidIndexRouteImport.update({
+    id: '/posts/$postid/comments/$commentid/',
+    path: '/posts/$postid/comments/$commentid/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const PostsPostidCommentsCommentidEditRoute =
+  PostsPostidCommentsCommentidEditRouteImport.update({
+    id: '/posts/$postid/comments/$commentid/edit',
+    path: '/posts/$postid/comments/$commentid/edit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -74,7 +107,12 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
   '/users/edit': typeof UsersEditRoute
+  '/posts/$postid/edit': typeof PostsPostidEditRoute
+  '/users/$userid/follow-requests': typeof UsersUseridFollowRequestsRoute
+  '/posts/$postid': typeof PostsPostidIndexRoute
   '/users/$userid': typeof UsersUseridIndexRoute
+  '/posts/$postid/comments/$commentid/edit': typeof PostsPostidCommentsCommentidEditRoute
+  '/posts/$postid/comments/$commentid': typeof PostsPostidCommentsCommentidIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -85,7 +123,12 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
   '/users/edit': typeof UsersEditRoute
+  '/posts/$postid/edit': typeof PostsPostidEditRoute
+  '/users/$userid/follow-requests': typeof UsersUseridFollowRequestsRoute
+  '/posts/$postid': typeof PostsPostidIndexRoute
   '/users/$userid': typeof UsersUseridIndexRoute
+  '/posts/$postid/comments/$commentid/edit': typeof PostsPostidCommentsCommentidEditRoute
+  '/posts/$postid/comments/$commentid': typeof PostsPostidCommentsCommentidIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,7 +140,12 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
   '/users/edit': typeof UsersEditRoute
+  '/posts/$postid/edit': typeof PostsPostidEditRoute
+  '/users/$userid/follow-requests': typeof UsersUseridFollowRequestsRoute
+  '/posts/$postid/': typeof PostsPostidIndexRoute
   '/users/$userid/': typeof UsersUseridIndexRoute
+  '/posts/$postid/comments/$commentid/edit': typeof PostsPostidCommentsCommentidEditRoute
+  '/posts/$postid/comments/$commentid/': typeof PostsPostidCommentsCommentidIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -110,7 +158,12 @@ export interface FileRouteTypes {
     | '/register'
     | '/settings'
     | '/users/edit'
+    | '/posts/$postid/edit'
+    | '/users/$userid/follow-requests'
+    | '/posts/$postid'
     | '/users/$userid'
+    | '/posts/$postid/comments/$commentid/edit'
+    | '/posts/$postid/comments/$commentid'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -121,7 +174,12 @@ export interface FileRouteTypes {
     | '/register'
     | '/settings'
     | '/users/edit'
+    | '/posts/$postid/edit'
+    | '/users/$userid/follow-requests'
+    | '/posts/$postid'
     | '/users/$userid'
+    | '/posts/$postid/comments/$commentid/edit'
+    | '/posts/$postid/comments/$commentid'
   id:
     | '__root__'
     | '/'
@@ -132,7 +190,12 @@ export interface FileRouteTypes {
     | '/register'
     | '/settings'
     | '/users/edit'
+    | '/posts/$postid/edit'
+    | '/users/$userid/follow-requests'
+    | '/posts/$postid/'
     | '/users/$userid/'
+    | '/posts/$postid/comments/$commentid/edit'
+    | '/posts/$postid/comments/$commentid/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -144,7 +207,12 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   SettingsRoute: typeof SettingsRoute
   UsersEditRoute: typeof UsersEditRoute
+  PostsPostidEditRoute: typeof PostsPostidEditRoute
+  UsersUseridFollowRequestsRoute: typeof UsersUseridFollowRequestsRoute
+  PostsPostidIndexRoute: typeof PostsPostidIndexRoute
   UsersUseridIndexRoute: typeof UsersUseridIndexRoute
+  PostsPostidCommentsCommentidEditRoute: typeof PostsPostidCommentsCommentidEditRoute
+  PostsPostidCommentsCommentidIndexRoute: typeof PostsPostidCommentsCommentidIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +280,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersUseridIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/posts/$postid/': {
+      id: '/posts/$postid/'
+      path: '/posts/$postid'
+      fullPath: '/posts/$postid'
+      preLoaderRoute: typeof PostsPostidIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users/$userid/follow-requests': {
+      id: '/users/$userid/follow-requests'
+      path: '/users/$userid/follow-requests'
+      fullPath: '/users/$userid/follow-requests'
+      preLoaderRoute: typeof UsersUseridFollowRequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/posts/$postid/edit': {
+      id: '/posts/$postid/edit'
+      path: '/posts/$postid/edit'
+      fullPath: '/posts/$postid/edit'
+      preLoaderRoute: typeof PostsPostidEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/posts/$postid/comments/$commentid/': {
+      id: '/posts/$postid/comments/$commentid/'
+      path: '/posts/$postid/comments/$commentid'
+      fullPath: '/posts/$postid/comments/$commentid'
+      preLoaderRoute: typeof PostsPostidCommentsCommentidIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/posts/$postid/comments/$commentid/edit': {
+      id: '/posts/$postid/comments/$commentid/edit'
+      path: '/posts/$postid/comments/$commentid/edit'
+      fullPath: '/posts/$postid/comments/$commentid/edit'
+      preLoaderRoute: typeof PostsPostidCommentsCommentidEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -224,7 +327,13 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   SettingsRoute: SettingsRoute,
   UsersEditRoute: UsersEditRoute,
+  PostsPostidEditRoute: PostsPostidEditRoute,
+  UsersUseridFollowRequestsRoute: UsersUseridFollowRequestsRoute,
+  PostsPostidIndexRoute: PostsPostidIndexRoute,
   UsersUseridIndexRoute: UsersUseridIndexRoute,
+  PostsPostidCommentsCommentidEditRoute: PostsPostidCommentsCommentidEditRoute,
+  PostsPostidCommentsCommentidIndexRoute:
+    PostsPostidCommentsCommentidIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

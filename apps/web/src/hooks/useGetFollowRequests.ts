@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { client } from "@web/lib/api-client";
 import { useSession } from "@web/lib/auth-client";
 
-const getFollowRequests = async (userId: string) => {
+export const getFollowRequests = async (userId: string) => {
   const { data, error } = await client
     .users({ userid: userId })
     .followRequests.get();
