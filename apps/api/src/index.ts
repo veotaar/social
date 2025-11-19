@@ -36,7 +36,7 @@ const app = new Elysia()
       },
     }),
   )
-  .get("/", () => "hello")
+  .get("/health", () => "OK")
   .use(postsRoute)
   .use(blockRoute)
   .use(usersRoute)

@@ -81,10 +81,8 @@ export const removeFollowerMutually = async ({
   currentUserId,
   targetUserId,
 }: { currentUserId: string; targetUserId: string }) => {
-  await Promise.all([
-    removeFollower({ currentUserId, targetUserId }),
-    unFollowUser({ currentUserId, targetUserId }),
-  ]);
+  await removeFollower({ currentUserId, targetUserId });
+  await unFollowUser({ currentUserId, targetUserId });
 };
 
 export const listFollowers = async ({
