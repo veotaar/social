@@ -8,6 +8,7 @@ import { blockRoute } from "./modules/block";
 import { postsRoute } from "./modules/posts";
 import { usersRoute } from "./modules/users";
 import { notificationsRoute } from "./modules/users/notifications";
+import { followsRoute } from "./modules/users/follows";
 
 const app = new Elysia()
   .use(
@@ -40,6 +41,7 @@ const app = new Elysia()
   .use(blockRoute)
   .use(usersRoute)
   .use(notificationsRoute)
+  .use(followsRoute)
   .listen(env.PORT);
 
 export type App = typeof app;
