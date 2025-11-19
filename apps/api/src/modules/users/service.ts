@@ -188,8 +188,6 @@ export const updateFollowRequestStatus = async ({
 
   if (!followRequest) throw new NotFoundError("Follow request not found");
   if (followRequest.status !== "pending") throw new ConflictError("Conflict");
-  if (followRequest.followeeId !== targetUserId)
-    throw new ForbiddenError("Forbidden");
 
   if (
     (newStatus === "accepted" || newStatus === "rejected") &&
@@ -242,7 +240,6 @@ export const updateFollowRequestStatus = async ({
       await createNotification({
         senderId: followRequest.followeeId,
         recipientId: followRequest.followerId,
-        followId: followRequest.id,
         type: "follow_accepted",
       });
 
@@ -250,7 +247,7 @@ export const updateFollowRequestStatus = async ({
         senderId: followRequest.followerId,
         recipientId: followRequest.followeeId,
         followRequestId: followRequest.id,
-        type: "follow_accepted",
+        type: "follow_request",
       });
     }
 
@@ -283,7 +280,7 @@ export const getFollowRequests = async ({
       status: table.followRequest.status,
       createdAt: table.followRequest.createdAt,
       updatedAt: table.followRequest.updatedAt,
-      followee: {
+      requester: {
         id: user.id,
         username: user.username,
         displayUsername: user.displayUsername,
@@ -310,7 +307,7 @@ export const getFollowRequests = async ({
       status: table.followRequest.status,
       createdAt: table.followRequest.createdAt,
       updatedAt: table.followRequest.updatedAt,
-      follower: {
+      requester: {
         id: user.id,
         username: user.username,
         displayUsername: user.displayUsername,
