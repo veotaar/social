@@ -39,7 +39,7 @@ function RouteComponent() {
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery({
-      staleTime: 1000 * 60 * 5, // 5 minutes
+      staleTime: 0, // always fetch fresh data
       queryKey: ["notifications"],
       queryFn: async ({ pageParam }) => {
         const { data, error } = await client

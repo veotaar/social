@@ -30,9 +30,21 @@ export const useDecideFollowRequest = () => {
     mutationFn: (params: DecideFollowRequestParams) => {
       return decideFollowRequest(params);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: ["followRequests"],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["user"],
+      });
+
+      await queryClient.refetchQueries({
+        queryKey: ["followRequest"],
+      });
+
+      await queryClient.refetchQueries({
+        queryKey: ["user"],
       });
     },
   });
