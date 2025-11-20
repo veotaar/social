@@ -7,6 +7,7 @@ import {
   createFollowRequest,
   updateFollowRequestStatus,
   getFollowRequests,
+  getPostsByUser,
 } from "./service";
 import { ForbiddenError } from "@api/lib/error";
 // import { notificationsRoute } from "./notifications";
@@ -70,6 +71,23 @@ export const usersRoute = new Elysia()
       });
 
       return followRequests;
+    },
+  )
+  .get(
+    "/users/:userid/posts",
+    async ({ user, params: { userid }, query: { cursor } }) => {
+      const posts = await getPostsByUser({
+        currentUserId: user.id,
+        cursor,
+        userId: userid,
+      });
+
+      return posts;
+    },
+    {
+      query: t.Object({
+        cursor: t.String(),
+      }),
     },
   )
   .guard({

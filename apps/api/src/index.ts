@@ -1,6 +1,6 @@
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import env from "./env";
 import { OpenAPI } from "./lib/authOpenApi";
 import { betterAuth } from "./modules/auth";
@@ -19,14 +19,6 @@ const app = new Elysia()
       allowedHeaders: ["Content-Type", "Authorization"],
     }),
   )
-  .onRequest(({ request }) => {
-    if (request.method === "OPTIONS" || env.NODE_ENV === "production") {
-      return;
-    }
-    if (request.url.endsWith("/api/get-session")) {
-      console.log(Date.now(), "+++++++ [SESSION REQUEST] ++++++");
-    }
-  })
   .use(betterAuth)
   .use(
     swagger({

@@ -1,6 +1,6 @@
 import db from "@api/db/db";
 import { table } from "@api/db/model";
-import { block, post, user, follow } from "@api/db/schema";
+import { block, post, postLike, user, follow } from "@api/db/schema";
 import { and, or, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 import { auth } from "@api/lib/auth";
 import { NotFoundError } from "elysia";
@@ -328,5 +328,89 @@ export const getFollowRequests = async ({
   return {
     sent: sentRequests,
     received: receivedRequests,
+  };
+};
+
+export const getPostsByUser = async ({
+  userId,
+  currentUserId,
+  cursor,
+  limit = 10,
+}: {
+  userId: string;
+  currentUserId: string;
+  cursor: string;
+  limit?: number;
+}) => {
+  const blockedUsersSubQuery = db
+    .select({ id: block.blockedId })
+    .from(block)
+    .where(eq(block.blockerId, currentUserId));
+
+  const blockingUsersSubQuery = db
+    .select({ id: block.blockerId })
+    .from(block)
+    .where(eq(block.blockedId, currentUserId));
+
+  const applyCursor = cursor !== "initial";
+
+  const feed = await db
+    .select({
+      post: {
+        id: post.id,
+        content: post.content,
+        createdAt: post.createdAt,
+        likesCount: post.likesCount,
+        commentsCount: post.commentsCount,
+        sharesCount: post.sharesCount,
+        likedByCurrentUser: sql<boolean>`CASE WHEN ${postLike.id} IS NOT NULL THEN true ELSE false END`,
+      },
+      author: {
+        id: user.id,
+        username: user.username,
+        displayUsername: user.displayUsername,
+        name: user.name,
+        image: user.image,
+      },
+    })
+    .from(post)
+    .where(
+      and(
+        notInArray(post.authorId, blockedUsersSubQuery),
+        notInArray(post.authorId, blockingUsersSubQuery),
+        isNull(post.deletedAt),
+        eq(post.authorId, userId),
+        applyCursor ? lt(post.id, cursor) : undefined,
+      ),
+    )
+    .orderBy(desc(post.id))
+    .limit(limit + 1)
+    .leftJoin(user, eq(post.authorId, user.id))
+    .leftJoin(
+      postLike,
+      and(eq(postLike.postId, post.id), eq(postLike.userId, currentUserId)),
+    );
+
+  let hasMore = false;
+  let nextCursor: string | null = null;
+
+  if (feed.length > limit) {
+    hasMore = true;
+    feed.pop();
+  }
+
+  if (feed.length > 0) {
+    const lastPostInFeed = feed[feed.length - 1]?.post;
+    if (lastPostInFeed) {
+      nextCursor = lastPostInFeed.id;
+    }
+  }
+
+  return {
+    posts: feed,
+    pagination: {
+      hasMore,
+      nextCursor,
+    },
   };
 };
