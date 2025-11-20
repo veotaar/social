@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { client } from "@web/lib/api-client";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, useQuery } from "@tanstack/react-query";
 import { useSession } from "@web/lib/auth-client";
 import { UserPen } from "lucide-react";
 import Avatar from "@web/components/avatar/Avatar";
@@ -21,13 +21,42 @@ export const Route = createFileRoute("/users/$userid/")({
 });
 
 function RouteComponent() {
-  const userData = Route.useLoaderData();
+  // const userData = Route.useLoaderData();
 
   const { userid } = Route.useParams();
 
   const { data } = useSession();
 
   const isOwnProfile = data?.user.id === userid;
+
+  const {
+    data: userData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["user", userid],
+    queryFn: async () => {
+      const { data, error } = await client.users({ userid }).get();
+      if (error) throw error.status;
+      return data;
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto min-h-screen max-w-4xl px-4 py-6">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (isError || !userData) {
+    return (
+      <div className="mx-auto min-h-screen max-w-4xl px-4 py-6">
+        <p className="text-error">Failed to load user profile.</p>
+      </div>
+    );
+  }
 
   const joinDate = new Date(userData.createdAt).toLocaleDateString("en-US", {
     month: "long",
@@ -61,10 +90,22 @@ function RouteComponent() {
               )}
               {!isOwnProfile && (
                 <div>
-                  <FollowButton userId={userid} isFollowedBy isFollowing />
+                  <FollowButton
+                    userId={userid}
+                    isFollowedBy={userData.isFollowedBy}
+                    isFollowing={userData.isFollowing}
+                  />
                 </div>
               )}
             </div>
+
+            <p className="text-base-content/70 italic">
+              {userData.isFollowing && userData.isFollowedBy
+                ? "You are following each other."
+                : userData.isFollowedBy
+                  ? "Follows you."
+                  : ""}
+            </p>
 
             {userData.bio && (
               <p className="mt-4 max-w-2xl text-base-content/80">

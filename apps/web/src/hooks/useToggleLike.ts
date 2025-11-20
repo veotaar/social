@@ -79,6 +79,8 @@ export function useToggleLike() {
       }
     },
     onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: ["post", updated.post.id] });
+
       // actual response update
       queryClient.setQueryData<InfiniteData<PostFeedData>>(
         ["posts", "feed"],

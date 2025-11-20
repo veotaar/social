@@ -90,14 +90,20 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
               </div>
             </Link>
 
-            <span
-              className="lg:tooltip"
-              data-tip={new Date(post.createdAt).toLocaleString()}
+            <Link
+              to="/posts/$postid"
+              params={{ postid: post.id }}
+              resetScroll={true}
             >
-              {formatDistanceToNow(new Date(post.createdAt), {
-                addSuffix: true,
-              })}
-            </span>
+              <span
+                className="lg:tooltip"
+                data-tip={new Date(post.createdAt).toLocaleString()}
+              >
+                {formatDistanceToNow(new Date(post.createdAt), {
+                  addSuffix: true,
+                })}
+              </span>
+            </Link>
           </div>
 
           <div className={cn("ml-auto opacity-0 group-hover/post:opacity-100")}>
