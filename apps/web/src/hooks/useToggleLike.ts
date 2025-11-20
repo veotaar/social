@@ -80,6 +80,9 @@ export function useToggleLike() {
     },
     onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: ["post", updated.post.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["userPosts", updated.author?.id],
+      });
 
       // actual response update
       queryClient.setQueryData<InfiniteData<PostFeedData>>(
