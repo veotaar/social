@@ -11,9 +11,11 @@ import {
 } from "lucide-react";
 import ThemeController from "@web/components/theme-controller/ThemeController";
 import { useSession, signOut } from "@web/lib/auth-client";
-import { Activity } from "react";
+import { Activity, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import Avatar from "@web/components/avatar/Avatar";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { client } from "@web/lib/api-client";
 import { cn } from "@web/lib/utils";
 
 export function Sidebar() {
@@ -32,12 +34,34 @@ export function Sidebar() {
 
   const closeMenu = () => setIsOpen(false);
 
+  const { data, isSuccess } = useInfiniteQuery({
+    staleTime: 0,
+    queryKey: ["notifications"],
+    queryFn: async ({ pageParam }) => {
+      const { data, error } = await client
+        // biome-ignore lint/style/noNonNullAssertion: component only renders when user is authenticated
+        .users({ userid: session.data!.user.id })
+        .notifications.get({
+          query: { cursor: pageParam },
+        });
+      if (error) throw error.status;
+
+      return data;
+    },
+    initialPageParam: "initial",
+    getNextPageParam: (lastPage) => {
+      const hasMore = lastPage.pagination.hasMore;
+      if (!hasMore) return undefined;
+      return lastPage.pagination.nextCursor;
+    },
+  });
+
   return (
     <Activity mode={session.data ? "visible" : "hidden"}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="btn btn-ghost btn-square fixed top-4 left-4 z-50 xl:hidden"
+        className="btn btn-ghost btn-square fixed top-4 left-4 z-50 2xl:hidden"
         aria-label="Toggle menu"
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -46,7 +70,7 @@ export function Sidebar() {
       {isOpen && (
         <button
           type="button"
-          className="fixed inset-0 z-40 bg-black/50 xl:hidden"
+          className="fixed inset-0 z-40 bg-black/50 2xl:hidden"
           onClick={closeMenu}
           onKeyDown={(e) => e.key === "Escape" && closeMenu()}
           aria-label="Close menu"
@@ -56,7 +80,7 @@ export function Sidebar() {
 
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 transform border-base-300 bg-base-100 p-4 transition-transform duration-300 ease-in-out xl:translate-x-0 xl:border-r",
+          "fixed inset-y-0 left-0 z-40 w-64 transform border-base-300 bg-base-100 p-4 transition-transform duration-300 ease-in-out 2xl:translate-x-0 2xl:border-r",
           {
             "translate-x-0": isOpen,
             "-translate-x-full": !isOpen,
@@ -69,19 +93,40 @@ export function Sidebar() {
               <Link
                 to="/users/$userid"
                 params={{ userid: session.data.user.id }}
-                className="btn btn-ghost justify-start gap-3"
-                activeProps={{ className: "btn-active" }}
+                activeProps={{
+                  className:
+                    "bg-secondary/20 border-secondary/20 border shadow-md",
+                }}
                 onClick={closeMenu}
+                className={cn(
+                  "card card-compac rounded-lg border border-secondary/0 bg-base-100 transition",
+                  "flex flex-row items-center gap-3 p-3",
+                )}
               >
-                <User size={20} />
-                <span>Profile</span>
+                <div className="flex items-center gap-3 truncate">
+                  <Avatar
+                    name={session.data.user.name}
+                    image={session.data.user.image}
+                    size="sm"
+                  />
+                  <div className="flex flex-col items-start">
+                    <span className="font-semibold text-sm">
+                      {session.data.user.displayUsername}
+                    </span>
+                    <span className="text-base-content/70 text-xs">
+                      @{session.data.user.username}
+                    </span>
+                  </div>
+                </div>
               </Link>
             )}
 
             <Link
               to="/"
               className="btn btn-ghost justify-start gap-3"
-              activeProps={{ className: "btn-active" }}
+              activeProps={{
+                className: "bg-secondary/20 border-secondary/20 shadow-md",
+              }}
               onClick={closeMenu}
             >
               <Home size={20} />
@@ -91,19 +136,33 @@ export function Sidebar() {
             {session.data && (
               <Link
                 to="/notifications"
-                className="btn btn-ghost justify-start gap-3"
-                activeProps={{ className: "btn-active" }}
+                className="btn btn-ghost items-center justify-start gap-3"
+                activeProps={{
+                  className: "bg-secondary/20 border-secondary/20 shadow-md",
+                }}
                 onClick={closeMenu}
               >
                 <Bell size={20} />
-                <span>Notifications</span>
+                <p>Notifications</p>
+                <span
+                  className={cn("badge badge-secondary", {
+                    hidden:
+                      !isSuccess ||
+                      (data?.pages[0]?.notifications[0]?.unreadCount ?? 0) ===
+                        0,
+                  })}
+                >
+                  {data?.pages[0]?.notifications[0]?.unreadCount ?? 0}
+                </span>
               </Link>
             )}
 
             <Link
               to="/bookmarks"
               className="btn btn-ghost justify-start gap-3"
-              activeProps={{ className: "btn-active" }}
+              activeProps={{
+                className: "bg-secondary/20 border-secondary/20 shadow-md",
+              }}
               onClick={closeMenu}
             >
               <Bookmark size={20} />
@@ -115,7 +174,9 @@ export function Sidebar() {
             <Link
               to="/settings"
               className="btn btn-ghost justify-start gap-3"
-              activeProps={{ className: "btn-active" }}
+              activeProps={{
+                className: "bg-secondary/20 border-secondary/20 shadow-md",
+              }}
               onClick={closeMenu}
             >
               <Settings size={20} />

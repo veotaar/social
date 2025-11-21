@@ -39,7 +39,7 @@ function RouteComponent() {
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery({
-      staleTime: 0, // always fetch fresh data
+      staleTime: 0,
       queryKey: ["notifications"],
       queryFn: async ({ pageParam }) => {
         const { data, error } = await client
@@ -60,24 +60,39 @@ function RouteComponent() {
       },
     });
 
+  const hasNotifications = data?.pages.some(
+    (page) => page.notifications.length > 0,
+  );
+
   return (
     <div className="m-auto mt-12 min-h-svh max-w-3xl p-2">
-      {data?.pages.map((group) => (
-        <React.Fragment key={group.pagination.nextCursor ?? "final"}>
-          <NotificationList notifications={group.notifications} />
-        </React.Fragment>
-      ))}
-      {hasNextPage && (
-        <div className="mt-4 text-center">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => fetchNextPage()}
-            disabled={isFetchingNextPage}
-          >
-            {isFetchingNextPage ? "Loading..." : "Load more"}
-          </button>
+      {!hasNotifications ? (
+        <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+          <p className="font-medium text-lg">No notifications yet</p>
+          <p className="text-base-content/70">
+            Your notifications will appear here
+          </p>
         </div>
+      ) : (
+        <>
+          {data?.pages.map((group) => (
+            <React.Fragment key={group.pagination.nextCursor ?? "final"}>
+              <NotificationList notifications={group.notifications} />
+            </React.Fragment>
+          ))}
+          {hasNextPage && (
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+              >
+                {isFetchingNextPage ? "Loading..." : "Load more"}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

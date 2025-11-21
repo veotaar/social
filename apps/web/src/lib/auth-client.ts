@@ -1,4 +1,8 @@
-import { usernameClient, anonymousClient } from "better-auth/client/plugins";
+import {
+  usernameClient,
+  anonymousClient,
+  adminClient,
+} from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
@@ -6,7 +10,7 @@ export const authClient = createAuthClient({
     credentials: "include",
   },
 
-  plugins: [usernameClient(), anonymousClient()],
+  plugins: [usernameClient(), anonymousClient(), adminClient()],
 
   baseURL: "http://localhost:3000",
   basePath: "/auth/api",
