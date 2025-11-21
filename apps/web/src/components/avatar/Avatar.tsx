@@ -19,27 +19,6 @@ const Avatar = ({ name, image, size }: AvatarProps) => {
     }).toDataUri();
   }, [name]);
 
-  if (image) {
-    return (
-      <div className="avatar">
-        <div
-          className={cn(
-            {
-              "w-8": size === "xs",
-              "w-10": size === "sm",
-              "w-14": size === "md" || !size,
-              "w-16": size === "lg",
-              "w-32": size === "xl",
-            },
-            "rounded-full",
-          )}
-        >
-          <img src={image} alt="User avatar" />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="avatar">
       <div
@@ -54,7 +33,7 @@ const Avatar = ({ name, image, size }: AvatarProps) => {
           "rounded-full",
         )}
       >
-        <img src={avatar} alt="User avatar" />
+        <img src={image ?? avatar} alt="User avatar" />
       </div>
     </div>
   );
