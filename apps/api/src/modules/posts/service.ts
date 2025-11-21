@@ -1,6 +1,6 @@
 import db from "@api/db/db";
 import { table } from "@api/db/model";
-import { block, postLike, post, user } from "@api/db/schema";
+import { block, postLike, post, user, bookmark } from "@api/db/schema";
 import { and, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 
 export const createPost = async ({
@@ -56,6 +56,7 @@ export const getFeedPosts = async ({
         commentsCount: post.commentsCount,
         sharesCount: post.sharesCount,
         likedByCurrentUser: sql<boolean>`CASE WHEN ${postLike.id} IS NOT NULL THEN true ELSE false END`,
+        isBookmarked: sql<boolean>`CASE WHEN ${bookmark.id} IS NOT NULL THEN true ELSE false END`,
       },
       author: {
         id: user.id,
@@ -80,6 +81,10 @@ export const getFeedPosts = async ({
     .leftJoin(
       postLike,
       and(eq(postLike.postId, post.id), eq(postLike.userId, currentUserId)),
+    )
+    .leftJoin(
+      bookmark,
+      and(eq(bookmark.postId, post.id), eq(bookmark.userId, currentUserId)),
     );
 
   let hasMore = false;

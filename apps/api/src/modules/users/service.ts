@@ -1,6 +1,6 @@
 import db from "@api/db/db";
 import { table } from "@api/db/model";
-import { block, post, postLike, user, follow } from "@api/db/schema";
+import { block, post, postLike, user, follow, bookmark } from "@api/db/schema";
 import { and, or, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 import { auth } from "@api/lib/auth";
 import { NotFoundError } from "elysia";
@@ -369,6 +369,7 @@ export const getPostsByUser = async ({
         commentsCount: post.commentsCount,
         sharesCount: post.sharesCount,
         likedByCurrentUser: sql<boolean>`CASE WHEN ${postLike.id} IS NOT NULL THEN true ELSE false END`,
+        isBookmarked: sql<boolean>`CASE WHEN ${bookmark.id} IS NOT NULL THEN true ELSE false END`,
       },
       author: {
         id: user.id,
@@ -394,6 +395,10 @@ export const getPostsByUser = async ({
     .leftJoin(
       postLike,
       and(eq(postLike.postId, post.id), eq(postLike.userId, currentUserId)),
+    )
+    .leftJoin(
+      bookmark,
+      and(eq(bookmark.postId, post.id), eq(bookmark.userId, currentUserId)),
     );
 
   let hasMore = false;
