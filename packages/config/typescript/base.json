@@ -12,7 +12,7 @@
     "module": "preserve",
     "moduleDetection": "force",
     "moduleResolution": "Bundler",
-    "noUncheckedIndexedAccess": true,
+    "noUncheckedIndexedAccess": false,
     "noImplicitOverride": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,

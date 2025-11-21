@@ -9,23 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as SettingsRouteRouteImport } from './routes/settings/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UsersEditRouteImport } from './routes/users/edit'
+import { Route as SettingsBlockedRouteImport } from './routes/settings/blocked'
 import { Route as UsersUseridIndexRouteImport } from './routes/users/$userid/index'
 import { Route as PostsPostidIndexRouteImport } from './routes/posts/$postid/index'
 import { Route as UsersUseridFollowRequestsRouteImport } from './routes/users/$userid/follow-requests'
 
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -51,6 +47,11 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRouteRoute = SettingsRouteRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -60,6 +61,11 @@ const UsersEditRoute = UsersEditRouteImport.update({
   id: '/users/edit',
   path: '/users/edit',
   getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsBlockedRoute = SettingsBlockedRouteImport.update({
+  id: '/blocked',
+  path: '/blocked',
+  getParentRoute: () => SettingsRouteRoute,
 } as any)
 const UsersUseridIndexRoute = UsersUseridIndexRouteImport.update({
   id: '/users/$userid/',
@@ -80,12 +86,13 @@ const UsersUseridFollowRequestsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/settings': typeof SettingsRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/bookmarks': typeof BookmarksRoute
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
   '/register': typeof RegisterRoute
-  '/settings': typeof SettingsRoute
+  '/settings/blocked': typeof SettingsBlockedRoute
   '/users/edit': typeof UsersEditRoute
   '/users/$userid/follow-requests': typeof UsersUseridFollowRequestsRoute
   '/posts/$postid': typeof PostsPostidIndexRoute
@@ -93,12 +100,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/settings': typeof SettingsRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/bookmarks': typeof BookmarksRoute
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
   '/register': typeof RegisterRoute
-  '/settings': typeof SettingsRoute
+  '/settings/blocked': typeof SettingsBlockedRoute
   '/users/edit': typeof UsersEditRoute
   '/users/$userid/follow-requests': typeof UsersUseridFollowRequestsRoute
   '/posts/$postid': typeof PostsPostidIndexRoute
@@ -107,12 +115,13 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/settings': typeof SettingsRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/bookmarks': typeof BookmarksRoute
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
   '/register': typeof RegisterRoute
-  '/settings': typeof SettingsRoute
+  '/settings/blocked': typeof SettingsBlockedRoute
   '/users/edit': typeof UsersEditRoute
   '/users/$userid/follow-requests': typeof UsersUseridFollowRequestsRoute
   '/posts/$postid/': typeof PostsPostidIndexRoute
@@ -122,12 +131,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/settings'
     | '/about'
     | '/bookmarks'
     | '/login'
     | '/notifications'
     | '/register'
-    | '/settings'
+    | '/settings/blocked'
     | '/users/edit'
     | '/users/$userid/follow-requests'
     | '/posts/$postid'
@@ -135,12 +145,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/settings'
     | '/about'
     | '/bookmarks'
     | '/login'
     | '/notifications'
     | '/register'
-    | '/settings'
+    | '/settings/blocked'
     | '/users/edit'
     | '/users/$userid/follow-requests'
     | '/posts/$postid'
@@ -148,12 +159,13 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/settings'
     | '/about'
     | '/bookmarks'
     | '/login'
     | '/notifications'
     | '/register'
-    | '/settings'
+    | '/settings/blocked'
     | '/users/edit'
     | '/users/$userid/follow-requests'
     | '/posts/$postid/'
@@ -162,12 +174,12 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SettingsRouteRoute: typeof SettingsRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   BookmarksRoute: typeof BookmarksRoute
   LoginRoute: typeof LoginRoute
   NotificationsRoute: typeof NotificationsRoute
   RegisterRoute: typeof RegisterRoute
-  SettingsRoute: typeof SettingsRoute
   UsersEditRoute: typeof UsersEditRoute
   UsersUseridFollowRequestsRoute: typeof UsersUseridFollowRequestsRoute
   PostsPostidIndexRoute: typeof PostsPostidIndexRoute
@@ -176,13 +188,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -218,6 +223,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -231,6 +243,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/users/edit'
       preLoaderRoute: typeof UsersEditRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/settings/blocked': {
+      id: '/settings/blocked'
+      path: '/blocked'
+      fullPath: '/settings/blocked'
+      preLoaderRoute: typeof SettingsBlockedRouteImport
+      parentRoute: typeof SettingsRouteRoute
     }
     '/users/$userid/': {
       id: '/users/$userid/'
@@ -256,14 +275,26 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface SettingsRouteRouteChildren {
+  SettingsBlockedRoute: typeof SettingsBlockedRoute
+}
+
+const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
+  SettingsBlockedRoute: SettingsBlockedRoute,
+}
+
+const SettingsRouteRouteWithChildren = SettingsRouteRoute._addFileChildren(
+  SettingsRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SettingsRouteRoute: SettingsRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   BookmarksRoute: BookmarksRoute,
   LoginRoute: LoginRoute,
   NotificationsRoute: NotificationsRoute,
   RegisterRoute: RegisterRoute,
-  SettingsRoute: SettingsRoute,
   UsersEditRoute: UsersEditRoute,
   UsersUseridFollowRequestsRoute: UsersUseridFollowRequestsRoute,
   PostsPostidIndexRoute: PostsPostidIndexRoute,
