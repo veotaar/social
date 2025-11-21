@@ -18,6 +18,14 @@ export const getNotifications = async ({
 
   const notifications = await db
     .select({
+      unreadCount: db.$count(
+        table.notification,
+        and(
+          eq(table.notification.recipientId, currentUserId),
+          eq(table.notification.isRead, false),
+          isNull(table.notification.deletedAt),
+        ),
+      ),
       notification: {
         id: table.notification.id,
         recipientId: table.notification.recipientId,
