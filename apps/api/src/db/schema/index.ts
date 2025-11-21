@@ -31,3 +31,4 @@ export {
   subscriptionStatus,
 } from "./userSubscription";
 export { default as verification } from "./verification";
+export { default as bookmark, bookmarkRelations } from "./bookmark";

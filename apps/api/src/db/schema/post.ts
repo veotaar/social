@@ -15,6 +15,7 @@ import postLike from "./postLike";
 import share from "./share";
 import postImage from "./postImage";
 import notification from "./notification";
+import bookmark from "./bookmark";
 // import { createSelectSchema } from "drizzle-zod";
 import { uuidv7 } from "uuidv7";
 
@@ -69,6 +70,7 @@ export const postRelations = relations(post, ({ one, many }) => ({
   likes: many(postLike),
   shares: many(share),
   notifications: many(notification),
+  bookmarks: many(bookmark),
 }));
 
 // export const PostSchema = createSelectSchema(post).shape;

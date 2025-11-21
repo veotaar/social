@@ -17,6 +17,7 @@ import follow from "./follow";
 import block from "./block";
 import notification from "./notification";
 import userSubscription from "./userSubscription";
+import bookmark from "./bookmark";
 import { uuidv7 } from "uuidv7";
 
 const user = pgTable("user", {
@@ -73,6 +74,7 @@ export const userRelations = relations(user, ({ many, one }) => ({
     relationName: "receivedNotifications",
   }),
   subscription: one(userSubscription),
+  bookmarks: many(bookmark),
 }));
 
 export default user;

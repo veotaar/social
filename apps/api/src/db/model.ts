@@ -36,6 +36,7 @@ import postMention, { postMentionRelations } from "./schema/postMention";
 import commentMention, {
   commentMentionRelations,
 } from "./schema/commentMention";
+import bookmark, { bookmarkRelations } from "./schema/bookmark";
 
 export const table = {
   account,
@@ -76,6 +77,8 @@ export const table = {
   commentMention,
   postMentionRelations,
   commentMentionRelations,
+  bookmark,
+  bookmarkRelations,
 } as const;
 
 export type Table = typeof table;
