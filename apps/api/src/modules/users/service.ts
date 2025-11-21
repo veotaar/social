@@ -40,6 +40,7 @@ export const getUserById = async ({
       banned: user.banned,
       isFollowing: sql<boolean>`CASE WHEN ${follow.id} IS NOT NULL THEN true ELSE false END`,
       isFollowedBy: sql<boolean>`CASE WHEN follow_back.id IS NOT NULL THEN true ELSE false END`,
+      isBlocked: sql<boolean>`CASE WHEN ${block.id} IS NOT NULL THEN true ELSE false END`,
     })
     .from(table.user)
     .leftJoin(
@@ -52,6 +53,10 @@ export const getUserById = async ({
         eq(sql`follow_back.follower_id`, user.id),
         eq(sql`follow_back.followee_id`, currentUserId),
       ),
+    )
+    .leftJoin(
+      block,
+      and(eq(block.blockerId, currentUserId), eq(block.blockedId, user.id)),
     )
     .where(eq(user.id, id));
 
