@@ -11,6 +11,12 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@api/db/db";
 import { table } from "@api/db/model";
 import { sendTestEmail } from "./email";
+import {
+  uniqueNamesGenerator,
+  adjectives,
+  colors,
+  animals,
+} from "unique-names-generator";
 import env from "@api/env";
 
 export const auth = betterAuth({
@@ -42,9 +48,11 @@ export const auth = betterAuth({
           return {
             data: {
               ...user,
-              username: `anon_${crypto.randomUUID().split("-")[0]}`,
-              displayUsername: `anon_${crypto.randomUUID().split("-")[0]}`,
-              bio: "anonymous user",
+              username:
+                user.name.replaceAll(" ", "").toLowerCase() +
+                Math.floor(Math.random() * 10000),
+              displayUsername: user.name,
+              bio: "guest user",
             },
           };
         },
@@ -141,7 +149,13 @@ export const auth = betterAuth({
     }),
     anonymous({
       emailDomainName: "example.com",
-      generateName: () => `Anon_${crypto.randomUUID().split("-")[0]}`,
+      generateName: () =>
+        uniqueNamesGenerator({
+          dictionaries: [adjectives, colors, animals],
+          separator: " ",
+          style: "capital",
+          length: 3,
+        }),
     }),
   ],
 });
