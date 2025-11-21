@@ -9,14 +9,16 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@web/lib/utils";
 
 interface FollowButtonProps {
-  userId: string; // The ID of the user to follow/unfollow
+  userId: string;
   isFollowing: boolean; // Whether the current user is following this user
   isFollowedBy: boolean; // Whether this user is following the current user
+  isBlocked: boolean;
 }
 
 const FollowButton = ({
   isFollowing,
   isFollowedBy,
+  isBlocked,
   userId,
 }: FollowButtonProps) => {
   const { data: followRequests } = useGetFollowRequests();
@@ -39,6 +41,14 @@ const FollowButton = ({
   const { sent } = followRequests;
 
   const sentRequest = sent.find((req) => req.followeeId === userId);
+
+  if (isBlocked) {
+    return (
+      <button type="button" className="btn btn-disabled" disabled>
+        User Blocked
+      </button>
+    );
+  }
 
   if (sentRequest) {
     return (

@@ -1,12 +1,14 @@
 import React from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { client } from "@web/lib/api-client";
 import { QueryClient, useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { useSession } from "@web/lib/auth-client";
 import { UserPen } from "lucide-react";
 import Avatar from "@web/components/avatar/Avatar";
 import FollowButton from "@web/components/follow-button/FollowButton";
+import OptionsButton from "@web/components/options-button/OptionsButton";
 import Post from "@web/components/post/Post";
+import { Navigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/users/$userid/")({
   component: RouteComponent,
@@ -15,11 +17,19 @@ export const Route = createFileRoute("/users/$userid/")({
       queryKey: ["user", userid],
       queryFn: async () => {
         const { data, error } = await client.users({ userid }).get();
-        if (error) throw error.status;
+        if (error) throw notFound();
         return data;
       },
     });
   },
+  notFoundComponent: () => (
+    <div className="mx-auto min-h-screen max-w-3xl px-4 py-6">
+      <p className="text-error">User not found</p>
+      <Link to="/" className="btn btn-primary mt-4">
+        Go to feed
+      </Link>
+    </div>
+  ),
 });
 
 function RouteComponent() {
@@ -50,6 +60,7 @@ function RouteComponent() {
     isFetchingNextPage,
     status,
   } = useInfiniteQuery({
+    // enabled: !!userData,
     queryKey: ["userPosts", userid],
     queryFn: async ({ pageParam }) => {
       const { data, error } = await client.users({ userid }).posts.get({
@@ -78,7 +89,8 @@ function RouteComponent() {
   if (isError || !userData) {
     return (
       <div className="mx-auto min-h-screen max-w-3xl px-4 py-6">
-        <p className="text-error">Failed to load user profile.</p>
+        <p className="text-error">User not found</p>
+        <Navigate to="/" />
       </div>
     );
   }
@@ -114,11 +126,14 @@ function RouteComponent() {
                 </Link>
               )}
               {!isOwnProfile && (
-                <div>
+                <div className="flex items-center gap-2">
+                  <OptionsButton user={userData} />
+
                   <FollowButton
                     userId={userid}
                     isFollowedBy={userData.isFollowedBy}
                     isFollowing={userData.isFollowing}
+                    isBlocked={userData.isBlocked}
                   />
                 </div>
               )}
@@ -176,6 +191,12 @@ function RouteComponent() {
           </div>
         </div>
       </div>
+
+      {userData.isBlocked && (
+        <div className="mb-6 rounded-md border border-base-300 bg-error p-4 text-center text-error-content">
+          You have blocked this user. You won't see their posts or comments.
+        </div>
+      )}
 
       {/* Posts Section */}
       <div className="bg-base-100">

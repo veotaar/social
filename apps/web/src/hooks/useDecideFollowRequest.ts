@@ -39,6 +39,10 @@ export const useDecideFollowRequest = () => {
         queryKey: ["user"],
       });
 
+      await queryClient.invalidateQueries({
+        queryKey: ["notifications"],
+      });
+
       await queryClient.refetchQueries({
         queryKey: ["followRequest"],
       });
