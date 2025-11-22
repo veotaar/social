@@ -31,6 +31,9 @@
         "useExhaustiveDependencies": "error",
         "useHookAtTopLevel": "error"
       },
+      "complexity": {
+        "noForEach": "off"
+      },
       "nursery": {
         "useSortedClasses": {
           "level": "error",

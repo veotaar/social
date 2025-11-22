@@ -6,8 +6,9 @@ import {
 } from "@tanstack/react-query";
 import type { PostData } from "@web/components/post/Post";
 import { client } from "@web/lib/api-client";
+import { produce } from "immer";
 
-type PostFeedData = Treaty.Data<typeof client.posts.get>;
+export type PostFeedData = Treaty.Data<typeof client.posts.get>;
 
 async function toggleLike({
   postId,
@@ -44,30 +45,18 @@ export function useToggleLike() {
       // optimistically update infinite data
       queryClient.setQueryData<InfiniteData<PostFeedData>>(
         ["posts", "feed"],
-        (old) => {
-          if (!old) return old;
+        produce((draft) => {
+          if (!draft) return;
 
-          return {
-            ...old,
-            pages: old.pages.map((page) => ({
-              ...page,
-              posts: page.posts.map((post) =>
-                post.post.id === postId
-                  ? {
-                      ...post,
-                      post: {
-                        ...post.post,
-                        likesCount: like
-                          ? post.post.likesCount + 1
-                          : post.post.likesCount - 1,
-                        likedByCurrentUser: like,
-                      },
-                    }
-                  : post,
-              ),
-            })),
-          };
-        },
+          draft.pages.forEach((page) => {
+            page.posts.forEach((post) => {
+              if (post.post.id === postId) {
+                post.post.likesCount += like ? 1 : -1;
+                post.post.likedByCurrentUser = like;
+              }
+            });
+          });
+        }),
       );
 
       return { previousData };
@@ -87,28 +76,18 @@ export function useToggleLike() {
       // actual response update
       queryClient.setQueryData<InfiniteData<PostFeedData>>(
         ["posts", "feed"],
-        (old) => {
-          if (!old) return old;
+        produce((draft) => {
+          if (!draft) return;
 
-          return {
-            ...old,
-            pages: old.pages.map((page) => ({
-              ...page,
-              posts: page.posts.map((post) =>
-                post.post.id === updated.post.id
-                  ? {
-                      ...post,
-                      post: {
-                        ...post.post,
-                        likesCount: updated.post.likesCount,
-                        likedByCurrentUser: updated.post.likedByCurrentUser,
-                      },
-                    }
-                  : post,
-              ),
-            })),
-          };
-        },
+          draft.pages.forEach((page) => {
+            page.posts.forEach((post) => {
+              if (post.post.id === updated.post.id) {
+                post.post.likesCount = updated.post.likesCount;
+                post.post.likedByCurrentUser = updated.post.likedByCurrentUser;
+              }
+            });
+          });
+        }),
       );
     },
   });

@@ -1,4 +1,4 @@
-import { useToggleLike } from "@web/hooks/useToggleLike";
+import { useToggleLike } from "@web/components/post/useToggleLike";
 import { cn } from "@web/lib/utils";
 import { Heart } from "lucide-react";
 

@@ -1,6 +1,6 @@
 import { cn } from "@web/lib/utils";
 import { Heart } from "lucide-react";
-import { useToggleCommentLike } from "@web/hooks/useToggleCommentLike";
+import { useToggleCommentLike } from "@web/components/post/useToggleCommentLike";
 
 interface LikeCommentButtonProps {
   likedByUser: boolean;

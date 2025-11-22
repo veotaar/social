@@ -4,6 +4,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { client } from "@web/lib/api-client";
+import { produce } from "immer";
 
 type CommentInfiniteData =
   | InfiniteData<
@@ -74,30 +75,20 @@ export function useToggleCommentLike() {
       // optimistically update infinite data
       queryClient.setQueryData<CommentInfiniteData>(
         ["comments", postId],
-        (old) => {
-          if (!old) return old;
+        produce((draft) => {
+          if (!draft) return;
 
-          return {
-            ...old,
-            pages: old.pages.map((page) => ({
-              ...page,
-              comments: page.comments.map((comment) =>
-                comment.comment.id === commentId
-                  ? {
-                      ...comment,
-                      comment: {
-                        ...comment.comment,
-                        likesCount: like
-                          ? (comment.comment.likesCount ?? 0) + 1
-                          : (comment.comment.likesCount ?? 1) - 1,
-                        likedByCurrentUser: like,
-                      },
-                    }
-                  : comment,
-              ),
-            })),
-          };
-        },
+          draft.pages.forEach((page) => {
+            page.comments.forEach((comment) => {
+              if (comment.comment.id === commentId) {
+                comment.comment.likesCount = like
+                  ? (comment.comment.likesCount ?? 0) + 1
+                  : (comment.comment.likesCount ?? 1) - 1;
+                comment.comment.likedByCurrentUser = like;
+              }
+            });
+          });
+        }),
       );
 
       return { previousData };
@@ -115,27 +106,17 @@ export function useToggleCommentLike() {
       // actual response update
       queryClient.setQueryData<CommentInfiniteData>(
         ["comments", variables.postId],
-        (old) => {
-          if (!old) return old;
+        produce((draft) => {
+          if (!draft) return;
 
-          return {
-            ...old,
-            pages: old.pages.map((page) => ({
-              ...page,
-              comments: page.comments.map((comment) =>
-                comment.comment.id === updated.id
-                  ? {
-                      ...comment,
-                      comment: {
-                        ...comment.comment,
-                        likesCount: updated.likesCount,
-                      },
-                    }
-                  : comment,
-              ),
-            })),
-          };
-        },
+          draft.pages.forEach((page) => {
+            page.comments.forEach((comment) => {
+              if (comment.comment.id === updated.id) {
+                comment.comment.likesCount = updated.likesCount;
+              }
+            });
+          });
+        }),
       );
     },
   });
