@@ -45,7 +45,7 @@ export default function OptionsButton({ user }: OptionsButtonProps) {
       <button
         tabIndex={0}
         type="button"
-        className="btn btn-circle btn-outline btn-sm"
+        className="btn btn-circle btn-ghost btn-sm"
       >
         <Ellipsis className="h-5 w-5" />
       </button>

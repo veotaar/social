@@ -4,6 +4,11 @@
   /* biome-ignore lint/correctness/noUnknownProperty: r */
   themes: dracula, nord;
 }
+
+.btn {
+  @apply rounded-md;
+}
+
 @media (prefers-reduced-motion) {
   *,
   ::before,

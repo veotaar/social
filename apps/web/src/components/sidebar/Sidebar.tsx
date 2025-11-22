@@ -123,7 +123,7 @@ export function Sidebar() {
 
             <Link
               to="/"
-              className="btn btn-ghost justify-start gap-3"
+              className="btn btn-ghost justify-start gap-3 rounded-md"
               activeProps={{
                 className: "bg-secondary/20 border-secondary/20 shadow-md",
               }}
@@ -136,7 +136,7 @@ export function Sidebar() {
             {session.data && (
               <Link
                 to="/notifications"
-                className="btn btn-ghost items-center justify-start gap-3"
+                className="btn btn-ghost items-center justify-start gap-3 rounded-md"
                 activeProps={{
                   className: "bg-secondary/20 border-secondary/20 shadow-md",
                 }}
@@ -159,7 +159,7 @@ export function Sidebar() {
 
             <Link
               to="/bookmarks"
-              className="btn btn-ghost justify-start gap-3"
+              className="btn btn-ghost justify-start gap-3 rounded-md"
               activeProps={{
                 className: "bg-secondary/20 border-secondary/20 shadow-md",
               }}
@@ -173,7 +173,7 @@ export function Sidebar() {
           <div className="flex flex-col gap-2">
             <Link
               to="/settings"
-              className="btn btn-ghost justify-start gap-3"
+              className="btn btn-ghost justify-start gap-3 rounded-md"
               activeProps={{
                 className: "bg-secondary/20 border-secondary/20 shadow-md",
               }}
@@ -188,7 +188,7 @@ export function Sidebar() {
                 signOutMutation.mutate();
                 closeMenu();
               }}
-              className="btn btn-ghost justify-start gap-3 hover:text-error"
+              className="btn btn-ghost justify-start gap-3 rounded-md hover:text-error"
             >
               <LogOut size={20} />
               <span>Sign Out</span>
