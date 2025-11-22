@@ -138,6 +138,7 @@ export const getPost = async ({
         commentsCount: post.commentsCount,
         sharesCount: post.sharesCount,
         likedByCurrentUser: sql<boolean>`CASE WHEN ${postLike.id} IS NOT NULL THEN true ELSE false END`,
+        isBookmarked: sql<boolean>`CASE WHEN ${bookmark.id} IS NOT NULL THEN true ELSE false END`,
       },
       author: {
         id: user.id,
@@ -160,6 +161,10 @@ export const getPost = async ({
     .leftJoin(
       postLike,
       and(eq(postLike.postId, post.id), eq(postLike.userId, currentUserId)),
+    )
+    .leftJoin(
+      bookmark,
+      and(eq(bookmark.postId, post.id), eq(bookmark.userId, currentUserId)),
     );
 
   if (result.length === 0) {
