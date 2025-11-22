@@ -7,10 +7,11 @@ import { EllipsisVertical } from "lucide-react";
 import Avatar from "../avatar/Avatar";
 import LikeButton from "./LikeButton";
 import CommentButton from "./CommentButton";
+import BookmarkButton from "./BookmarkButton";
 import Comment from "./Comment";
 import { useState } from "react";
 import { cn } from "@web/lib/utils";
-import { useSendComment } from "@web/hooks/useSendComment";
+import { useSendComment } from "@web/components/post/useSendComment";
 import { Link } from "@tanstack/react-router";
 
 export type PostData = Omit<
@@ -124,6 +125,7 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
             commentsCount={post.commentsCount}
             onClick={() => setShowCommentInput((prev) => !prev)}
           />
+          <BookmarkButton isBookmarked={post.isBookmarked} postId={post.id} />
         </div>
 
         {showCommentInput && (

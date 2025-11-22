@@ -72,6 +72,7 @@ export function useToggleLike() {
       queryClient.invalidateQueries({
         queryKey: ["userPosts", updated.author?.id],
       });
+      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
 
       // actual response update
       queryClient.setQueryData<InfiniteData<PostFeedData>>(
