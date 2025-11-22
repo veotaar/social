@@ -75,6 +75,8 @@ function RouteComponent() {
         </div>
       ) : (
         <>
+          <h2 className="font-bold text-2xl">Notifications</h2>
+
           {data?.pages.map((group) => (
             <React.Fragment key={group.pagination.nextCursor ?? "final"}>
               <NotificationList notifications={group.notifications} />
