@@ -127,7 +127,7 @@ export const getUserBookmarks = async ({
         applyCursor ? lt(table.post.id, cursor) : undefined,
       ),
     )
-    .orderBy(desc(table.post.id))
+    .orderBy(desc(table.bookmark.id))
     .limit(limit + 1)
     .leftJoin(table.user, eq(table.post.authorId, table.user.id))
     .leftJoin(
