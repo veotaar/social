@@ -20,6 +20,7 @@ import {
   createPost,
   deletePost,
   getFeedPosts,
+  getFollowingFeedPosts,
   getPost,
   updatePost,
 } from "./service";
@@ -52,6 +53,23 @@ export const postsRoute = new Elysia()
     async ({ user, query }) => {
       const { cursor } = query;
       const posts = await getFeedPosts({ currentUserId: user.id, cursor });
+
+      return posts;
+    },
+    {
+      query: t.Object({
+        cursor: t.String(),
+      }),
+    },
+  )
+  .get(
+    "/posts/following",
+    async ({ user, query }) => {
+      const { cursor } = query;
+      const posts = await getFollowingFeedPosts({
+        currentUserId: user.id,
+        cursor,
+      });
 
       return posts;
     },

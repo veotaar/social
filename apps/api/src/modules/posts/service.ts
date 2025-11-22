@@ -1,6 +1,6 @@
 import db from "@api/db/db";
 import { table } from "@api/db/model";
-import { block, postLike, post, user, bookmark } from "@api/db/schema";
+import { block, postLike, post, user, bookmark, follow } from "@api/db/schema";
 import { and, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 
 export const createPost = async ({
@@ -241,4 +241,92 @@ export const updatePost = async ({
     .returning();
 
   return updated;
+};
+
+export const getFollowingFeedPosts = async ({
+  currentUserId,
+  limit = 10,
+  cursor,
+}: {
+  currentUserId: string;
+  limit?: number;
+  cursor: string;
+}) => {
+  const blockedUsersSubQuery = db
+    .select({ id: block.blockedId })
+    .from(block)
+    .where(eq(block.blockerId, currentUserId));
+
+  const blockingUsersSubQuery = db
+    .select({ id: block.blockerId })
+    .from(block)
+    .where(eq(block.blockedId, currentUserId));
+
+  const applyCursor = cursor !== INITIAL_CURSOR;
+
+  const feed = await db
+    .select({
+      post: {
+        id: post.id,
+        content: post.content,
+        createdAt: post.createdAt,
+        likesCount: post.likesCount,
+        commentsCount: post.commentsCount,
+        sharesCount: post.sharesCount,
+        likedByCurrentUser: sql<boolean>`CASE WHEN ${postLike.id} IS NOT NULL THEN true ELSE false END`,
+        isBookmarked: sql<boolean>`CASE WHEN ${bookmark.id} IS NOT NULL THEN true ELSE false END`,
+      },
+      author: {
+        id: user.id,
+        username: user.username,
+        displayUsername: user.displayUsername,
+        name: user.name,
+        image: user.image,
+      },
+    })
+    .from(post)
+    .innerJoin(follow, eq(follow.followeeId, post.authorId))
+    .where(
+      and(
+        eq(follow.followerId, currentUserId),
+        notInArray(post.authorId, blockedUsersSubQuery),
+        notInArray(post.authorId, blockingUsersSubQuery),
+        isNull(post.deletedAt),
+        applyCursor ? lt(post.id, cursor) : undefined,
+      ),
+    )
+    .orderBy(desc(post.id))
+    .limit(limit + 1)
+    .leftJoin(user, eq(post.authorId, user.id))
+    .leftJoin(
+      postLike,
+      and(eq(postLike.postId, post.id), eq(postLike.userId, currentUserId)),
+    )
+    .leftJoin(
+      bookmark,
+      and(eq(bookmark.postId, post.id), eq(bookmark.userId, currentUserId)),
+    );
+
+  let hasMore = false;
+  let nextCursor: string | null = null;
+
+  if (feed.length > limit) {
+    hasMore = true;
+    feed.pop();
+  }
+
+  if (feed.length > 0) {
+    const lastPostInFeed = feed[feed.length - 1]?.post;
+    if (lastPostInFeed) {
+      nextCursor = lastPostInFeed.id;
+    }
+  }
+
+  return {
+    posts: feed,
+    pagination: {
+      hasMore,
+      nextCursor,
+    },
+  };
 };
