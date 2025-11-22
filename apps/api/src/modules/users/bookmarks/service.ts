@@ -2,6 +2,7 @@ import db from "@api/db/db";
 import { table } from "@api/db/model";
 import { and, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 import { NotFoundError } from "elysia";
+import { getPost } from "@api/modules/posts/service";
 
 export const addPostBookmark = async ({
   currentUserId,
@@ -40,7 +41,12 @@ export const addPostBookmark = async ({
     .onConflictDoNothing()
     .returning();
 
-  return bookmark;
+  const updatedPost = await getPost({
+    postId,
+    currentUserId,
+  });
+
+  return updatedPost;
 };
 
 export const removePostBookmark = async ({
@@ -52,7 +58,7 @@ export const removePostBookmark = async ({
     .where(
       and(
         eq(table.bookmark.userId, currentUserId),
-        eq(table.bookmark.id, bookmarkId),
+        eq(table.bookmark.postId, bookmarkId),
       ),
     )
     .returning();
@@ -61,7 +67,12 @@ export const removePostBookmark = async ({
     throw new NotFoundError("Bookmark not found");
   }
 
-  return deleteResult;
+  const updatedPost = await getPost({
+    postId: deleteResult.postId,
+    currentUserId,
+  });
+
+  return updatedPost;
 };
 
 export const getUserBookmarks = async ({
