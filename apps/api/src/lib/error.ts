@@ -1,7 +1,7 @@
 export class ConflictError extends Error {
   status = 409;
 
-  constructor(public message: string) {
+  constructor(public override message: string) {
     super(message);
   }
 }
@@ -9,7 +9,7 @@ export class ConflictError extends Error {
 export class UnauthorizedError extends Error {
   status = 401;
 
-  constructor(public message: string) {
+  constructor(public override message: string) {
     super(message);
   }
 }
@@ -17,7 +17,7 @@ export class UnauthorizedError extends Error {
 export class ForbiddenError extends Error {
   status = 403;
 
-  constructor(public message: string) {
+  constructor(public override message: string) {
     super(message);
   }
 }

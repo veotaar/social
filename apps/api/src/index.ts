@@ -1,5 +1,5 @@
 import { cors } from "@elysiajs/cors";
-import { swagger } from "@elysiajs/swagger";
+import { openapi, fromTypes } from "@elysiajs/openapi";
 import { Elysia, t } from "elysia";
 import env from "./env";
 import { OpenAPI } from "./lib/authOpenApi";
@@ -21,15 +21,17 @@ const app = new Elysia()
       allowedHeaders: ["Content-Type", "Authorization"],
     }),
   )
-  .use(betterAuth)
   .use(
-    swagger({
+    openapi({
+      references: fromTypes(),
       documentation: {
         components: await OpenAPI.components,
         paths: await OpenAPI.getPaths(),
       },
+      path: "/openapi",
     }),
   )
+  .use(betterAuth)
   .get("/health", () => "OK")
   .use(postsRoute)
   .use(blockRoute)
