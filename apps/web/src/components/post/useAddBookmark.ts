@@ -29,10 +29,15 @@ export function useAddBookmark() {
 
     onMutate: async ({ postId }) => {
       await queryClient.cancelQueries({ queryKey: ["posts", "feed"] });
+      await queryClient.cancelQueries({ queryKey: ["posts", "following"] });
 
       const previousData = queryClient.getQueryData<InfiniteData<PostFeedData>>(
         ["posts", "feed"],
       );
+
+      const previousFollowingData = queryClient.getQueryData<
+        InfiniteData<PostFeedData>
+      >(["posts", "following"]);
 
       // optimistically update infinite data
       queryClient.setQueryData<InfiniteData<PostFeedData>>(
@@ -52,12 +57,36 @@ export function useAddBookmark() {
         },
       );
 
-      return { previousData };
+      queryClient.setQueryData<InfiniteData<PostFeedData>>(
+        ["posts", "following"],
+        (old) => {
+          if (!old) return old;
+
+          return produce(old, (draft) => {
+            for (const page of draft.pages) {
+              for (const post of page.posts) {
+                if (post.post.id === postId) {
+                  post.post.isBookmarked = true;
+                }
+              }
+            }
+          });
+        },
+      );
+
+      return { previousData, previousFollowingData };
     },
 
     onError: (_err, _variables, context) => {
       if (context?.previousData) {
         queryClient.setQueryData(["posts", "feed"], context.previousData);
+      }
+
+      if (context?.previousFollowingData) {
+        queryClient.setQueryData(
+          ["posts", "following"],
+          context.previousFollowingData,
+        );
       }
     },
 
@@ -70,9 +99,29 @@ export function useAddBookmark() {
         queryKey: ["userPosts", updated.author?.id],
       });
 
+      // queryClient.invalidateQueries({ queryKey: ["posts", "feed"] });
+      // queryClient.invalidateQueries({ queryKey: ["posts", "following"] });
+
       // actual response update
       queryClient.setQueryData<InfiniteData<PostFeedData>>(
         ["posts", "feed"],
+        (old) => {
+          if (!old) return old;
+
+          return produce(old, (draft) => {
+            for (const page of draft.pages) {
+              for (const post of page.posts) {
+                if (post.post.id === updated.post.id) {
+                  post.post.isBookmarked = updated.post.isBookmarked;
+                }
+              }
+            }
+          });
+        },
+      );
+
+      queryClient.setQueryData<InfiniteData<PostFeedData>>(
+        ["posts", "following"],
         (old) => {
           if (!old) return old;
 

@@ -22,8 +22,11 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
 function RootComponent() {
   return (
     <>
-      <div className="flex max-h-svh">
-        <Sidebar />
+      <div className="grid max-h-svh grid-cols-[auto_1fr]">
+        <div>
+          <Sidebar />
+        </div>
+
         <div className="grow overflow-scroll">
           <Outlet />
         </div>

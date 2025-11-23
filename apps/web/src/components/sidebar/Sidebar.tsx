@@ -8,6 +8,7 @@ import {
   LogOut,
   Menu,
   X,
+  Users,
 } from "lucide-react";
 import ThemeController from "@web/components/theme-controller/ThemeController";
 import { useSession, signOut } from "@web/lib/auth-client";
@@ -132,6 +133,20 @@ export function Sidebar() {
               <Home size={20} />
               <span>Feed</span>
             </Link>
+
+            {session.data && (
+              <Link
+                to="/following"
+                className="btn btn-ghost justify-start gap-3 rounded-md"
+                activeProps={{
+                  className: "bg-secondary/20 border-secondary/20 shadow-md",
+                }}
+                onClick={closeMenu}
+              >
+                <Users size={20} />
+                <span>Following</span>
+              </Link>
+            )}
 
             {session.data && (
               <Link
