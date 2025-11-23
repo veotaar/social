@@ -9,6 +9,8 @@ import FollowButton from "@web/components/follow-button/FollowButton";
 import OptionsButton from "@web/components/options-button/OptionsButton";
 import Post from "@web/components/post/Post";
 import { Navigate } from "@tanstack/react-router";
+import { FollowRequestItem } from "@web/components/follow-request/FollowRequest";
+import { useGetFollowRequests } from "@web/hooks/useGetFollowRequests";
 
 export const Route = createFileRoute("/users/$userid/")({
   component: RouteComponent,
@@ -78,6 +80,15 @@ function RouteComponent() {
     },
   });
 
+  const { data: followRequestsData, isError: isFollowRequestError } =
+    useGetFollowRequests();
+
+  const receivedRequest = followRequestsData?.received.find(
+    (request) =>
+      request.followerId === userid &&
+      request.followeeId === sessionData?.user.id,
+  );
+
   if (isLoading) {
     return (
       <div className="mx-auto min-h-screen max-w-3xl px-4 py-6">
@@ -86,7 +97,7 @@ function RouteComponent() {
     );
   }
 
-  if (isError || !userData) {
+  if (isError || !userData || isFollowRequestError || !followRequestsData) {
     return (
       <div className="mx-auto min-h-screen max-w-3xl px-4 py-6">
         <p className="text-error">User not found</p>
@@ -190,6 +201,19 @@ function RouteComponent() {
             <p className="text-base-content/70 text-sm">Following</p>
           </div>
         </div>
+
+        {/* Follow Requests */}
+        {!isOwnProfile && receivedRequest && (
+          <div className="mt-4 rounded-md bg-info p-2">
+            <p className="mb-2 text-info-content text-lg">
+              This user has sent you a follow request:
+            </p>
+            <FollowRequestItem
+              request={receivedRequest}
+              requestType="received"
+            />
+          </div>
+        )}
       </div>
 
       {userData.isBlocked && (

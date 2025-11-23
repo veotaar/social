@@ -23,7 +23,7 @@ export const FollowRequestItem = ({
   const { mutate: decide, isPending } = useDecideFollowRequest();
 
   return (
-    <div className="mb-2 flex items-center justify-between rounded-lg border bg-base-100 p-4 shadow-sm">
+    <div className="flex items-center justify-between rounded-lg border border-base-300 bg-base-100 p-4 shadow-sm">
       <div className="flex items-center gap-3">
         <Avatar
           name={request.requester.name}

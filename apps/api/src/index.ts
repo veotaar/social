@@ -18,7 +18,7 @@ const app = new Elysia()
       origin: "http://localhost:3001",
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
       credentials: true,
-      allowedHeaders: ["Content-Type", "Authorization"],
+      allowedHeaders: ["Content-Type", "Authorization", "User-Agent"],
     }),
   )
   .use(

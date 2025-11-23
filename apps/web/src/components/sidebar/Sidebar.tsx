@@ -3,7 +3,7 @@ import {
   Home,
   Bell,
   Bookmark,
-  User,
+  UserCheck,
   Settings,
   LogOut,
   Menu,
@@ -56,6 +56,10 @@ export function Sidebar() {
       return lastPage.pagination.nextCursor;
     },
   });
+
+  if (!session.data) {
+    return null;
+  }
 
   return (
     <Activity mode={session.data ? "visible" : "hidden"}>
@@ -182,6 +186,19 @@ export function Sidebar() {
             >
               <Bookmark size={20} />
               <span>Bookmarks</span>
+            </Link>
+
+            <Link
+              to="/users/$userid/follow-requests"
+              params={{ userid: session.data?.user.id }}
+              className="btn btn-ghost justify-start gap-3 rounded-md"
+              activeProps={{
+                className: "bg-secondary/20 border-secondary/20 shadow-md",
+              }}
+              onClick={closeMenu}
+            >
+              <UserCheck size={20} />
+              <span>Follow Requests</span>
             </Link>
           </div>
 

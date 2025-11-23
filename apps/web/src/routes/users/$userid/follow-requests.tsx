@@ -62,11 +62,9 @@ function RouteComponent() {
             <p className="text-gray-500">No received requests.</p>
           ) : (
             followRequests.received.map((request) => (
-              <FollowRequestItem
-                key={request.id}
-                request={request}
-                requestType="received"
-              />
+              <div key={request.id} className="mb-2">
+                <FollowRequestItem request={request} requestType="received" />
+              </div>
             ))
           )}
         </div>
