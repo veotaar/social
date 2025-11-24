@@ -12,6 +12,7 @@ import { followsRoute } from "./modules/users/follows";
 import { userBlocksRoute } from "./modules/users/blocks";
 import { userBookmarksRoute } from "./modules/users/bookmarks";
 import { adminRoute } from "./modules/admin";
+import { settingsRoute } from "./modules/settings";
 
 const app = new Elysia()
   .use(
@@ -42,6 +43,7 @@ const app = new Elysia()
   .use(userBlocksRoute)
   .use(userBookmarksRoute)
   .use(adminRoute)
+  .use(settingsRoute)
   .listen(env.PORT);
 
 export type App = typeof app;
