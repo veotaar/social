@@ -28,7 +28,7 @@ export const Route = createFileRoute("/users/$userid/")({
   notFoundComponent: () => (
     <div className="mx-auto min-h-screen max-w-3xl px-4 py-6">
       <p className="text-error">User not found</p>
-      <Link to="/" className="btn btn-primary mt-4">
+      <Link to="/" className="link">
         Go to feed
       </Link>
     </div>

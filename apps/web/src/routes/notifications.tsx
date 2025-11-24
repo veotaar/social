@@ -1,5 +1,10 @@
 import React from "react";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  redirect,
+  notFound,
+  Link,
+} from "@tanstack/react-router";
 import { client } from "@web/lib/api-client";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { cn } from "@web/lib/utils";
@@ -24,13 +29,25 @@ export const Route = createFileRoute("/notifications")({
           .notifications.get({
             query: { cursor: pageParam },
           });
-        if (error) throw error.status;
+        if (error) throw notFound();
 
         return data;
       },
       initialPageParam: "initial",
     });
   },
+  notFoundComponent: () => (
+    <div className="m-auto mt-12 min-h-svh max-w-3xl p-2">
+      <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+        <p className="font-medium text-error text-lg">
+          Error fetching notifications
+        </p>
+        <Link to="/" className="link">
+          Go back to feed
+        </Link>
+      </div>
+    </div>
+  ),
   component: RouteComponent,
 });
 

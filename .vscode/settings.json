@@ -7,5 +7,6 @@
   },
   "search.exclude": {
     "**/routeTree.gen.ts": true
-  }
+  },
+  "workbench.colorTheme": "Catppuccin Mocha"
 }
