@@ -1,12 +1,15 @@
 import type { NotificationProps } from "./types";
 import { Link } from "@tanstack/react-router";
 import NotificationItem from "./NotificationItem";
+import { useMarkAsRead } from "./useMarkAsRead";
 
 const CommentNotification = ({ notification }: NotificationProps) => {
   const {
     notification: { postId },
     sender,
   } = notification;
+
+  const { mutate: markAsRead } = useMarkAsRead();
 
   if (!sender || !postId) {
     return null;
@@ -23,11 +26,17 @@ const CommentNotification = ({ notification }: NotificationProps) => {
       </Link>{" "}
       commented on your{" "}
       <Link
-        className="link link-hover font-bold text-primary"
+        className="link font-bold text-primary"
         to="/posts/$postid"
         params={{ postid: postId }}
+        onClick={() =>
+          markAsRead({
+            userid: notification.notification.recipientId,
+            notificationid: notification.notification.id,
+          })
+        }
       >
-        Post
+        post
       </Link>
     </NotificationItem>
   );
