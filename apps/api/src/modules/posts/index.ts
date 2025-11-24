@@ -103,7 +103,7 @@ export const postsRoute = new Elysia()
       throw new NotFoundError("Post not found or not authorized to delete");
     }
 
-    return { message: "Post deleted successfully" };
+    return deletedPost;
   })
   .patch(
     "/posts/:postid",
