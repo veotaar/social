@@ -245,7 +245,7 @@ export const postsRoute = new Elysia()
         );
       }
 
-      return { message: "Comment deleted successfully" };
+      return deletedComment;
     },
   )
   .post(

@@ -86,10 +86,11 @@ export const deleteComment = async ({
   if (!existing) return null;
   if (existing.postId !== postId) return null;
 
-  await db
+  const [deleted] = await db
     .update(table.comment)
     .set({ deletedAt: new Date() })
-    .where(eq(comment.id, commentId));
+    .where(eq(comment.id, commentId))
+    .returning();
 
   // decrease commentsCount on post
   await db
@@ -111,7 +112,7 @@ export const deleteComment = async ({
     });
   }
 
-  return true;
+  return deleted;
 };
 
 export const updateComment = async ({
