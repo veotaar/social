@@ -1,14 +1,13 @@
 import type { Treaty } from "@elysiajs/eden";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { client } from "@web/lib/api-client";
-// import type { client } from "@web/lib/api-client";
 import { formatDistanceToNow } from "date-fns";
-import { EllipsisVertical } from "lucide-react";
 import Avatar from "../avatar/Avatar";
 import LikeButton from "./LikeButton";
 import CommentButton from "./CommentButton";
 import BookmarkButton from "./BookmarkButton";
 import Comment from "./Comment";
+import { DeletePostButton } from "./DeletePostButton";
 import { useState } from "react";
 import { cn } from "@web/lib/utils";
 import { useSendComment } from "@web/components/post/useSendComment";
@@ -107,8 +106,12 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
             </Link>
           </div>
 
-          <div className={cn("ml-auto opacity-0 group-hover/post:opacity-100")}>
-            <EllipsisVertical />
+          <div
+            className={cn(
+              "ml-auto self-start opacity-0 group-hover/post:opacity-100",
+            )}
+          >
+            <DeletePostButton post={{ post, author }} />
           </div>
         </div>
 
