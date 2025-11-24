@@ -11,6 +11,7 @@ import Post from "@web/components/post/Post";
 import { Navigate } from "@tanstack/react-router";
 import { FollowRequestItem } from "@web/components/follow-request/FollowRequest";
 import { useGetFollowRequests } from "@web/hooks/useGetFollowRequests";
+import { ModerateButton } from "@web/components/moderate-button/ModerateButton";
 
 export const Route = createFileRoute("/users/$userid/")({
   component: RouteComponent,
@@ -145,6 +146,11 @@ function RouteComponent() {
                     isFollowedBy={userData.isFollowedBy}
                     isFollowing={userData.isFollowing}
                     isBlocked={userData.isBlocked}
+                  />
+
+                  <ModerateButton
+                    userId={userData.id}
+                    isBanned={userData.banned}
                   />
                 </div>
               )}
