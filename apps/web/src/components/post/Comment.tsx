@@ -2,26 +2,19 @@ import { formatDistanceToNow } from "date-fns";
 import Avatar from "../avatar/Avatar";
 import LikeCommentButton from "./LikeCommentButton";
 import { Link } from "@tanstack/react-router";
+import { client } from "@web/lib/api-client";
+import type { Treaty } from "@elysiajs/eden";
+import { DeleteCommentButton } from "./DeleteCommentButton";
+import { cn } from "@web/lib/utils";
 
-interface CommentProps {
-  comment: {
-    id: string;
-    content: string;
-    createdAt: string;
-    postId: string;
-    likesCount: number;
-    likedByCurrentUser: boolean;
-  };
-  author: {
-    id: string;
-    username: string | null;
-    displayUsername: string | null;
-    name: string;
-    image: string | null;
-  } | null;
-}
+const commentRequest = client.posts({ postid: "" }).comments.get;
 
-const Comment = ({ comment, author }: CommentProps) => {
+export type CommentData = Omit<
+  Treaty.Data<typeof commentRequest>,
+  "pagination"
+>["comments"][number];
+
+const Comment = ({ comment, author }: CommentData) => {
   if (!author) {
     return null;
   }
@@ -34,16 +27,18 @@ const Comment = ({ comment, author }: CommentProps) => {
 
       <div>
         <div className="flex items-center gap-2">
-          <Link to="/users/$userid" params={{ userid: author.id }}>
-            <div className="group/comment-author flex gap-2">
-              <p className="group-hover/comment-author:text-primary">
-                {author.displayUsername}
-              </p>
-              <p className="font-bold group-hover/comment-author:text-primary">
-                @{author?.username}
-              </p>
-            </div>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/users/$userid" params={{ userid: author.id }}>
+              <div className="group/comment-author flex gap-2">
+                <p className="group-hover/comment-author:text-primary">
+                  {author.displayUsername}
+                </p>
+                <p className="font-bold group-hover/comment-author:text-primary">
+                  @{author?.username}
+                </p>
+              </div>
+            </Link>
+          </div>
 
           <p
             className="lg:tooltip text-base-content/70"
@@ -53,6 +48,14 @@ const Comment = ({ comment, author }: CommentProps) => {
               addSuffix: true,
             })}
           </p>
+
+          <div
+            className={cn(
+              "ml-auto self-start opacity-30 group-hover/post:opacity-100",
+            )}
+          >
+            <DeleteCommentButton comment={{ comment, author }} />
+          </div>
         </div>
         <div className="my-1 whitespace-pre-wrap">{comment.content}</div>
         <div>

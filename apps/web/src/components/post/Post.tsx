@@ -108,7 +108,7 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
 
           <div
             className={cn(
-              "ml-auto self-start opacity-0 group-hover/post:opacity-100",
+              "ml-auto self-start opacity-30 group-hover/post:opacity-100",
             )}
           >
             <DeletePostButton post={{ post, author }} />
