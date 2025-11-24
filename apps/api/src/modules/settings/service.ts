@@ -36,3 +36,24 @@ export const getCachedSettings = async () => {
 
   return cachedSettings;
 };
+
+export const updateSystemSettings = async (updates: {
+  allowSignup?: boolean;
+  allowGuestLogin?: boolean;
+  maintenanceMode?: boolean;
+  guestPostLimit?: number;
+}) => {
+  const [updated] = await db
+    .update(table.systemSettings)
+    .set({
+      ...updates,
+    })
+    .where(eq(table.systemSettings.id, 1))
+    .returning();
+
+  // Invalidate cache
+  cachedSettings = null;
+  lastFetched = 0;
+
+  return updated;
+};
