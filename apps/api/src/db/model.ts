@@ -37,6 +37,7 @@ import commentMention, {
   commentMentionRelations,
 } from "./schema/commentMention";
 import bookmark, { bookmarkRelations } from "./schema/bookmark";
+import systemSettings from "./schema/systemSettings";
 
 export const table = {
   account,
@@ -79,6 +80,7 @@ export const table = {
   commentMentionRelations,
   bookmark,
   bookmarkRelations,
+  systemSettings,
 } as const;
 
 export type Table = typeof table;

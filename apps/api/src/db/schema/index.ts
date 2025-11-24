@@ -32,3 +32,4 @@ export {
 } from "./userSubscription";
 export { default as verification } from "./verification";
 export { default as bookmark, bookmarkRelations } from "./bookmark";
+export { default as systemSettings } from "./systemSettings";
