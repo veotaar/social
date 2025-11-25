@@ -4,6 +4,8 @@ import PostFeed from "@web/components/post/PostFeed";
 import PostWriter from "@web/components/post/PostWriter";
 import { useSession } from "@web/lib/auth-client";
 import GuestLoginButton from "@web/components/guest-login-button/GuestLogin";
+import { useGetSystemSettings } from "@web/hooks/useGetSystemSettings";
+import { TriangleAlert, Info } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -11,6 +13,8 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const session = useSession();
+
+  const { data: systemData } = useGetSystemSettings();
 
   if (session.isPending) {
     return (
@@ -29,6 +33,25 @@ function Index() {
   }
 
   if (!session.data) {
+    if (systemData?.maintenanceMode) {
+      return (
+        <div className="hero min-h-screen bg-base-200">
+          <div className="hero-content text-center">
+            <div className="max-w-md">
+              <h1 className="font-bold text-5xl">Maintenance Mode</h1>
+              <div className="alert alert-warning mt-6 rounded-md">
+                <TriangleAlert className="h-6 w-6 shrink-0" />
+                <span>
+                  The site is currently under maintenance. Please check back
+                  later.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="hero min-h-screen bg-base-200">
         <div className="hero-content text-center">
@@ -42,11 +65,24 @@ function Index() {
               <Link to="/login" className="btn btn-primary" preload="intent">
                 Sign In
               </Link>
-              <Link to="/register" className="btn btn-ghost" preload="intent">
-                Create Account
-              </Link>
-              <GuestLoginButton />
+              {systemData?.allowSignup && (
+                <Link to="/register" className="btn btn-ghost" preload="intent">
+                  Create Account
+                </Link>
+              )}
+              {systemData?.allowGuestLogin && (
+                <>
+                  <div className="divider">OR</div>
+                  <GuestLoginButton />
+                </>
+              )}
             </div>
+            {!systemData?.allowSignup && !systemData?.allowGuestLogin && (
+              <div className="alert alert-info mt-6 rounded-md">
+                <Info className="h-6 w-6 shrink-0" />
+                <span>New registrations are currently closed.</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

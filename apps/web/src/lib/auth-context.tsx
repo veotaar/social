@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   if (isPending) {
     return (
       <div className="flex min-h-screen min-w-full items-center justify-center bg-base-100">
-        Loading...
+        <span className="loading loading-ring loading-xl" />
       </div>
     );
   }

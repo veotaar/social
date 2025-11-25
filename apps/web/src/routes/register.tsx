@@ -7,6 +7,8 @@ import { zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import FieldInfo from "../components/FieldInfo";
 import GuestLoginButton from "@web/components/guest-login-button/GuestLogin";
+import { useGetSystemSettings } from "@web/hooks/useGetSystemSettings";
+import { TriangleAlert, Info } from "lucide-react";
 
 const registerSearchSchema = z.object({
   redirect: z.string().default("/"),
@@ -41,6 +43,9 @@ const defaultValues: z.input<typeof registerFormSchema> = {
 function RegisterComponent() {
   const navigate = Route.useNavigate();
 
+  const { data: systemData, isLoading: isSystemLoading } =
+    useGetSystemSettings();
+
   const signupUserMutation = useMutation({
     mutationFn: async (value: z.infer<typeof registerFormSchema>) => {
       await signUp.email({
@@ -68,6 +73,61 @@ function RegisterComponent() {
     },
   });
 
+  if (isSystemLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-base-200">
+        <div className="text-center">
+          <span className="loading loading-spinner loading-lg text-primary" />
+          <p className="mt-4 text-base-content/70">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (systemData?.maintenanceMode) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-base-200">
+        <div className="card w-96 bg-base-100 shadow-xl">
+          <div className="card-body items-center text-center">
+            <h2 className="card-title text-3xl">Maintenance Mode</h2>
+            <div className="alert alert-warning mt-4 rounded-md">
+              <TriangleAlert className="h-6 w-6 shrink-0" />
+              <span>The site is currently under maintenance.</span>
+            </div>
+            <Link to="/" className="btn btn-ghost mt-4">
+              Go Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!systemData?.allowSignup) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-base-200">
+        <div className="card w-96 bg-base-100 shadow-xl">
+          <div className="card-body items-center text-center">
+            <h2 className="card-title text-3xl">Registration Closed</h2>
+            <div className="alert alert-info mt-4 rounded-md">
+              <Info className="h-6 w-6 shrink-0" />
+              <span>New registrations are currently disabled.</span>
+            </div>
+            <div className="mt-6 flex flex-col gap-3">
+              <Link to="/login" className="btn btn-primary">
+                Sign In
+              </Link>
+              {systemData?.allowGuestLogin && <GuestLoginButton />}
+              <Link to="/" className="btn btn-ghost">
+                Go Home
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-base-200">
       <div className="card w-96 bg-base-100 shadow-xl">
@@ -90,7 +150,7 @@ function RegisterComponent() {
                     type="text"
                     id="name"
                     placeholder="Your Name"
-                    className="input input-bordered w-full"
+                    className="input input-bordered w-full rounded-md"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
@@ -113,7 +173,7 @@ function RegisterComponent() {
                     type="email"
                     id="email"
                     placeholder="email@example.com"
-                    className="input input-bordered w-full"
+                    className="input input-bordered w-full rounded-md "
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
@@ -136,7 +196,7 @@ function RegisterComponent() {
                     type="text"
                     id="username"
                     placeholder="username"
-                    className="input input-bordered w-full"
+                    className="input input-bordered w-full rounded-md "
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
@@ -159,7 +219,7 @@ function RegisterComponent() {
                     type="text"
                     id="displayUsername"
                     placeholder="display username"
-                    className="input input-bordered w-full"
+                    className="input input-bordered w-full rounded-md "
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
@@ -181,7 +241,7 @@ function RegisterComponent() {
                     type="password"
                     id="password"
                     placeholder="password"
-                    className="input input-bordered w-full"
+                    className="input input-bordered w-full rounded-md "
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
@@ -208,8 +268,12 @@ function RegisterComponent() {
               Already have an account? Login
             </Link>
           </div>
-          <div className="divider">OR</div>
-          <GuestLoginButton />
+          {systemData?.allowGuestLogin && (
+            <>
+              <div className="divider">OR</div>
+              <GuestLoginButton />
+            </>
+          )}
         </div>
       </div>
     </div>

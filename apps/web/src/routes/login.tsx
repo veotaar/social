@@ -7,6 +7,8 @@ import { zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import FieldInfo from "../components/FieldInfo";
 import GuestLoginButton from "@web/components/guest-login-button/GuestLogin";
+import { useGetSystemSettings } from "@web/hooks/useGetSystemSettings";
+import { TriangleAlert } from "lucide-react";
 
 const loginSearchSchema = z.object({
   redirect: z.string().default("/"),
@@ -35,6 +37,9 @@ const defaultValues: z.input<typeof loginFormSchema> = {
 function LoginComponent() {
   const navigate = Route.useNavigate();
 
+  const { data: systemData, isLoading: isSystemLoading } =
+    useGetSystemSettings();
+
   const signInUserMutation = useMutation({
     mutationFn: async (value: z.infer<typeof loginFormSchema>) => {
       await signIn.email({
@@ -59,6 +64,36 @@ function LoginComponent() {
     },
   });
 
+  if (isSystemLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-base-200">
+        <div className="text-center">
+          <span className="loading loading-spinner loading-lg text-primary" />
+          <p className="mt-4 text-base-content/70">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (systemData?.maintenanceMode) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-base-200">
+        <div className="card w-96 bg-base-100 shadow-xl">
+          <div className="card-body items-center text-center">
+            <h2 className="card-title text-3xl">Maintenance Mode</h2>
+            <div className="alert alert-warning mt-4 rounded-md">
+              <TriangleAlert className="h-6 w-6 shrink-0" />
+              <span>The site is currently under maintenance.</span>
+            </div>
+            <Link to="/" className="btn btn-ghost mt-4">
+              Go Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-base-200">
       <div className="card w-96 bg-base-100 shadow-xl">
@@ -81,7 +116,7 @@ function LoginComponent() {
                     type="email"
                     id="email"
                     placeholder="email@example.com"
-                    className="input input-bordered w-full"
+                    className="input input-bordered w-full rounded-md"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
@@ -104,7 +139,7 @@ function LoginComponent() {
                     type="password"
                     id="password"
                     placeholder="password"
-                    className="input input-bordered w-full"
+                    className="input input-bordered w-full rounded-md"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
@@ -131,8 +166,12 @@ function LoginComponent() {
               Don't have an account? Sign up.
             </Link>
           </div>
-          <div className="divider">OR</div>
-          <GuestLoginButton />
+          {systemData?.allowGuestLogin && (
+            <>
+              <div className="divider">OR</div>
+              <GuestLoginButton />
+            </>
+          )}
         </div>
       </div>
     </div>
