@@ -8,7 +8,6 @@ import Avatar from "@web/components/avatar/Avatar";
 import FollowButton from "@web/components/follow-button/FollowButton";
 import OptionsButton from "@web/components/options-button/OptionsButton";
 import Post from "@web/components/post/Post";
-import { Navigate } from "@tanstack/react-router";
 import { FollowRequestItem } from "@web/components/follow-request/FollowRequest";
 import { useGetFollowRequests } from "@web/hooks/useGetFollowRequests";
 import { ModerateButton } from "@web/components/moderate-button/ModerateButton";
@@ -102,7 +101,6 @@ function RouteComponent() {
     return (
       <div className="mx-auto min-h-screen max-w-3xl px-4 py-6">
         <p className="text-error">User not found</p>
-        <Navigate to="/" />
       </div>
     );
   }

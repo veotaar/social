@@ -14,6 +14,7 @@ import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FollowingRouteImport } from './routes/following'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
+import { Route as AdminDotsettingsRouteImport } from './routes/admin[.]settings'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as SettingsRouteRouteImport } from './routes/settings/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -46,6 +47,11 @@ const FollowingRoute = FollowingRouteImport.update({
 const BookmarksRoute = BookmarksRouteImport.update({
   id: '/bookmarks',
   path: '/bookmarks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDotsettingsRoute = AdminDotsettingsRouteImport.update({
+  id: '/admin.settings',
+  path: '/admin.settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/settings': typeof SettingsRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/admin.settings': typeof AdminDotsettingsRoute
   '/bookmarks': typeof BookmarksRoute
   '/following': typeof FollowingRoute
   '/login': typeof LoginRoute
@@ -109,6 +116,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/settings': typeof SettingsRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/admin.settings': typeof AdminDotsettingsRoute
   '/bookmarks': typeof BookmarksRoute
   '/following': typeof FollowingRoute
   '/login': typeof LoginRoute
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/settings': typeof SettingsRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/admin.settings': typeof AdminDotsettingsRoute
   '/bookmarks': typeof BookmarksRoute
   '/following': typeof FollowingRoute
   '/login': typeof LoginRoute
@@ -142,6 +151,7 @@ export interface FileRouteTypes {
     | '/'
     | '/settings'
     | '/about'
+    | '/admin.settings'
     | '/bookmarks'
     | '/following'
     | '/login'
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
     | '/'
     | '/settings'
     | '/about'
+    | '/admin.settings'
     | '/bookmarks'
     | '/following'
     | '/login'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/'
     | '/settings'
     | '/about'
+    | '/admin.settings'
     | '/bookmarks'
     | '/following'
     | '/login'
@@ -188,6 +200,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SettingsRouteRoute: typeof SettingsRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
+  AdminDotsettingsRoute: typeof AdminDotsettingsRoute
   BookmarksRoute: typeof BookmarksRoute
   FollowingRoute: typeof FollowingRoute
   LoginRoute: typeof LoginRoute
@@ -234,6 +247,13 @@ declare module '@tanstack/react-router' {
       path: '/bookmarks'
       fullPath: '/bookmarks'
       preLoaderRoute: typeof BookmarksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin.settings': {
+      id: '/admin.settings'
+      path: '/admin.settings'
+      fullPath: '/admin.settings'
+      preLoaderRoute: typeof AdminDotsettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -311,6 +331,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SettingsRouteRoute: SettingsRouteRouteWithChildren,
   AboutRoute: AboutRoute,
+  AdminDotsettingsRoute: AdminDotsettingsRoute,
   BookmarksRoute: BookmarksRoute,
   FollowingRoute: FollowingRoute,
   LoginRoute: LoginRoute,

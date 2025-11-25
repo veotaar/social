@@ -9,6 +9,7 @@ import {
   Menu,
   X,
   Users,
+  ToggleRight,
 } from "lucide-react";
 import ThemeController from "@web/components/theme-controller/ThemeController";
 import { useSession, signOut } from "@web/lib/auth-client";
@@ -200,6 +201,20 @@ export function Sidebar() {
               <UserCheck size={20} />
               <span>Follow Requests</span>
             </Link>
+
+            {session.data.user.role === "admin" && (
+              <Link
+                to="/admin.settings"
+                className="btn btn-ghost justify-start gap-3 rounded-md"
+                activeProps={{
+                  className: "bg-secondary/20 border-secondary/20 shadow-md",
+                }}
+                onClick={closeMenu}
+              >
+                <ToggleRight size={20} />
+                <span>Admin Settings</span>
+              </Link>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
