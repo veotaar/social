@@ -7,6 +7,7 @@ import {
   twoFactor,
   anonymous,
 } from "better-auth/plugins";
+import { createAuthMiddleware, APIError } from "better-auth/api";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@api/db/db";
 import { table } from "@api/db/model";
@@ -17,6 +18,7 @@ import {
   colors,
   animals,
 } from "unique-names-generator";
+import { getCachedSettings } from "@api/modules/settings/service";
 import env from "@api/env";
 
 export const auth = betterAuth({
@@ -33,6 +35,25 @@ export const auth = betterAuth({
       twoFactor: table.twoFactor,
     },
   }),
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === "/sign-in/anonymous") {
+        const settings = await getCachedSettings();
+        if (!settings?.allowGuestLogin) {
+          throw new APIError("FORBIDDEN", {
+            message: "Guest login is disabled",
+          });
+        }
+      } else if (ctx.path === "/sign-up/email") {
+        const settings = await getCachedSettings();
+        if (!settings?.allowSignup) {
+          throw new APIError("FORBIDDEN", {
+            message: "Sign up is disabled",
+          });
+        }
+      }
+    }),
+  },
   databaseHooks: {
     user: {
       create: {
