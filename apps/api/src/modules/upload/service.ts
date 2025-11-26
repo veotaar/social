@@ -18,8 +18,8 @@ const ALLOWED_MIME_TYPES = [
   "image/webp",
   "image/avif",
 ];
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
-const MAX_IMAGE_DIMENSION = 1920; // Max width or height
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 mb
+const MAX_IMAGE_DIMENSION = 1920; // max width or height
 
 export type UploadType = "post" | "comment" | "profile";
 
@@ -28,10 +28,8 @@ interface UploadResult {
   url: string;
 }
 
-/**
- * Compress and convert image to AVIF format
- * Resizes if larger than MAX_IMAGE_DIMENSION while maintaining aspect ratio
- */
+// compress and convert image to AVIF
+// resizes if larger than MAX_IMAGE_DIMENSION while maintaining aspect ratio
 const processImage = async (file: File): Promise<Buffer> => {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
@@ -39,7 +37,7 @@ const processImage = async (file: File): Promise<Buffer> => {
   const image = sharp(buffer);
   const metadata = await image.metadata();
 
-  // Resize if image is larger than max dimension
+  // resize if image is larger than max dimension
   const needsResize =
     (metadata.width && metadata.width > MAX_IMAGE_DIMENSION) ||
     (metadata.height && metadata.height > MAX_IMAGE_DIMENSION);
@@ -55,11 +53,11 @@ const processImage = async (file: File): Promise<Buffer> => {
     });
   }
 
-  // Convert to AVIF with good quality/compression balance
+  // convert to AVIF
   const processedBuffer = await pipeline
     .avif({
       quality: 70,
-      effort: 4, // Balance between speed and compression
+      effort: 4,
     })
     .toBuffer();
 
@@ -93,7 +91,6 @@ export const uploadImage = async ({
   const processedBuffer = await processImage(file);
 
   const fileId = uuidv7();
-  // Always use .avif extension since we convert to AVIF
   const fileName = `${uploadType}/${userId}/${fileId}.avif`;
 
   await s3Client.write(fileName, processedBuffer, {
