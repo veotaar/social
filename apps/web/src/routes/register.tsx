@@ -1,14 +1,15 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useBlocker } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
-import { signUp } from "@web/lib/auth-client";
+import { useState, useEffect } from "react";
+import { signUp, isUsernameAvailable } from "@web/lib/auth-client";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import FieldInfo from "../components/FieldInfo";
 import GuestLoginButton from "@web/components/guest-login-button/GuestLogin";
 import { useGetSystemSettings } from "@web/hooks/useGetSystemSettings";
-import { TriangleAlert, Info } from "lucide-react";
+import { TriangleAlert, Info, CircleCheck } from "lucide-react";
 
 const registerSearchSchema = z.object({
   redirect: z.string().default("/"),
@@ -42,25 +43,48 @@ const defaultValues: z.input<typeof registerFormSchema> = {
 
 function RegisterComponent() {
   const navigate = Route.useNavigate();
+  const [signupError, setSignupError] = useState<{
+    code?: string;
+    message?: string;
+  } | null>(null);
+  const [isRegistered, setIsRegistered] = useState(false);
 
   const { data: systemData, isLoading: isSystemLoading } =
     useGetSystemSettings();
 
+  const checkUsernameMutation = useMutation({
+    mutationFn: async (username: string) => {
+      const { data: response, error } = await isUsernameAvailable({
+        username,
+      });
+      if (error) throw error;
+      return response;
+    },
+  });
+
   const signupUserMutation = useMutation({
     mutationFn: async (value: z.infer<typeof registerFormSchema>) => {
-      await signUp.email({
+      const { data, error } = await signUp.email({
         email: value.email,
         password: value.password,
         name: value.name,
         username: value.username,
-        displayUsername: value.displayUsername,
-        callbackURL: "/",
+        displayUsername: value.displayUsername ?? value.name,
+        // callbackURL: "/",
       });
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
-      navigate({ to: "/" });
+      setIsRegistered(true);
     },
   });
+
+  useEffect(() => {
+    if (isRegistered) {
+      navigate({ to: "/login", search: { registered: true } });
+    }
+  }, [isRegistered, navigate]);
 
   const form = useForm({
     defaultValues,
@@ -68,8 +92,23 @@ function RegisterComponent() {
       onChange: registerFormSchema,
     },
     onSubmit: async ({ value, formApi }) => {
-      await signupUserMutation.mutateAsync(value);
-      formApi.reset();
+      try {
+        setSignupError(null);
+        await signupUserMutation.mutateAsync(value);
+        formApi.reset();
+      } catch (error) {
+        const err = error as { code?: string; message?: string };
+        setSignupError(err);
+      }
+    },
+  });
+
+  useBlocker({
+    shouldBlockFn: () => {
+      if (isRegistered || !form.state.isDirty) return false;
+
+      const shouldLeave = confirm("Are you sure you want to leave?");
+      return !shouldLeave;
     },
   });
 
@@ -133,6 +172,21 @@ function RegisterComponent() {
       <div className="card w-96 bg-base-100 shadow-xl">
         <div className="card-body">
           <h2 className="card-title mb-6 justify-center text-3xl">Register</h2>
+          {signupError && (
+            <div
+              className={`alert mb-4 rounded-md ${
+                signupError.code === "PASSWORD_COMPROMISED"
+                  ? "alert-warning"
+                  : "alert-error"
+              }`}
+            >
+              <TriangleAlert className="h-5 w-5 shrink-0" />
+              <span>
+                {signupError.message ||
+                  "An error occurred during signup. Please try again."}
+              </span>
+            </div>
+          )}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -144,7 +198,9 @@ function RegisterComponent() {
               children={(field) => (
                 <div className="mb-4">
                   <label className="label" htmlFor="name">
-                    <span className="label-text">Name</span>
+                    <span className="label-text">
+                      Name <span className="text-error">*</span>
+                    </span>
                   </label>
                   <input
                     type="text"
@@ -167,7 +223,9 @@ function RegisterComponent() {
               children={(field) => (
                 <div className="mb-4">
                   <label className="label" htmlFor="email">
-                    <span className="label-text">Email</span>
+                    <span className="label-text">
+                      Email <span className="text-error">*</span>
+                    </span>
                   </label>
                   <input
                     type="email"
@@ -187,10 +245,33 @@ function RegisterComponent() {
 
             <form.Field
               name="username"
+              validators={{
+                onChangeAsyncDebounceMs: 500,
+                onChangeAsync: async ({ value }) => {
+                  if (!value) {
+                    return undefined;
+                  }
+                  if (value.length < 5) {
+                    return "Username must be at least 5 characters";
+                  }
+                  try {
+                    const response =
+                      await checkUsernameMutation.mutateAsync(value);
+                    if (!response?.available) {
+                      return "Username is already taken";
+                    }
+                  } catch (error) {
+                    return "Error checking username availability";
+                  }
+                  return undefined;
+                },
+              }}
               children={(field) => (
                 <div className="mb-4">
                   <label className="label" htmlFor="username">
-                    <span className="label-text">Username</span>
+                    <span className="label-text">
+                      Username <span className="text-error">*</span>
+                    </span>
                   </label>
                   <input
                     type="text"
@@ -199,10 +280,20 @@ function RegisterComponent() {
                     className="input input-bordered w-full rounded-md "
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
                     required
                   />
                   <div className="min-h-6">
                     <FieldInfo field={field} />
+                    {field.state.meta.isTouched &&
+                      field.state.meta.isValid &&
+                      !field.state.meta.isValidating &&
+                      field.state.value.length >= 5 && (
+                        <span className="flex items-center gap-1 text-sm text-success">
+                          <CircleCheck className="h-4 w-4" />
+                          Username is available
+                        </span>
+                      )}
                   </div>
                 </div>
               )}
@@ -213,7 +304,9 @@ function RegisterComponent() {
               children={(field) => (
                 <div className="mb-4">
                   <label className="label" htmlFor="displayUsername">
-                    <span className="label-text">Display Username</span>
+                    <span className="label-text">
+                      Display Username (optional)
+                    </span>
                   </label>
                   <input
                     type="text"
@@ -235,7 +328,9 @@ function RegisterComponent() {
               children={(field) => (
                 <div className="mb-6">
                   <label className="label" htmlFor="password">
-                    <span className="label-text">password</span>
+                    <span className="label-text">
+                      Password <span className="text-error">*</span>
+                    </span>
                   </label>
                   <input
                     type="password"

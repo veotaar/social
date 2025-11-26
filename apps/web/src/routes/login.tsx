@@ -5,13 +5,15 @@ import { Link } from "@tanstack/react-router";
 import { signIn } from "@web/lib/auth-client";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
+import { useState } from "react";
 import FieldInfo from "../components/FieldInfo";
 import GuestLoginButton from "@web/components/guest-login-button/GuestLogin";
 import { useGetSystemSettings } from "@web/hooks/useGetSystemSettings";
-import { TriangleAlert } from "lucide-react";
+import { TriangleAlert, CircleCheck } from "lucide-react";
 
 const loginSearchSchema = z.object({
   redirect: z.string().default("/"),
+  registered: z.boolean().optional(),
 });
 
 export const Route = createFileRoute("/login")({
@@ -36,17 +38,23 @@ const defaultValues: z.input<typeof loginFormSchema> = {
 
 function LoginComponent() {
   const navigate = Route.useNavigate();
+  const { registered } = Route.useSearch();
+
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const { data: systemData, isLoading: isSystemLoading } =
     useGetSystemSettings();
 
   const signInUserMutation = useMutation({
     mutationFn: async (value: z.infer<typeof loginFormSchema>) => {
-      await signIn.email({
+      const { data, error } = await signIn.email({
         email: value.email,
         password: value.password,
-        callbackURL: "/",
+        // callbackURL: "/",
       });
+
+      if (error) throw error;
+      return data;
     },
     onSuccess: async () => {
       await navigate({ to: "/" });
@@ -59,8 +67,14 @@ function LoginComponent() {
       onChange: loginFormSchema,
     },
     onSubmit: async ({ value, formApi }) => {
-      await signInUserMutation.mutateAsync(value);
-      formApi.reset();
+      try {
+        await signInUserMutation.mutateAsync(value);
+        formApi.reset();
+        setLoginError(null);
+      } catch {
+        formApi.resetField("password");
+        setLoginError("Invalid email or password. Please try again.");
+      }
     },
   });
 
@@ -99,6 +113,21 @@ function LoginComponent() {
       <div className="card w-96 bg-base-100 shadow-xl">
         <div className="card-body">
           <h2 className="card-title mb-6 justify-center text-3xl">Login</h2>
+          {registered && (
+            <div className="alert alert-success mb-4 rounded-md">
+              <CircleCheck className="h-5 w-5 shrink-0" />
+              <span>
+                Signup successful! Please check your email to confirm your
+                account before logging in.
+              </span>
+            </div>
+          )}
+          {loginError && (
+            <div className="alert alert-error mb-4 rounded-md">
+              <TriangleAlert className="h-5 w-5 shrink-0" />
+              <span>{loginError}</span>
+            </div>
+          )}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -133,7 +162,7 @@ function LoginComponent() {
               children={(field) => (
                 <div className="mb-6">
                   <label className="label" htmlFor="password">
-                    <span className="label-text">password</span>
+                    <span className="label-text">Password</span>
                   </label>
                   <input
                     type="password"
