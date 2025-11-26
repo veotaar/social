@@ -3,6 +3,7 @@ import { table } from "@api/db/model";
 import { and, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 import { NotFoundError } from "elysia";
 import { getPost } from "@api/modules/posts/service";
+import { attachImagesToFeed } from "@api/modules/posts/service";
 
 export const addPostBookmark = async ({
   currentUserId,
@@ -160,8 +161,10 @@ export const getUserBookmarks = async ({
     }
   }
 
+  const postsWithImages = await attachImagesToFeed(feed);
+
   return {
-    posts: feed,
+    posts: postsWithImages,
     pagination: {
       hasMore,
       nextCursor,

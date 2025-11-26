@@ -38,6 +38,7 @@ export const postsRoute = new Elysia()
       const created = await createPost({
         userId: user.id,
         content: body.content,
+        imageIds: body.imageIds,
       });
 
       return created;
@@ -45,6 +46,7 @@ export const postsRoute = new Elysia()
     {
       body: t.Object({
         content: post.content,
+        imageIds: t.Optional(t.Array(t.String())),
       }),
     },
   )

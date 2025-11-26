@@ -9,6 +9,7 @@ import {
   createNotification,
   removeNotification,
 } from "@api/modules/users/notifications/service";
+import { attachImagesToFeed } from "../posts/service";
 
 export const getUserById = async ({
   id,
@@ -416,8 +417,11 @@ export const getPostsByUser = async ({
     }
   }
 
+  // Attach images to posts
+  const feedWithImages = await attachImagesToFeed(feed);
+
   return {
-    posts: feed,
+    posts: feedWithImages,
     pagination: {
       hasMore,
       nextCursor,

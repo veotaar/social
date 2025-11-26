@@ -1,12 +1,68 @@
 import db from "@api/db/db";
 import { table } from "@api/db/model";
-import { block, postLike, post, user, bookmark, follow } from "@api/db/schema";
-import { and, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
+import {
+  block,
+  postLike,
+  post,
+  user,
+  bookmark,
+  follow,
+  postImage,
+} from "@api/db/schema";
+import {
+  and,
+  desc,
+  eq,
+  isNull,
+  lt,
+  notInArray,
+  sql,
+  inArray,
+  asc,
+} from "drizzle-orm";
+import type { InferSelectModel } from "drizzle-orm";
+
+type PostImage = InferSelectModel<typeof postImage>;
+
+export const attachImagesToFeed = async <T extends { post: { id: string } }>(
+  feed: T[],
+): Promise<(T & { post: T["post"] & { images: PostImage[] } })[]> => {
+  if (feed.length === 0)
+    return feed as (T & { post: T["post"] & { images: PostImage[] } })[];
+
+  const postIds = feed.map((p) => p.post.id);
+
+  // using drizzle's query API to fetch images with the relation
+  const postsWithImages = await db.query.post.findMany({
+    where: inArray(post.id, postIds),
+    columns: { id: true },
+    with: {
+      images: {
+        where: isNull(postImage.deletedAt),
+        orderBy: asc(postImage.order),
+      },
+    },
+  });
+
+  const imagesByPostId = Object.fromEntries(
+    postsWithImages.map((p) => [p.id, p.images]),
+  ) as Record<string, PostImage[]>;
+
+  // add an images field to each post in the feed
+  return feed.map((p) => ({
+    ...p,
+    post: {
+      ...p.post,
+      images: imagesByPostId[p.post.id] || [],
+    },
+  }));
+};
 
 export const createPost = async ({
   userId,
   content,
-}: { userId: string; content: string }) => {
+  imageIds,
+}: { userId: string; content: string; imageIds?: string[] }) => {
   const [created] = await db
     .insert(table.post)
     .values({
@@ -14,6 +70,14 @@ export const createPost = async ({
       content: content,
     })
     .returning();
+
+  // link images to the post if any were uploaded
+  if (imageIds && imageIds.length > 0) {
+    await db
+      .update(table.postImage)
+      .set({ postId: created.id })
+      .where(inArray(table.postImage.id, imageIds));
+  }
 
   await db
     .update(table.user)
@@ -102,8 +166,10 @@ export const getFeedPosts = async ({
     }
   }
 
+  const postsWithImages = await attachImagesToFeed(feed);
+
   return {
-    posts: feed,
+    posts: postsWithImages,
     pagination: {
       hasMore,
       nextCursor,
@@ -171,7 +237,24 @@ export const getPost = async ({
     return null;
   }
 
-  return result[0];
+  const postWithImages = await db.query.post.findFirst({
+    where: eq(post.id, postId),
+    columns: { id: true },
+    with: {
+      images: {
+        where: isNull(postImage.deletedAt),
+        orderBy: asc(postImage.order),
+      },
+    },
+  });
+
+  return {
+    ...result[0],
+    post: {
+      ...result[0].post,
+      images: (postWithImages?.images || []) as PostImage[],
+    },
+  };
 };
 
 export const deletePost = async ({
@@ -322,8 +405,10 @@ export const getFollowingFeedPosts = async ({
     }
   }
 
+  const postsWithImages = await attachImagesToFeed(feed);
+
   return {
-    posts: feed,
+    posts: postsWithImages,
     pagination: {
       hasMore,
       nextCursor,
