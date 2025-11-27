@@ -6,6 +6,7 @@ import {
   createNotification,
   removeNotification,
 } from "@api/modules/users/notifications/service";
+import { getBlockedUserIds } from "@api/modules/block/service";
 
 export const getCommentLikes = async ({
   userId,
@@ -13,15 +14,9 @@ export const getCommentLikes = async ({
   limit = 10,
   cursor,
 }: { userId: string; commentId: string; limit?: number; cursor: string }) => {
-  const blockedUsersSubQuery = db
-    .select({ id: table.block.blockedId })
-    .from(table.block)
-    .where(eq(table.block.blockerId, userId));
-
-  const blockingUsersSubQuery = db
-    .select({ id: table.block.blockerId })
-    .from(table.block)
-    .where(eq(table.block.blockedId, userId));
+  // use cached block list instead of subqueries
+  const blockedUserIds = await getBlockedUserIds(userId);
+  const blockedArray = Array.from(blockedUserIds);
 
   const applyCursor = cursor !== "initial";
 
@@ -36,8 +31,9 @@ export const getCommentLikes = async ({
     .from(table.commentLike)
     .where(
       and(
-        notInArray(table.commentLike.userId, blockedUsersSubQuery),
-        notInArray(table.commentLike.userId, blockingUsersSubQuery),
+        blockedArray.length > 0
+          ? notInArray(table.commentLike.userId, blockedArray)
+          : undefined,
         eq(table.commentLike.commentId, commentId),
         applyCursor ? lt(table.commentLike.id, cursor) : undefined,
       ),
@@ -76,15 +72,9 @@ export const getPostLikes = async ({
   limit = 10,
   cursor,
 }: { userId: string; postId: string; limit?: number; cursor: string }) => {
-  const blockedUsersSubQuery = db
-    .select({ id: table.block.blockedId })
-    .from(table.block)
-    .where(eq(table.block.blockerId, userId));
-
-  const blockingUsersSubQuery = db
-    .select({ id: table.block.blockerId })
-    .from(table.block)
-    .where(eq(table.block.blockedId, userId));
+  // use cached block list instead of subqueries
+  const blockedUserIds = await getBlockedUserIds(userId);
+  const blockedArray = Array.from(blockedUserIds);
 
   const applyCursor = cursor !== "initial";
 
@@ -99,8 +89,9 @@ export const getPostLikes = async ({
     .from(table.postLike)
     .where(
       and(
-        notInArray(table.postLike.userId, blockedUsersSubQuery),
-        notInArray(table.postLike.userId, blockingUsersSubQuery),
+        blockedArray.length > 0
+          ? notInArray(table.postLike.userId, blockedArray)
+          : undefined,
         eq(table.postLike.postId, postId),
         applyCursor ? lt(table.postLike.id, cursor) : undefined,
       ),

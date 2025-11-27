@@ -6,6 +6,8 @@ import {
   createNotification,
   removeNotification,
 } from "@api/modules/users/notifications/service";
+import { getBlockedUserIds } from "@api/modules/block/service";
+import { invalidateUserProfileCache } from "@api/lib/cache";
 
 export const createComment = async ({
   userId,
@@ -47,6 +49,9 @@ export const createComment = async ({
     .update(table.user)
     .set({ commentsCount: sql`${table.user.commentsCount} + 1` })
     .where(eq(table.user.id, userId));
+
+  // invalidate user profile cache (commentsCount changed)
+  await invalidateUserProfileCache(userId);
 
   await createNotification({
     senderId: userId,
@@ -102,6 +107,9 @@ export const deleteComment = async ({
     .update(table.user)
     .set({ commentsCount: sql`${table.user.commentsCount} - 1` })
     .where(eq(table.user.id, userId));
+
+  // invalidate user profile cache (commentsCount changed)
+  await invalidateUserProfileCache(userId);
 
   if (existing.postAuthorId) {
     await removeNotification({
@@ -165,15 +173,9 @@ export const getPostComments = async ({
   limit?: number;
   cursor?: string;
 }) => {
-  const blockedUsersSubQuery = db
-    .select({ id: block.blockedId })
-    .from(block)
-    .where(eq(block.blockerId, currentUserId));
-
-  const blockingUsersSubQuery = db
-    .select({ id: block.blockerId })
-    .from(block)
-    .where(eq(block.blockedId, currentUserId));
+  // use cached block list instead of subqueries
+  const blockedUserIds = await getBlockedUserIds(currentUserId);
+  const blockedArray = Array.from(blockedUserIds);
 
   const rows = await db
     .select({
@@ -201,8 +203,9 @@ export const getPostComments = async ({
       and(
         eq(comment.postId, postId),
         isNull(comment.deletedAt),
-        notInArray(comment.authorId, blockedUsersSubQuery),
-        notInArray(comment.authorId, blockingUsersSubQuery),
+        blockedArray.length > 0
+          ? notInArray(comment.authorId, blockedArray)
+          : undefined,
         cursor ? lt(comment.id, cursor) : undefined,
       ),
     )
@@ -248,15 +251,9 @@ export const getSingleComment = async ({
   postId: string;
   commentId: string;
 }) => {
-  const blockedUsersSubQuery = db
-    .select({ id: block.blockedId })
-    .from(block)
-    .where(eq(block.blockerId, currentUserId));
-
-  const blockingUsersSubQuery = db
-    .select({ id: block.blockerId })
-    .from(block)
-    .where(eq(block.blockedId, currentUserId));
+  // use cached block list instead of subqueries
+  const blockedUserIds = await getBlockedUserIds(currentUserId);
+  const blockedArray = Array.from(blockedUserIds);
 
   const [row] = await db
     .select({
@@ -278,8 +275,9 @@ export const getSingleComment = async ({
         eq(comment.postId, postId),
         eq(comment.id, commentId),
         isNull(comment.deletedAt),
-        notInArray(comment.authorId, blockedUsersSubQuery),
-        notInArray(comment.authorId, blockingUsersSubQuery),
+        blockedArray.length > 0
+          ? notInArray(comment.authorId, blockedArray)
+          : undefined,
       ),
     )
     .leftJoin(user, eq(comment.authorId, user.id))

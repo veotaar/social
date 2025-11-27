@@ -21,6 +21,8 @@ import {
   asc,
 } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
+import { getBlockedUserIds } from "@api/modules/block/service";
+import { invalidateUserProfileCache } from "@api/lib/cache";
 
 type PostImage = InferSelectModel<typeof postImage>;
 
@@ -84,6 +86,9 @@ export const createPost = async ({
     .set({ postsCount: sql`${table.user.postsCount} + 1` })
     .where(eq(table.user.id, userId));
 
+  // invalidate user profile cache (postsCount changed)
+  await invalidateUserProfileCache(userId);
+
   return created;
 };
 
@@ -98,15 +103,9 @@ export const getFeedPosts = async ({
   limit?: number;
   cursor: string;
 }) => {
-  const blockedUsersSubQuery = db
-    .select({ id: block.blockedId })
-    .from(block)
-    .where(eq(block.blockerId, currentUserId));
-
-  const blockingUsersSubQuery = db
-    .select({ id: block.blockerId })
-    .from(block)
-    .where(eq(block.blockedId, currentUserId));
+  // use cached block list instead of subqueries
+  const blockedUserIds = await getBlockedUserIds(currentUserId);
+  const blockedArray = Array.from(blockedUserIds);
 
   const applyCursor = cursor !== INITIAL_CURSOR;
 
@@ -133,8 +132,9 @@ export const getFeedPosts = async ({
     .from(post)
     .where(
       and(
-        notInArray(post.authorId, blockedUsersSubQuery),
-        notInArray(post.authorId, blockingUsersSubQuery),
+        blockedArray.length > 0
+          ? notInArray(post.authorId, blockedArray)
+          : undefined,
         isNull(post.deletedAt),
         applyCursor ? lt(post.id, cursor) : undefined,
       ),
@@ -184,15 +184,9 @@ export const getPost = async ({
   postId: string;
   currentUserId: string;
 }) => {
-  const blockedUsersSubQuery = db
-    .select({ id: block.blockedId })
-    .from(block)
-    .where(eq(block.blockerId, currentUserId));
-
-  const blockingUsersSubQuery = db
-    .select({ id: block.blockerId })
-    .from(block)
-    .where(eq(block.blockedId, currentUserId));
+  // use cached block list instead of subqueries
+  const blockedUserIds = await getBlockedUserIds(currentUserId);
+  const blockedArray = Array.from(blockedUserIds);
 
   const result = await db
     .select({
@@ -218,8 +212,9 @@ export const getPost = async ({
     .where(
       and(
         eq(post.id, postId),
-        notInArray(post.authorId, blockedUsersSubQuery),
-        notInArray(post.authorId, blockingUsersSubQuery),
+        blockedArray.length > 0
+          ? notInArray(post.authorId, blockedArray)
+          : undefined,
         isNull(post.deletedAt),
       ),
     )
@@ -290,6 +285,9 @@ export const deletePost = async ({
     .set({ postsCount: sql`${table.user.postsCount} - 1` })
     .where(eq(table.user.id, userId));
 
+  // invalidate user profile cache (postsCount changed)
+  await invalidateUserProfileCache(userId);
+
   return deleted;
 };
 
@@ -335,15 +333,9 @@ export const getFollowingFeedPosts = async ({
   limit?: number;
   cursor: string;
 }) => {
-  const blockedUsersSubQuery = db
-    .select({ id: block.blockedId })
-    .from(block)
-    .where(eq(block.blockerId, currentUserId));
-
-  const blockingUsersSubQuery = db
-    .select({ id: block.blockerId })
-    .from(block)
-    .where(eq(block.blockedId, currentUserId));
+  // use cached block list instead of subqueries
+  const blockedUserIds = await getBlockedUserIds(currentUserId);
+  const blockedArray = Array.from(blockedUserIds);
 
   const applyCursor = cursor !== INITIAL_CURSOR;
 
@@ -372,8 +364,9 @@ export const getFollowingFeedPosts = async ({
     .where(
       and(
         eq(follow.followerId, currentUserId),
-        notInArray(post.authorId, blockedUsersSubQuery),
-        notInArray(post.authorId, blockingUsersSubQuery),
+        blockedArray.length > 0
+          ? notInArray(post.authorId, blockedArray)
+          : undefined,
         isNull(post.deletedAt),
         applyCursor ? lt(post.id, cursor) : undefined,
       ),

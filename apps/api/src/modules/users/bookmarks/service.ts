@@ -4,6 +4,7 @@ import { and, desc, eq, isNull, lt, notInArray, sql } from "drizzle-orm";
 import { NotFoundError } from "elysia";
 import { getPost } from "@api/modules/posts/service";
 import { attachImagesToFeed } from "@api/modules/posts/service";
+import { getBlockedUserIds } from "@api/modules/block/service";
 
 export const addPostBookmark = async ({
   currentUserId,
@@ -85,15 +86,8 @@ export const getUserBookmarks = async ({
   limit?: number;
   cursor: string;
 }) => {
-  const blockedUsersSubQuery = db
-    .select({ id: table.block.blockedId })
-    .from(table.block)
-    .where(eq(table.block.blockerId, currentUserId));
-
-  const blockingUsersSubQuery = db
-    .select({ id: table.block.blockerId })
-    .from(table.block)
-    .where(eq(table.block.blockedId, currentUserId));
+  const blockedUserIds = await getBlockedUserIds(currentUserId);
+  const blockedArray = Array.from(blockedUserIds);
 
   const applyCursor = cursor !== "initial";
 
@@ -121,8 +115,9 @@ export const getUserBookmarks = async ({
     .from(table.post)
     .where(
       and(
-        notInArray(table.post.authorId, blockedUsersSubQuery),
-        notInArray(table.post.authorId, blockingUsersSubQuery),
+        blockedArray.length > 0
+          ? notInArray(table.post.authorId, blockedArray)
+          : undefined,
         isNull(table.post.deletedAt),
         eq(table.bookmark.userId, currentUserId),
         applyCursor ? lt(table.post.id, cursor) : undefined,
