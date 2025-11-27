@@ -1,11 +1,11 @@
 import db from "@api/db/db";
 import { table } from "@api/db/model";
 import { eq } from "drizzle-orm";
-
-let lastFetched = 0;
-let cachedSettings: Awaited<ReturnType<typeof getSystemSettings>> | null = null;
-
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+import {
+  getCachedSystemSettings,
+  setCachedSystemSettings,
+  invalidateSystemSettingsCache,
+} from "@api/lib/cache";
 
 export const getSystemSettings = async () => {
   const existing = await db
@@ -27,14 +27,20 @@ export const getSystemSettings = async () => {
 };
 
 export const getCachedSettings = async () => {
-  const now = Date.now();
-
-  if (!cachedSettings || now - lastFetched > CACHE_DURATION) {
-    cachedSettings = await getSystemSettings();
-    lastFetched = now;
+  // try redis cache first
+  const cached =
+    await getCachedSystemSettings<
+      Awaited<ReturnType<typeof getSystemSettings>>
+    >();
+  if (cached) {
+    return cached;
   }
 
-  return cachedSettings;
+  // fetch from DB and cache
+  const settings = await getSystemSettings();
+  await setCachedSystemSettings(settings);
+
+  return settings;
 };
 
 export const updateSystemSettings = async (updates: {
@@ -51,9 +57,8 @@ export const updateSystemSettings = async (updates: {
     .where(eq(table.systemSettings.id, 1))
     .returning();
 
-  // Invalidate cache
-  cachedSettings = null;
-  lastFetched = 0;
+  // invalidate redis cache
+  await invalidateSystemSettingsCache();
 
   return updated;
 };
