@@ -22,6 +22,7 @@ const EnvSchema = Type.Object({
   S3_SECRET_ACCESS_KEY: Type.String(),
   S3_BUCKET_NAME: Type.String(),
   S3_ENDPOINT: Type.String(),
+  REDIS_URL: Type.String(),
 });
 
 export type Env = Static<typeof EnvSchema>;

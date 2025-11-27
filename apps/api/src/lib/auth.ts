@@ -19,6 +19,7 @@ import {
   animals,
 } from "unique-names-generator";
 import { getCachedSettings } from "@api/modules/settings/service";
+import { redis } from "bun";
 import env from "@api/env";
 
 export const auth = betterAuth({
@@ -179,6 +180,18 @@ export const auth = betterAuth({
         }),
     }),
   ],
+  secondaryStorage: {
+    get: async (key) => await redis.get(key),
+    set: async (key, value, ttl) => {
+      if (ttl) {
+        await redis.set(key, value);
+        await redis.expire(key, ttl);
+      } else await redis.set(key, value);
+    },
+    delete: async (key) => {
+      await redis.del(key);
+    },
+  },
 });
 
 export type AuthType = {

@@ -1,5 +1,6 @@
 import { cors } from "@elysiajs/cors";
 import { openapi, fromTypes } from "@elysiajs/openapi";
+import { serverTiming } from "@elysiajs/server-timing";
 import { Elysia, t } from "elysia";
 import env from "./env";
 import { OpenAPI } from "./lib/authOpenApi";
@@ -24,6 +25,7 @@ const app = new Elysia()
       allowedHeaders: ["Content-Type", "Authorization", "User-Agent"],
     }),
   )
+  .use(serverTiming())
   .use(
     openapi({
       references: fromTypes(),

@@ -16,6 +16,7 @@
       "dependencies": {
         "@elysiajs/cors": "^1.4.0",
         "@elysiajs/openapi": "^1.4.11",
+        "@elysiajs/server-timing": "^1.4.0",
         "@sinclair/typebox": "^0.34.41",
         "better-auth": "^1.4.1",
         "drizzle-orm": "^0.44.7",
@@ -230,6 +231,8 @@
     "@elysiajs/eden": ["@elysiajs/eden@1.4.5", "", { "peerDependencies": { "elysia": ">= 1.4.0" } }, "sha512-hIOeH+S5NU/84A7+t8yB1JjxqjmzRkBF9fnLn6y+AH8EcF39KumOAnciMhIOkhhThVZvXZ3d+GsizRc+Fxoi8g=="],
 
     "@elysiajs/openapi": ["@elysiajs/openapi@1.4.11", "", { "peerDependencies": { "elysia": ">= 1.4.0" } }, "sha512-d75bMxYJpN6qSDi/z9L1S7SLk1S/8Px+cTb3W2lrYzU8uQ5E0kXdy1oOMJEfTyVsz3OA19NP9KNxE7ztSbLBLg=="],
+
+    "@elysiajs/server-timing": ["@elysiajs/server-timing@1.4.0", "", { "peerDependencies": { "elysia": ">= 1.4.0" } }, "sha512-vDFdHyi8Q43vgA5MaTQMA9v4/bgKrtqPrpVqVuHlMCRQgfOpvYGXPj3okSttyendG5r2bRHfyPG11lTWWIrzrQ=="],
 
     "@emnapi/runtime": ["@emnapi/runtime@1.7.1", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-PVtJr5CmLwYAU9PZDMITZoR5iAOShYREoR45EyyLrbntV50mdePTgUn4AmOw90Ifcj+x2kRjdzr1HP3RrNiHGA=="],
 
