@@ -2,8 +2,39 @@ import db from "@api/db/db";
 import { table } from "@api/db/model";
 import { user } from "@api/db/schema";
 import { and, desc, eq, inArray, isNull, lt, sql } from "drizzle-orm";
+import {
+  getCachedNotificationCount,
+  setCachedNotificationCount,
+  incrementNotificationCount,
+  decrementNotificationCount,
+  invalidateNotificationCountCache,
+} from "@api/lib/cache";
 
 export const INITIAL_CURSOR = "initial";
+
+export const getUnreadNotificationCount = async (
+  userId: string,
+): Promise<number> => {
+  // try cache first
+  const cached = await getCachedNotificationCount(userId);
+  if (cached !== null) {
+    return cached;
+  }
+
+  // fetch from DB otherwise
+  const count = await db.$count(
+    table.notification,
+    and(
+      eq(table.notification.recipientId, userId),
+      eq(table.notification.isRead, false),
+      isNull(table.notification.deletedAt),
+    ),
+  );
+
+  await setCachedNotificationCount(userId, count);
+
+  return count;
+};
 
 export const getNotifications = async ({
   currentUserId,
@@ -16,16 +47,10 @@ export const getNotifications = async ({
 }) => {
   const applyCursor = cursor !== INITIAL_CURSOR;
 
+  const unreadCount = await getUnreadNotificationCount(currentUserId);
+
   const notifications = await db
     .select({
-      unreadCount: db.$count(
-        table.notification,
-        and(
-          eq(table.notification.recipientId, currentUserId),
-          eq(table.notification.isRead, false),
-          isNull(table.notification.deletedAt),
-        ),
-      ),
       notification: {
         id: table.notification.id,
         recipientId: table.notification.recipientId,
@@ -74,8 +99,13 @@ export const getNotifications = async ({
     }
   }
 
+  const notificationsWithCount = notifications.map((n) => ({
+    ...n,
+    unreadCount,
+  }));
+
   return {
-    notifications,
+    notifications: notificationsWithCount,
     pagination: {
       hasMore,
       nextCursor,
@@ -122,6 +152,9 @@ export const createNotification = async ({
       type,
     })
     .returning();
+
+  // increment cached unread count for recipient
+  await incrementNotificationCount(recipientId);
 
   return newNotification;
 };
@@ -230,11 +263,12 @@ export const markNotificationAsRead = async ({
   notificationId: string;
   currentUserId: string;
 }) => {
-  // check if notification exists and belongs to current user
+  // check if notification exists, belongs to current user, and is unread
   const [existingNotification] = await db
     .select({
       id: table.notification.id,
       recipientId: table.notification.recipientId,
+      isRead: table.notification.isRead,
     })
     .from(table.notification)
     .where(
@@ -262,6 +296,11 @@ export const markNotificationAsRead = async ({
     )
     .returning();
 
+  // decrement cached count only if it was previously unread
+  if (!existingNotification.isRead) {
+    await decrementNotificationCount(currentUserId);
+  }
+
   return updatedNotification;
 };
 
@@ -272,11 +311,12 @@ export const markNotificationAsUnread = async ({
   notificationId: string;
   currentUserId: string;
 }) => {
-  // check if notification exists and belongs to current user
+  // check if notification exists, belongs to current user, and is read
   const [existingNotification] = await db
     .select({
       id: table.notification.id,
       recipientId: table.notification.recipientId,
+      isRead: table.notification.isRead,
     })
     .from(table.notification)
     .where(
@@ -304,6 +344,11 @@ export const markNotificationAsUnread = async ({
     )
     .returning();
 
+  // increment cached count only if it was previously read
+  if (existingNotification.isRead) {
+    await incrementNotificationCount(currentUserId);
+  }
+
   return updatedNotification;
 };
 
@@ -314,6 +359,16 @@ export const markNotificationsAsRead = async ({
   notificationIds: string[];
   currentUserId: string;
 }) => {
+  // count how many unread notifications we're about to mark as read
+  const unreadCount = await db.$count(
+    table.notification,
+    and(
+      eq(table.notification.recipientId, currentUserId),
+      eq(table.notification.isRead, false),
+      inArray(table.notification.id, notificationIds),
+    ),
+  );
+
   const updatedNotifications = await db
     .update(table.notification)
     .set({ isRead: true })
@@ -325,6 +380,11 @@ export const markNotificationsAsRead = async ({
     )
     .returning();
 
+  // decrement cached count by the number of actually unread notifications
+  if (unreadCount > 0) {
+    await decrementNotificationCount(currentUserId, unreadCount);
+  }
+
   return updatedNotifications;
 };
 
@@ -335,11 +395,12 @@ export const deleteNotification = async ({
   notificationId: string;
   currentUserId: string;
 }) => {
-  // check if notification exists and belongs to current user
+  // check if notification exists, belongs to current user, and get read status
   const [existingNotification] = await db
     .select({
       id: table.notification.id,
       recipientId: table.notification.recipientId,
+      isRead: table.notification.isRead,
     })
     .from(table.notification)
     .where(
@@ -366,6 +427,11 @@ export const deleteNotification = async ({
       ),
     )
     .returning();
+
+  // decrement cached count only if the deleted notification was unread
+  if (!existingNotification.isRead) {
+    await decrementNotificationCount(currentUserId);
+  }
 
   return deletedNotification;
 };
