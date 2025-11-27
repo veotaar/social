@@ -23,7 +23,7 @@ const MAX_IMAGE_DIMENSION = 1920; // max width or height
 
 export type UploadType = "post" | "comment" | "profile";
 
-interface UploadResult {
+export interface UploadResult {
   id: string;
   url: string;
 }

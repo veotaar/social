@@ -7,6 +7,7 @@
   "module": "src/index.tsx",
   "scripts": {
     "generate-routes": "tsr generate",
+    "check-types": "tsc --noEmit",
     "watch-routes": "tsr watch",
     "dev": "NODE_ENV=development bun watch-routes & bun --bun --watch src/index.html --port=3001",
     "start": "NODE_ENV=production bun src/index.html --port=3001",

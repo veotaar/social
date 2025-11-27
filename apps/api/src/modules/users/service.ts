@@ -10,21 +10,40 @@ import {
   removeNotification,
 } from "@api/modules/users/notifications/service";
 import { attachImagesToFeed } from "../posts/service";
+import { getBlockedUserIds } from "@api/modules/block/service";
+import {
+  getCachedUserProfile,
+  setCachedUserProfile,
+  invalidateUserProfileCache,
+} from "@api/lib/cache";
 
-export const getUserById = async ({
-  id,
-  currentUserId,
-}: { id: string; currentUserId: string }) => {
-  // Check if the target user has blocked the current user
-  const blockRecord = await db
-    .select()
-    .from(block)
-    .where(and(eq(block.blockerId, id), eq(block.blockedId, currentUserId)));
+// base user profile type (without relationship fields)
+type BaseUserProfile = {
+  id: string;
+  username: string | null;
+  displayUsername: string | null;
+  name: string;
+  image: string | null;
+  bio: string | null;
+  followersCount: number | null;
+  followingCount: number | null;
+  postsCount: number | null;
+  commentsCount: number | null;
+  createdAt: string;
+  banned: boolean | null;
+};
 
-  if (blockRecord.length > 0) {
-    return null;
+// get base user profile from cache or DB (without relationship fields)
+const getBaseUserProfile = async (
+  userId: string,
+): Promise<BaseUserProfile | null> => {
+  // try cache first
+  const cached = await getCachedUserProfile<BaseUserProfile>(userId);
+  if (cached) {
+    return cached;
   }
 
+  // fetch from DB
   const [foundUser] = await db
     .select({
       id: user.id,
@@ -39,31 +58,104 @@ export const getUserById = async ({
       commentsCount: user.commentsCount,
       createdAt: user.createdAt,
       banned: user.banned,
-      isFollowing: sql<boolean>`CASE WHEN ${follow.id} IS NOT NULL THEN true ELSE false END`,
-      isFollowedBy: sql<boolean>`CASE WHEN follow_back.id IS NOT NULL THEN true ELSE false END`,
-      isBlocked: sql<boolean>`CASE WHEN ${block.id} IS NOT NULL THEN true ELSE false END`,
     })
     .from(table.user)
-    .leftJoin(
-      follow,
-      and(eq(follow.followerId, currentUserId), eq(follow.followeeId, user.id)),
-    )
-    .leftJoin(
-      sql`${follow} AS follow_back`,
-      and(
-        eq(sql`follow_back.follower_id`, user.id),
-        eq(sql`follow_back.followee_id`, currentUserId),
-      ),
-    )
-    .leftJoin(
-      block,
-      and(eq(block.blockerId, currentUserId), eq(block.blockedId, user.id)),
-    )
-    .where(eq(user.id, id));
+    .where(eq(user.id, userId));
 
   if (!foundUser) return null;
 
+  // Cache the base profile
+  await setCachedUserProfile(userId, foundUser);
+
   return foundUser;
+};
+
+// get relationship fields between current user and target user
+const getUserRelationships = async (
+  currentUserId: string,
+  targetUserId: string,
+): Promise<{
+  isFollowing: boolean;
+  isFollowedBy: boolean;
+  isBlocked: boolean;
+  isBlockedBy: boolean;
+}> => {
+  // check if either user has blocked the other
+  const [followingRecord, followedByRecord, blockRecord, blockedByRecord] =
+    await Promise.all([
+      db
+        .select({ id: follow.id })
+        .from(follow)
+        .where(
+          and(
+            eq(follow.followerId, currentUserId),
+            eq(follow.followeeId, targetUserId),
+          ),
+        )
+        .limit(1),
+      db
+        .select({ id: follow.id })
+        .from(follow)
+        .where(
+          and(
+            eq(follow.followerId, targetUserId),
+            eq(follow.followeeId, currentUserId),
+          ),
+        )
+        .limit(1),
+      db
+        .select({ id: block.id })
+        .from(block)
+        .where(
+          and(
+            eq(block.blockerId, currentUserId),
+            eq(block.blockedId, targetUserId),
+          ),
+        )
+        .limit(1),
+      db
+        .select({ id: block.id })
+        .from(block)
+        .where(
+          and(
+            eq(block.blockerId, targetUserId),
+            eq(block.blockedId, currentUserId),
+          ),
+        )
+        .limit(1),
+    ]);
+
+  return {
+    isFollowing: followingRecord.length > 0,
+    isFollowedBy: followedByRecord.length > 0,
+    isBlocked: blockRecord.length > 0,
+    isBlockedBy: blockedByRecord.length > 0,
+  };
+};
+
+export const getUserById = async ({
+  id,
+  currentUserId,
+}: { id: string; currentUserId: string }) => {
+  // get relationships first to check for blocks
+  const relationships = await getUserRelationships(currentUserId, id);
+
+  // if target user has blocked current user, return null
+  if (relationships.isBlockedBy) {
+    return null;
+  }
+
+  // get base profile
+  const baseProfile = await getBaseUserProfile(id);
+  if (!baseProfile) return null;
+
+  // combine base profile with relationship fields
+  return {
+    ...baseProfile,
+    isFollowing: relationships.isFollowing,
+    isFollowedBy: relationships.isFollowedBy,
+    isBlocked: relationships.isBlocked,
+  };
 };
 
 export const editUserProfile = async ({
@@ -102,7 +194,7 @@ export const editUserProfile = async ({
     if (!available) throw new ConflictError("Username is already taken");
   }
 
-  const [user] = await db
+  const [updatedUser] = await db
     .update(table.user)
     .set({
       name: name ?? userSnapshot.name,
@@ -114,7 +206,9 @@ export const editUserProfile = async ({
     .where(eq(table.user.id, currentUserId))
     .returning();
 
-  return user;
+  await invalidateUserProfileCache(currentUserId);
+
+  return updatedUser;
 };
 
 export const createFollowRequest = async ({
@@ -269,6 +363,14 @@ export const updateFollowRequestStatus = async ({
     return updatedRequest;
   });
 
+  // invalidate user profile cache for both users when follow is accepted
+  if (newStatus === "accepted") {
+    await Promise.all([
+      invalidateUserProfileCache(followRequest.followerId),
+      invalidateUserProfileCache(followRequest.followeeId),
+    ]);
+  }
+
   return updatedRequest;
 };
 
@@ -348,15 +450,8 @@ export const getPostsByUser = async ({
   cursor: string;
   limit?: number;
 }) => {
-  const blockedUsersSubQuery = db
-    .select({ id: block.blockedId })
-    .from(block)
-    .where(eq(block.blockerId, currentUserId));
-
-  const blockingUsersSubQuery = db
-    .select({ id: block.blockerId })
-    .from(block)
-    .where(eq(block.blockedId, currentUserId));
+  const blockedUserIds = await getBlockedUserIds(currentUserId);
+  const blockedArray = Array.from(blockedUserIds);
 
   const applyCursor = cursor !== "initial";
 
@@ -383,8 +478,9 @@ export const getPostsByUser = async ({
     .from(post)
     .where(
       and(
-        notInArray(post.authorId, blockedUsersSubQuery),
-        notInArray(post.authorId, blockingUsersSubQuery),
+        blockedArray.length > 0
+          ? notInArray(post.authorId, blockedArray)
+          : undefined,
         isNull(post.deletedAt),
         eq(post.authorId, userId),
         applyCursor ? lt(post.id, cursor) : undefined,
