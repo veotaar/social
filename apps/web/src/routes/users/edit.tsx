@@ -6,6 +6,9 @@ import { isUsernameAvailable } from "@web/lib/auth-client";
 import z from "zod/v4";
 import { useForm } from "@tanstack/react-form";
 import FieldInfo from "@web/components/FieldInfo";
+import { useState, useRef } from "react";
+import { ImagePlus, X } from "lucide-react";
+import Avatar from "@web/components/avatar/Avatar";
 
 export const Route = createFileRoute("/users/edit")({
   beforeLoad: async ({ context: { auth } }) => {
@@ -38,6 +41,13 @@ function RouteComponent() {
   const queryClient = useQueryClient();
   const navigate = Route.useNavigate();
 
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(
+    null,
+  );
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const { data: userData, isLoading } = useQuery({
     enabled: !!sessionData,
     queryKey: ["user", sessionData?.user.id],
@@ -64,13 +74,34 @@ function RouteComponent() {
   const updateUserMutation = useMutation({
     mutationKey: ["updateUser"],
     mutationFn: async (values: ProfileFormValues) => {
+      let imageUrl: string | undefined;
+
+      // Upload profile image if one is selected
+      if (profileImage) {
+        setIsUploadingImage(true);
+        try {
+          const { data, error } = await client.upload.image.post({
+            file: profileImage,
+            type: "profile",
+          });
+
+          if (error || !data) {
+            throw new Error("Failed to upload image");
+          }
+
+          imageUrl = data.url;
+        } finally {
+          setIsUploadingImage(false);
+        }
+      }
+
       const { data, error } = await client
         .users({ userid: sessionData.user.id })
         .put({
           username: values.username,
           name: values.name,
           displayUsername: values.displayUsername || undefined,
-          // image: values.image,
+          image: imageUrl,
           bio: values.bio,
         });
       if (error) throw error;
@@ -86,6 +117,25 @@ function RouteComponent() {
       });
     },
   });
+
+  const handleProfileImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfileImage(file);
+      setProfileImagePreview(URL.createObjectURL(file));
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const removeProfileImage = () => {
+    if (profileImagePreview) {
+      URL.revokeObjectURL(profileImagePreview);
+    }
+    setProfileImage(null);
+    setProfileImagePreview(null);
+  };
 
   const form = useForm({
     defaultValues: {
@@ -124,6 +174,52 @@ function RouteComponent() {
               e.stopPropagation();
             }}
           >
+            {/* Profile Image Upload */}
+            <div className="mb-6 flex flex-col items-center">
+              <span className="label-text mb-2">Profile Picture</span>
+              <div className="relative">
+                {profileImagePreview ? (
+                  <div className="relative">
+                    <img
+                      src={profileImagePreview}
+                      alt="Profile preview"
+                      className="h-24 w-24 rounded-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeProfileImage}
+                      className="-right-1 -top-1 btn btn-circle btn-error btn-xs absolute"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <Avatar
+                    name={userData?.name || ""}
+                    image={userData?.image}
+                    size="lg"
+                  />
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/avif"
+                onChange={handleProfileImageSelect}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="btn btn-ghost btn-sm mt-2"
+              >
+                <ImagePlus className="mr-1 h-4 w-4" />
+                {profileImagePreview || userData?.image
+                  ? "Change Photo"
+                  : "Add Photo"}
+              </button>
+            </div>
+
             <form.Field
               name="username"
               validators={{
@@ -156,7 +252,7 @@ function RouteComponent() {
                     type="text"
                     id="username"
                     placeholder="username"
-                    className="input input-bordered w-full"
+                    className="input input-bordered w-full rounded-md"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     onBlur={field.handleBlur}
@@ -180,7 +276,7 @@ function RouteComponent() {
                     type="text"
                     id="name"
                     placeholder="Your Name"
-                    className="input input-bordered w-full"
+                    className="input input-bordered w-full rounded-md"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     onBlur={field.handleBlur}
@@ -204,7 +300,7 @@ function RouteComponent() {
                     type="text"
                     id="displayUsername"
                     placeholder="Display username (optional)"
-                    className="input input-bordered w-full"
+                    className="input input-bordered w-full rounded-md"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     onBlur={field.handleBlur}
@@ -216,27 +312,6 @@ function RouteComponent() {
               )}
             />
 
-            {/* <form.Field
-              name="image"
-              children={(field) => (
-                <div className="mb-4">
-                  <label className="label" htmlFor="image">
-                    <span className="label-text">Profile Image URL</span>
-                  </label>
-                  <input
-                    type="url"
-                    id="image"
-                    placeholder="https://example.com/image.jpg"
-                    className="input input-bordered w-full"
-                    value={field.state.value || ""}
-                    onChange={(e) => field.handleChange(e.target.value || null)}
-                    onBlur={field.handleBlur}
-                  />
-                  <FieldInfo field={field} />
-                </div>
-              )}
-            /> */}
-
             <form.Field
               name="bio"
               children={(field) => (
@@ -247,7 +322,7 @@ function RouteComponent() {
                   <textarea
                     id="bio"
                     placeholder="Tell us about yourself..."
-                    className="textarea textarea-bordered w-full"
+                    className="textarea textarea-bordered w-full rounded-md"
                     rows={4}
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
@@ -265,9 +340,14 @@ function RouteComponent() {
                 type="submit"
                 className="btn btn-primary flex-1"
                 onClick={form.handleSubmit}
-                disabled={updateUserMutation.isPending}
+                disabled={updateUserMutation.isPending || isUploadingImage}
               >
-                {updateUserMutation.isPending ? (
+                {isUploadingImage ? (
+                  <>
+                    <span className="loading loading-spinner" />
+                    Uploading...
+                  </>
+                ) : updateUserMutation.isPending ? (
                   <>
                     <span className="loading loading-spinner" />
                     Saving...
@@ -282,7 +362,7 @@ function RouteComponent() {
                 onClick={() =>
                   navigate({ to: `/users/${sessionData.user.id}` })
                 }
-                disabled={updateUserMutation.isPending}
+                disabled={updateUserMutation.isPending || isUploadingImage}
               >
                 Cancel
               </button>
