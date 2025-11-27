@@ -17,12 +17,12 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
 function RootComponent() {
   return (
     <>
-      <div className="grid max-h-svh grid-cols-[auto_1fr]">
+      <div className="grid h-svh grid-cols-[auto_1fr] overflow-hidden">
         <div>
           <Sidebar />
         </div>
 
-        <div className="grow overflow-scroll">
+        <div className="overflow-y-auto">
           <Outlet />
         </div>
       </div>
