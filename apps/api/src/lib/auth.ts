@@ -21,6 +21,7 @@ import {
 import { getCachedSettings } from "@api/modules/settings/service";
 import { redis } from "bun";
 import env from "@api/env";
+import { invalidateUserProfileCache } from "./cache";
 
 export const auth = betterAuth({
   appName: "Social App",
@@ -77,6 +78,12 @@ export const auth = betterAuth({
               bio: "guest user",
             },
           };
+        },
+      },
+      update: {
+        after: async (user) => {
+          await invalidateUserProfileCache(user.id);
+          return;
         },
       },
     },
