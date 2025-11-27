@@ -13,6 +13,7 @@ import { cn } from "@web/lib/utils";
 import { useSendComment } from "@web/components/post/useSendComment";
 import { Link } from "@tanstack/react-router";
 import { ImagePlus, X } from "lucide-react";
+import ImageLightbox from "./ImageLightbox";
 
 export type PostData = Omit<
   Treaty.Data<typeof client.posts.get>,
@@ -28,6 +29,8 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
     null,
   );
   const [isUploadingCommentImage, setIsUploadingCommentImage] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const commentImageInputRef = useRef<HTMLInputElement>(null);
   const { mutate: sendComment, isPending: isSendingComment } = useSendComment();
 
@@ -177,19 +180,51 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
             )}
           >
             {post.images.map((image, index) => (
-              <img
+              <button
                 key={image.id}
-                src={image.imageUrl}
-                alt={image.altText || `Post image ${index + 1}`}
-                className={cn(
-                  "w-full rounded-lg object-cover",
-                  post.images.length === 1 && "max-h-96",
-                  post.images.length >= 2 && "h-48",
-                  post.images.length === 3 && index === 0 && "col-span-2 h-48",
-                )}
-              />
+                type="button"
+                onClick={() => {
+                  setLightboxIndex(index);
+                  setLightboxOpen(true);
+                }}
+                className="cursor-pointer"
+              >
+                <img
+                  src={image.imageUrl}
+                  alt={image.altText || `Post image ${index + 1}`}
+                  className={cn(
+                    "w-full rounded-lg object-cover",
+                    post.images.length === 1 && "max-h-96",
+                    post.images.length >= 2 && "h-48",
+                    post.images.length === 3 &&
+                      index === 0 &&
+                      "col-span-2 h-48",
+                  )}
+                />
+              </button>
             ))}
           </div>
+        )}
+
+        {/* Post Image Lightbox */}
+        {post.images && post.images.length > 0 && (
+          <ImageLightbox
+            images={post.images.map((img) => ({
+              url: img.imageUrl,
+              alt: img.altText || undefined,
+            }))}
+            currentIndex={lightboxIndex}
+            isOpen={lightboxOpen}
+            onClose={() => setLightboxOpen(false)}
+            onNext={() =>
+              setLightboxIndex((prev) => (prev + 1) % post.images.length)
+            }
+            onPrevious={() =>
+              setLightboxIndex(
+                (prev) => (prev - 1 + post.images.length) % post.images.length,
+              )
+            }
+          />
         )}
 
         <div className="flex items-center gap-1">

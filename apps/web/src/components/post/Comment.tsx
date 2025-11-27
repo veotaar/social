@@ -1,4 +1,5 @@
 import { formatDistanceToNow } from "date-fns";
+import { useState } from "react";
 import Avatar from "../avatar/Avatar";
 import LikeCommentButton from "./LikeCommentButton";
 import { Link } from "@tanstack/react-router";
@@ -6,6 +7,7 @@ import { client } from "@web/lib/api-client";
 import type { Treaty } from "@elysiajs/eden";
 import { DeleteCommentButton } from "./DeleteCommentButton";
 import { cn } from "@web/lib/utils";
+import ImageLightbox from "./ImageLightbox";
 
 const commentRequest = client.posts({ postid: "" }).comments.get;
 
@@ -15,6 +17,8 @@ export type CommentData = Omit<
 >["comments"][number];
 
 const Comment = ({ comment, author }: CommentData) => {
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+
   if (!author) {
     return null;
   }
@@ -62,10 +66,22 @@ const Comment = ({ comment, author }: CommentData) => {
         {/* Comment Image */}
         {comment.imageUrl && (
           <div className="my-2">
-            <img
-              src={comment.imageUrl}
-              alt="Comment attachment"
-              className="max-h-48 w-auto rounded-lg object-cover"
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(true)}
+              className="cursor-pointer"
+            >
+              <img
+                src={comment.imageUrl}
+                alt="Comment attachment"
+                className="max-h-48 w-auto rounded-lg object-cover"
+              />
+            </button>
+            <ImageLightbox
+              images={[{ url: comment.imageUrl, alt: "Comment attachment" }]}
+              currentIndex={0}
+              isOpen={lightboxOpen}
+              onClose={() => setLightboxOpen(false)}
             />
           </div>
         )}
