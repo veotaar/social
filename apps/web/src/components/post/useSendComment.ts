@@ -5,10 +5,16 @@ async function sendComment({
   postId,
   content,
   parentCommentId,
-}: { postId: string; content: string; parentCommentId?: string }) {
+  imageUrl,
+}: {
+  postId: string;
+  content: string;
+  parentCommentId?: string;
+  imageUrl?: string;
+}) {
   const { data, error } = await client
     .posts({ postid: postId })
-    .comments.post({ content, parentCommentId });
+    .comments.post({ content, parentCommentId, imageUrl });
 
   if (error) throw new Error("Failed to send comment");
 

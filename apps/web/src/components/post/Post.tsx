@@ -8,10 +8,11 @@ import CommentButton from "./CommentButton";
 import BookmarkButton from "./BookmarkButton";
 import Comment from "./Comment";
 import { DeletePostButton } from "./DeletePostButton";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { cn } from "@web/lib/utils";
 import { useSendComment } from "@web/components/post/useSendComment";
 import { Link } from "@tanstack/react-router";
+import { ImagePlus, X } from "lucide-react";
 
 export type PostData = Omit<
   Treaty.Data<typeof client.posts.get>,
@@ -22,6 +23,12 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
   const [showComments, setShowComments] = useState(false);
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentContent, setCommentContent] = useState("");
+  const [commentImage, setCommentImage] = useState<File | null>(null);
+  const [commentImagePreview, setCommentImagePreview] = useState<string | null>(
+    null,
+  );
+  const [isUploadingCommentImage, setIsUploadingCommentImage] = useState(false);
+  const commentImageInputRef = useRef<HTMLInputElement>(null);
   const { mutate: sendComment, isPending: isSendingComment } = useSendComment();
 
   const {
@@ -53,19 +60,61 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
     enabled: showComments,
   });
 
-  const handleSendComment = () => {
-    if (!commentContent.trim()) return;
+  const handleSendComment = async () => {
+    if (!commentContent.trim() && !commentImage) return;
+
+    let imageUrl: string | undefined;
+
+    // upload comment image if one is selected
+    if (commentImage) {
+      setIsUploadingCommentImage(true);
+      try {
+        const { data, error } = await client.upload.image.post({
+          type: "comment",
+          file: commentImage,
+        });
+
+        if (error || !data) {
+          throw new Error("Failed to upload image");
+        }
+
+        imageUrl = data.url;
+      } finally {
+        setIsUploadingCommentImage(false);
+      }
+    }
 
     sendComment(
-      { postId: post.id, content: commentContent },
+      { postId: post.id, content: commentContent, imageUrl },
       {
         onSuccess: () => {
           setCommentContent("");
+          setCommentImage(null);
+          setCommentImagePreview(null);
           setShowCommentInput(false);
           setShowComments(true);
         },
       },
     );
+  };
+
+  const handleCommentImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCommentImage(file);
+      setCommentImagePreview(URL.createObjectURL(file));
+    }
+    if (commentImageInputRef.current) {
+      commentImageInputRef.current.value = "";
+    }
+  };
+
+  const removeCommentImage = () => {
+    if (commentImagePreview) {
+      URL.revokeObjectURL(commentImagePreview);
+    }
+    setCommentImage(null);
+    setCommentImagePreview(null);
   };
 
   if (!author) {
@@ -117,6 +166,32 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
 
         <div className="whitespace-pre-wrap">{post.content}</div>
 
+        {/* Post Images */}
+        {post.images && post.images.length > 0 && (
+          <div
+            className={cn(
+              "mt-2 grid gap-2",
+              post.images.length === 1 && "grid-cols-1",
+              post.images.length === 2 && "grid-cols-2",
+              post.images.length >= 3 && "grid-cols-2",
+            )}
+          >
+            {post.images.map((image, index) => (
+              <img
+                key={image.id}
+                src={image.imageUrl}
+                alt={image.altText || `Post image ${index + 1}`}
+                className={cn(
+                  "w-full rounded-lg object-cover",
+                  post.images.length === 1 && "max-h-96",
+                  post.images.length >= 2 && "h-48",
+                  post.images.length === 3 && index === 0 && "col-span-2 h-48",
+                )}
+              />
+            ))}
+          </div>
+        )}
+
         <div className="flex items-center gap-1">
           <LikeButton
             likedByUser={post.likedByCurrentUser}
@@ -140,14 +215,64 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
               onChange={(e) => setCommentContent(e.target.value)}
               rows={3}
             />
-            <div className="flex gap-2">
+
+            {/* Comment Image Preview */}
+            {commentImagePreview && (
+              <div className="relative inline-block">
+                <img
+                  src={commentImagePreview}
+                  alt="Comment preview"
+                  className="h-24 w-auto rounded-lg object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={removeCommentImage}
+                  className="btn btn-circle btn-error btn-xs absolute top-1 right-1"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2">
+              {/* Image Upload Button */}
+              <input
+                ref={commentImageInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/avif"
+                onChange={handleCommentImageSelect}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => commentImageInputRef.current?.click()}
+                disabled={!!commentImage}
+                className={cn(
+                  "btn btn-ghost btn-sm",
+                  commentImage && "btn-disabled",
+                )}
+                title={
+                  commentImage ? "Remove current image first" : "Add image"
+                }
+              >
+                <ImagePlus className="h-4 w-4" />
+              </button>
+
               <button
                 className="btn btn-primary btn-sm"
                 type="button"
                 onClick={handleSendComment}
-                disabled={isSendingComment || !commentContent.trim()}
+                disabled={
+                  isSendingComment ||
+                  isUploadingCommentImage ||
+                  (!commentContent.trim() && !commentImage)
+                }
               >
-                {isSendingComment ? "Sending..." : "Send Comment"}
+                {isUploadingCommentImage
+                  ? "Uploading..."
+                  : isSendingComment
+                    ? "Sending..."
+                    : "Send Comment"}
               </button>
               <button
                 className="btn btn-ghost btn-sm"
@@ -155,6 +280,7 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
                 onClick={() => {
                   setShowCommentInput(false);
                   setCommentContent("");
+                  removeCommentImage();
                 }}
               >
                 Cancel

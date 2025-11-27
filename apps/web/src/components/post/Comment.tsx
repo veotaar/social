@@ -58,6 +58,18 @@ const Comment = ({ comment, author }: CommentData) => {
           </div>
         </div>
         <div className="my-1 whitespace-pre-wrap">{comment.content}</div>
+
+        {/* Comment Image */}
+        {comment.imageUrl && (
+          <div className="my-2">
+            <img
+              src={comment.imageUrl}
+              alt="Comment attachment"
+              className="max-h-48 w-auto rounded-lg object-cover"
+            />
+          </div>
+        )}
+
         <div>
           <LikeCommentButton
             postId={comment.postId}
