@@ -1,21 +1,19 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Post from "@web/components/post/Post";
 import { client } from "@web/lib/api-client";
-import { cn } from "@web/lib/utils";
 import { useWebSocketContext } from "@web/lib/ws-context";
-import React from "react";
+import { useVirtualizedInfiniteFeed } from "@web/hooks/useVirtualizedInfiniteFeed";
 
 const PostFeed = () => {
   const { newPostsCount, clearNewPosts } = useWebSocketContext();
 
   const {
     data,
-    error,
     fetchNextPage,
     hasNextPage,
-    isFetching,
     isFetchingNextPage,
     status,
+    error,
   } = useInfiniteQuery({
     queryKey: ["posts", "feed"],
     queryFn: async ({ pageParam }) => {
@@ -34,11 +32,25 @@ const PostFeed = () => {
     },
   });
 
-  return status === "pending" ? (
-    <p>Loading...</p>
-  ) : status === "error" ? (
-    <p>Error: {error.message}</p>
-  ) : (
+  const allPosts = data?.pages.flatMap((page) => page.posts) ?? [];
+
+  const { virtualItems, totalSize, measureElement } =
+    useVirtualizedInfiniteFeed({
+      items: allPosts,
+      hasNextPage: !!hasNextPage,
+      isFetchingNextPage,
+      fetchNextPage,
+    });
+
+  if (status === "pending") {
+    return <p>Loading...</p>;
+  }
+
+  if (status === "error") {
+    return <p>Error: {error.message}</p>;
+  }
+
+  return (
     <div>
       {newPostsCount > 0 && (
         <button
@@ -49,29 +61,44 @@ const PostFeed = () => {
           {newPostsCount} new {newPostsCount === 1 ? "post" : "posts"}
         </button>
       )}
-      {data.pages.map((group) => (
-        <React.Fragment
-          key={group.pagination.hasMore ? group.pagination.nextCursor : "end"}
-        >
-          {group.posts.map((post) => (
-            <Post key={post.post.id} post={post} />
-          ))}
-        </React.Fragment>
-      ))}
-      <div>
-        <button
-          type="button"
-          onClick={() => fetchNextPage()}
-          disabled={!hasNextPage || isFetching}
-        >
-          {isFetchingNextPage
-            ? "Loading more..."
-            : hasNextPage
-              ? "Load More"
-              : "Nothing more to load"}
-        </button>
+      <div
+        style={{
+          height: `${totalSize}px`,
+          width: "100%",
+          position: "relative",
+          contain: "strict",
+        }}
+      >
+        {virtualItems.map((virtualRow) => {
+          const post = allPosts[virtualRow.index];
+          return (
+            <div
+              key={virtualRow.key}
+              data-index={virtualRow.index}
+              ref={measureElement}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                transform: `translate3d(0, ${virtualRow.start}px, 0)`,
+              }}
+            >
+              <Post post={post} />
+            </div>
+          );
+        })}
       </div>
-      <div>{isFetching && !isFetchingNextPage ? "Fetching..." : null}</div>
+      {isFetchingNextPage && (
+        <div className="py-4 text-center">
+          <span className="loading loading-spinner loading-md" />
+        </div>
+      )}
+      {!hasNextPage && allPosts.length > 0 && (
+        <div className="py-4 text-center text-base-content/60">
+          Nothing more to load
+        </div>
+      )}
     </div>
   );
 };

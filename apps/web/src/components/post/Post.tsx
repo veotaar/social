@@ -126,7 +126,7 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
 
   return (
     <div>
-      <div className="card group/post mt-4 mb-4 flex flex-col gap-2 rounded-md border border-base-300 bg-base-200 p-6 shadow-sm">
+      <div className="card group/post mb-3 flex flex-col gap-2 rounded-md border border-base-300 bg-base-200 p-6 shadow-sm">
         <div className="flex items-center gap-4">
           <Avatar name={author.name} image={author.image} size="sm" />
 

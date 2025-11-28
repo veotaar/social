@@ -1,7 +1,6 @@
-import React from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { client } from "@web/lib/api-client";
-import { QueryClient, useQuery, useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { useSession } from "@web/lib/auth-client";
 import { UserPen } from "lucide-react";
 import Avatar from "@web/components/avatar/Avatar";
@@ -11,6 +10,7 @@ import Post from "@web/components/post/Post";
 import { FollowRequestItem } from "@web/components/follow-request/FollowRequest";
 import { useGetFollowRequests } from "@web/hooks/useGetFollowRequests";
 import { ModerateButton } from "@web/components/moderate-button/ModerateButton";
+import { useVirtualizedInfiniteFeed } from "@web/hooks/useVirtualizedInfiniteFeed";
 
 export const Route = createFileRoute("/users/$userid/")({
   component: RouteComponent,
@@ -55,12 +55,11 @@ function RouteComponent() {
 
   const {
     data,
-    error,
     fetchNextPage,
     hasNextPage,
-    isFetching,
     isFetchingNextPage,
     status,
+    error,
   } = useInfiniteQuery({
     // enabled: !!userData,
     queryKey: ["userPosts", userid],
@@ -79,6 +78,16 @@ function RouteComponent() {
       return lastPage.pagination.nextCursor;
     },
   });
+
+  const allPosts = data?.pages.flatMap((page) => page.posts) ?? [];
+
+  const { virtualItems, totalSize, measureElement } =
+    useVirtualizedInfiniteFeed({
+      items: allPosts,
+      hasNextPage: !!hasNextPage,
+      isFetchingNextPage,
+      fetchNextPage,
+    });
 
   const { data: followRequestsData, isError: isFollowRequestError } =
     useGetFollowRequests();
@@ -228,40 +237,50 @@ function RouteComponent() {
 
       {/* Posts Section */}
       <div className="bg-base-100">
-        {/* <h2 className="mb-4 font-bold text-2xl text-base-content">
-          Posts by the user
-        </h2> */}
-
         {status === "pending" ? (
           <p>Loading...</p>
         ) : status === "error" ? (
           <p>Error: {error.message}</p>
         ) : (
           <div>
-            {data.pages.map((group) => (
-              <React.Fragment
-                key={
-                  group.pagination.hasMore ? group.pagination.nextCursor : "end"
-                }
-              >
-                {group.posts.map((post) => (
-                  <Post key={post.post.id} post={post} />
-                ))}
-              </React.Fragment>
-            ))}
-            <div>
-              <button
-                type="button"
-                onClick={() => fetchNextPage()}
-                disabled={!hasNextPage || isFetching}
-              >
-                {isFetchingNextPage
-                  ? "Loading more..."
-                  : hasNextPage
-                    ? "Load More"
-                    : "Nothing more to load"}
-              </button>
+            <div
+              style={{
+                height: `${totalSize}px`,
+                width: "100%",
+                position: "relative",
+                contain: "strict",
+              }}
+            >
+              {virtualItems.map((virtualRow) => {
+                const post = allPosts[virtualRow.index];
+                return (
+                  <div
+                    key={virtualRow.key}
+                    data-index={virtualRow.index}
+                    ref={measureElement}
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      transform: `translate3d(0, ${virtualRow.start}px, 0)`,
+                    }}
+                  >
+                    <Post post={post} />
+                  </div>
+                );
+              })}
             </div>
+            {isFetchingNextPage && (
+              <div className="py-4 text-center">
+                <span className="loading loading-spinner loading-md" />
+              </div>
+            )}
+            {!hasNextPage && allPosts.length > 0 && (
+              <div className="py-4 text-center text-base-content/60">
+                Nothing more to load
+              </div>
+            )}
           </div>
         )}
       </div>

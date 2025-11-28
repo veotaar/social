@@ -95,7 +95,7 @@ const PostWriter = ({
   const hasContent = content.length > 0 || selectedFiles.length > 0;
 
   return (
-    <div className="card rounded-md border border-base-300 bg-base-200 shadow-sm">
+    <div className="card mb-4 rounded-md border border-base-300 bg-base-200 shadow-sm">
       <div className="card-body">
         <textarea
           className="textarea textarea-bordered min-h-24 w-full resize-none text-base"
