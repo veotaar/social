@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 interface ImageLightboxProps {
   images: { url: string; alt?: string }[];
@@ -65,7 +66,7 @@ const ImageLightbox = ({
 
   const currentImage = images[currentIndex];
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
       onClick={onClose}
@@ -125,7 +126,8 @@ const ImageLightbox = ({
           {currentIndex + 1} / {images.length}
         </div>
       )}
-    </div>
+    </div>,
+    document.body,
   );
 };
 
