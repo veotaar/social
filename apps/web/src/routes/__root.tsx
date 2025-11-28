@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Sidebar } from "@web/components/sidebar/Sidebar";
 import type { QueryClient } from "@tanstack/react-query";
 import type { AuthContextType } from "@web/lib/auth-context";
+import { ScrollProvider, ScrollContainer } from "@web/lib/scroll-context";
 
 type RootRouteContext = {
   queryClient: QueryClient;
@@ -16,18 +17,18 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
 
 function RootComponent() {
   return (
-    <>
+    <ScrollProvider>
       <div className="grid h-svh grid-cols-[auto_1fr] overflow-hidden">
         <div>
           <Sidebar />
         </div>
 
-        <div className="overflow-y-auto">
+        <ScrollContainer>
           <Outlet />
-        </div>
+        </ScrollContainer>
       </div>
       <TanStackRouterDevtools position="top-right" />
       <ReactQueryDevtools />
-    </>
+    </ScrollProvider>
   );
 }
