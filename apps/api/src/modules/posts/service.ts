@@ -23,6 +23,7 @@ import {
 import type { InferSelectModel } from "drizzle-orm";
 import { getBlockedUserIds } from "@api/modules/block/service";
 import { invalidateUserProfileCache } from "@api/lib/cache";
+import { broadcastNewPost } from "@api/lib/ws";
 
 type PostImage = InferSelectModel<typeof postImage>;
 
@@ -88,6 +89,9 @@ export const createPost = async ({
 
   // invalidate user profile cache (postsCount changed)
   await invalidateUserProfileCache(userId);
+
+  // broadcast new post event
+  broadcastNewPost(userId, created.id);
 
   return created;
 };

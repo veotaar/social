@@ -9,6 +9,7 @@ import {
   decrementNotificationCount,
   invalidateNotificationCountCache,
 } from "@api/lib/cache";
+import { broadcastNewNotification } from "@api/lib/ws";
 
 export const INITIAL_CURSOR = "initial";
 
@@ -156,6 +157,9 @@ export const createNotification = async ({
   // increment cached unread count for recipient
   await incrementNotificationCount(recipientId);
 
+  // broadcast real-time notification event to recipient if online
+  broadcastNewNotification(recipientId, newNotification.id);
+
   return newNotification;
 };
 
@@ -180,63 +184,73 @@ export const removeNotification = async ({
     | "follow"
     | "follow_accepted";
 }) => {
-  if (type === "post_like" && postId) {
-    return await db
+  // helper to find unread notification and decrement count after removal
+  const decrementIfUnread = async (conditions: ReturnType<typeof and>) => {
+    // check if the notification being removed was unread
+    const [existing] = await db
+      .select({ isRead: table.notification.isRead })
+      .from(table.notification)
+      .where(and(conditions, isNull(table.notification.deletedAt)));
+
+    const result = await db
       .update(table.notification)
       .set({ deletedAt: sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')` })
-      .where(
-        and(
-          eq(table.notification.senderId, senderId),
-          eq(table.notification.recipientId, recipientId),
-          eq(table.notification.postId, postId),
-          eq(table.notification.type, type),
-        ),
-      );
+      .where(conditions);
+
+    // decrement cached count if it was unread
+    if (existing && !existing.isRead) {
+      await decrementNotificationCount(recipientId);
+    }
+
+    return result;
+  };
+
+  if (type === "post_like" && postId) {
+    return await decrementIfUnread(
+      and(
+        eq(table.notification.senderId, senderId),
+        eq(table.notification.recipientId, recipientId),
+        eq(table.notification.postId, postId),
+        eq(table.notification.type, type),
+      ),
+    );
   }
 
   if (type === "comment_like" && commentId) {
-    return await db
-      .update(table.notification)
-      .set({ deletedAt: sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')` })
-      .where(
-        and(
-          eq(table.notification.senderId, senderId),
-          eq(table.notification.recipientId, recipientId),
-          eq(table.notification.commentId, commentId),
-          eq(table.notification.type, type),
-        ),
-      );
+    return await decrementIfUnread(
+      and(
+        eq(table.notification.senderId, senderId),
+        eq(table.notification.recipientId, recipientId),
+        eq(table.notification.commentId, commentId),
+        eq(table.notification.type, type),
+      ),
+    );
   }
 
   if (type === "comment" && postId) {
-    return await db
-      .update(table.notification)
-      .set({ deletedAt: sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')` })
-      .where(
-        and(
-          eq(table.notification.senderId, senderId),
-          eq(table.notification.recipientId, recipientId),
-          eq(table.notification.postId, postId),
-          eq(table.notification.type, type),
-        ),
-      );
+    return await decrementIfUnread(
+      and(
+        eq(table.notification.senderId, senderId),
+        eq(table.notification.recipientId, recipientId),
+        eq(table.notification.postId, postId),
+        eq(table.notification.type, type),
+      ),
+    );
   }
 
   if (type === "follow_request" && followRequestId) {
-    return await db
-      .update(table.notification)
-      .set({ deletedAt: sql`(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')` })
-      .where(
-        and(
-          eq(table.notification.senderId, senderId),
-          eq(table.notification.recipientId, recipientId),
-          eq(table.notification.followRequestId, followRequestId),
-          eq(table.notification.type, type),
-        ),
-      );
+    return await decrementIfUnread(
+      and(
+        eq(table.notification.senderId, senderId),
+        eq(table.notification.recipientId, recipientId),
+        eq(table.notification.followRequestId, followRequestId),
+        eq(table.notification.type, type),
+      ),
+    );
   }
 
   if (type === "follow_accepted" && followRequestId) {
+    // for follow_accepted, we also mark as read, so no need to decrement
     return await db
       .update(table.notification)
       .set({
