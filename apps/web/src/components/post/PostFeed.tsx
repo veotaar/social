@@ -2,9 +2,12 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import Post from "@web/components/post/Post";
 import { client } from "@web/lib/api-client";
 import { cn } from "@web/lib/utils";
+import { useWebSocketContext } from "@web/lib/ws-context";
 import React from "react";
 
 const PostFeed = () => {
+  const { newPostsCount, clearNewPosts } = useWebSocketContext();
+
   const {
     data,
     error,
@@ -37,6 +40,15 @@ const PostFeed = () => {
     <p>Error: {error.message}</p>
   ) : (
     <div>
+      {newPostsCount > 0 && (
+        <button
+          type="button"
+          onClick={() => clearNewPosts(true)}
+          className="btn btn-primary btn-sm sticky top-5 z-10 mt-2 mb-2 w-full"
+        >
+          {newPostsCount} new {newPostsCount === 1 ? "post" : "posts"}
+        </button>
+      )}
       {data.pages.map((group) => (
         <React.Fragment
           key={group.pagination.hasMore ? group.pagination.nextCursor : "end"}
