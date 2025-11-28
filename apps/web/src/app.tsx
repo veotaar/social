@@ -1,6 +1,7 @@
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "@web/lib/auth-context";
+import { WebSocketProvider } from "@web/lib/ws-context";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
@@ -35,7 +36,9 @@ const InnerApp = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <InnerApp />
+      <WebSocketProvider>
+        <InnerApp />
+      </WebSocketProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
