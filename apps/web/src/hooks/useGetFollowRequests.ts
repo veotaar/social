@@ -3,7 +3,7 @@ import { client } from "@web/lib/api-client";
 import { useSession } from "@web/lib/auth-client";
 
 export const getFollowRequests = async (userId: string) => {
-  const { data, error } = await client
+  const { data, error } = await client.api
     .users({ userid: userId })
     .followRequests.get();
 

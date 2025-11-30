@@ -5,7 +5,7 @@ const removeFollower = async ({
   currentUserId,
   targetUserId,
 }: { currentUserId: string; targetUserId: string }) => {
-  const { data, error } = await client
+  const { data, error } = await client.api
     .users({ userid: currentUserId })
     .followers({ targetuserid: targetUserId })
     .delete();

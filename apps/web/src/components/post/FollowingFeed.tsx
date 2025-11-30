@@ -15,7 +15,7 @@ const FollowingFeed = () => {
   } = useInfiniteQuery({
     queryKey: ["posts", "following"],
     queryFn: async ({ pageParam }) => {
-      const { data, error } = await client.posts.following.get({
+      const { data, error } = await client.api.posts.following.get({
         query: { cursor: pageParam },
       });
       if (error) throw error.status;

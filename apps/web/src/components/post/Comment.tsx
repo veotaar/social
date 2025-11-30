@@ -9,7 +9,7 @@ import { DeleteCommentButton } from "./DeleteCommentButton";
 import { cn } from "@web/lib/utils";
 import ImageLightbox from "./ImageLightbox";
 
-const commentRequest = client.posts({ postid: "" }).comments.get;
+const commentRequest = client.api.posts({ postid: "" }).comments.get;
 
 export type CommentData = Omit<
   Treaty.Data<typeof commentRequest>,

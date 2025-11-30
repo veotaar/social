@@ -22,7 +22,7 @@ export const Route = createFileRoute("/bookmarks")({
     return queryClient.ensureInfiniteQueryData({
       queryKey: ["bookmarks"],
       queryFn: async ({ pageParam }) => {
-        const { data, error } = await client
+        const { data, error } = await client.api
           // biome-ignore lint/style/noNonNullAssertion: loader only runs when user is authenticated
           .users({ userid: auth.user!.id })
           .bookmarks.get({ query: { cursor: pageParam } });
@@ -57,7 +57,7 @@ function RouteComponent() {
   } = useInfiniteQuery({
     queryKey: ["bookmarks"],
     queryFn: async ({ pageParam }) => {
-      const { data, error } = await client
+      const { data, error } = await client.api
         // biome-ignore lint/style/noNonNullAssertion: loader only runs when user is authenticated
         .users({ userid: auth.user!.id })
         .bookmarks.get({ query: { cursor: pageParam } });

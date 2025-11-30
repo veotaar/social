@@ -23,7 +23,7 @@ export const Route = createFileRoute("/notifications")({
     return await queryClient.ensureInfiniteQueryData({
       queryKey: ["notifications"],
       queryFn: async ({ pageParam }) => {
-        const { data, error } = await client
+        const { data, error } = await client.api
           // biome-ignore lint/style/noNonNullAssertion: loader only runs when user is authenticated
           .users({ userid: auth.user!.id })
           .notifications.get({
@@ -59,7 +59,7 @@ function RouteComponent() {
       staleTime: 0,
       queryKey: ["notifications"],
       queryFn: async ({ pageParam }) => {
-        const { data, error } = await client
+        const { data, error } = await client.api
           // biome-ignore lint/style/noNonNullAssertion: component only renders when user is authenticated
           .users({ userid: auth.user!.id })
           .notifications.get({

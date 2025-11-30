@@ -12,7 +12,7 @@ const decideFollowRequest = async ({
   decision,
   userId,
 }: DecideFollowRequestParams) => {
-  const { data, error } = await client
+  const { data, error } = await client.api
     .users({ userid: userId })
     .followRequests({ followRequestId })
     .status.put({ status: decision });

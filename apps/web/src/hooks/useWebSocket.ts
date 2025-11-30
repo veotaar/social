@@ -20,7 +20,7 @@ const INITIAL_RECONNECT_DELAY = 1000;
 // in development, react strict mode double-mounts components causing duplicate WS connections
 const IS_DEV = process.env.NODE_ENV === "development";
 
-type EdenWebSocket = ReturnType<typeof client.ws.subscribe>;
+type EdenWebSocket = ReturnType<typeof client.api.ws.subscribe>;
 
 export const useWebSocket = (options: UseWebSocketOptions = {}) => {
   const { data: session } = useSession();
@@ -55,7 +55,7 @@ export const useWebSocket = (options: UseWebSocketOptions = {}) => {
       return;
     }
 
-    const ws = client.ws.subscribe();
+    const ws = client.api.ws.subscribe();
     wsRef.current = ws;
 
     ws.on("open", () => {

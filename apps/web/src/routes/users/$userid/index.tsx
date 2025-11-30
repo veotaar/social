@@ -18,7 +18,7 @@ export const Route = createFileRoute("/users/$userid/")({
     return queryClient.ensureQueryData({
       queryKey: ["user", userid],
       queryFn: async () => {
-        const { data, error } = await client.users({ userid }).get();
+        const { data, error } = await client.api.users({ userid }).get();
         if (error) throw notFound();
         return data;
       },
@@ -47,7 +47,7 @@ function RouteComponent() {
   } = useQuery({
     queryKey: ["user", userid],
     queryFn: async () => {
-      const { data, error } = await client.users({ userid }).get();
+      const { data, error } = await client.api.users({ userid }).get();
       if (error) throw error.status;
       return data;
     },
@@ -64,7 +64,7 @@ function RouteComponent() {
     // enabled: !!userData,
     queryKey: ["userPosts", userid],
     queryFn: async ({ pageParam }) => {
-      const { data, error } = await client.users({ userid }).posts.get({
+      const { data, error } = await client.api.users({ userid }).posts.get({
         query: { cursor: pageParam },
       });
       if (error) throw error.status;

@@ -1,7 +1,7 @@
 import { client } from "@web/lib/api-client";
 import type { Treaty } from "@elysiajs/eden";
 
-const notificationRequest = client.users({ userid: "string" }).notifications
+const notificationRequest = client.api.users({ userid: "string" }).notifications
   .get;
 
 export type NotificationData = Omit<

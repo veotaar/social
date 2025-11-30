@@ -12,7 +12,7 @@ async function sendComment({
   parentCommentId?: string;
   imageUrl?: string;
 }) {
-  const { data, error } = await client
+  const { data, error } = await client.api
     .posts({ postid: postId })
     .comments.post({ content, parentCommentId, imageUrl });
 

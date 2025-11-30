@@ -49,7 +49,7 @@ export function useToggleCommentLike() {
       like,
     }: { postId: string; commentId: string; like: boolean }) => {
       if (like) {
-        const { data } = await client
+        const { data } = await client.api
           .posts({ postid: postId })
           .comments({ commentid: commentId })
           .likes.post();
@@ -57,7 +57,7 @@ export function useToggleCommentLike() {
         return data;
       }
 
-      const { data } = await client
+      const { data } = await client.api
         .posts({ postid: postId })
         .comments({ commentid: commentId })
         .likes.delete();

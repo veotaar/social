@@ -40,7 +40,7 @@ export function Sidebar() {
     staleTime: 0,
     queryKey: ["notifications"],
     queryFn: async ({ pageParam }) => {
-      const { data, error } = await client
+      const { data, error } = await client.api
         // biome-ignore lint/style/noNonNullAssertion: component only renders when user is authenticated
         .users({ userid: session.data!.user.id })
         .notifications.get({

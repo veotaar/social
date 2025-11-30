@@ -78,7 +78,7 @@ const wsRoute = new Elysia()
     },
   });
 
-const app = new Elysia()
+const app = new Elysia({ prefix: "/api" })
   .use(
     cors({
       origin: "http://localhost:3001",

@@ -25,7 +25,7 @@ import { invalidateUserProfileCache } from "./cache";
 
 export const auth = betterAuth({
   appName: "Social App",
-  basePath: "/api",
+  basePath: "/api/auth",
   trustedOrigins: ["http://localhost:3001", "http://localhost:3000"],
   database: drizzleAdapter(db, {
     provider: "pg",

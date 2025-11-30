@@ -6,7 +6,7 @@ const deletePost = async ({
   asAdmin,
 }: { postId: string; asAdmin?: boolean }) => {
   if (asAdmin) {
-    const { data, error } = await client.admin.posts({ postId }).delete();
+    const { data, error } = await client.api.admin.posts({ postId }).delete();
 
     if (error || !data) {
       throw new Error("Failed to delete post as admin");
@@ -15,7 +15,7 @@ const deletePost = async ({
     return data;
   }
 
-  const { data, error } = await client.posts({ postid: postId }).delete();
+  const { data, error } = await client.api.posts({ postid: postId }).delete();
 
   if (error || !data) {
     throw new Error("Failed to delete post");

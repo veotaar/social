@@ -5,7 +5,7 @@ import { client } from "@web/lib/api-client";
 import type { Treaty } from "@elysiajs/eden";
 
 // get the type of follow requests from the API client
-const request = client.users({ userid: "placeholder" }).followRequests.get;
+const request = client.api.users({ userid: "placeholder" }).followRequests.get;
 
 type FollowRequest = Treaty.Data<typeof request>;
 type SentRequest = FollowRequest["sent"][number];

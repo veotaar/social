@@ -11,7 +11,7 @@ async function addBookmark({
   postId,
   userId,
 }: { postId: string; userId: string }) {
-  const { data, error } = await client
+  const { data, error } = await client.api
     .users({ userid: userId })
     .bookmarks.post({ postid: postId });
 

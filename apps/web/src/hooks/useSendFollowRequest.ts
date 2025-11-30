@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { client } from "@web/lib/api-client";
 
 const sendFollowRequest = async (userId: string) => {
-  const { data, error } = await client
+  const { data, error } = await client.api
     .users({ userid: userId })
     .followRequests.post();
 

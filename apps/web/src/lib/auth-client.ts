@@ -13,7 +13,7 @@ export const authClient = createAuthClient({
   plugins: [usernameClient(), anonymousClient(), adminClient()],
 
   baseURL: "http://localhost:3000",
-  basePath: "/auth/api",
+  basePath: "/api/auth",
 
   sessionOptions: {
     refetchOnWindowFocus: false,

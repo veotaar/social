@@ -8,7 +8,7 @@ import type { PostData } from "@web/components/post/Post";
 import { client } from "@web/lib/api-client";
 import { produce } from "immer";
 
-export type PostFeedData = Treaty.Data<typeof client.posts.get>;
+export type PostFeedData = Treaty.Data<typeof client.api.posts.get>;
 
 async function toggleLike({
   postId,
@@ -17,10 +17,10 @@ async function toggleLike({
   let responseData: PostData | null = null;
 
   if (like) {
-    const { data } = await client.posts({ postid: postId }).likes.post();
+    const { data } = await client.api.posts({ postid: postId }).likes.post();
     responseData = data;
   } else {
-    const { data } = await client.posts({ postid: postId }).likes.delete();
+    const { data } = await client.api.posts({ postid: postId }).likes.delete();
     responseData = data;
   }
 

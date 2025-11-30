@@ -10,7 +10,7 @@ const markNotificationAsRead = async ({
   userid,
   notificationid,
 }: MarkNotificationAsReadParams) => {
-  const { data, error } = await client
+  const { data, error } = await client.api
     .users({ userid })
     .notifications({ notificationid })
     .read.put();

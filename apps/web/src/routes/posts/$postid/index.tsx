@@ -21,7 +21,7 @@ export const Route = createFileRoute("/posts/$postid/")({
     return await queryClient.ensureQueryData({
       queryKey: ["post", postid],
       queryFn: async () => {
-        const { data, error } = await client.posts({ postid }).get();
+        const { data, error } = await client.api.posts({ postid }).get();
         if (error) throw notFound();
 
         return data;
@@ -52,7 +52,7 @@ function RouteComponent() {
     staleTime: 0,
     queryKey: ["post", postid],
     queryFn: async () => {
-      const { data, error } = await client.posts({ postid }).get();
+      const { data, error } = await client.api.posts({ postid }).get();
       if (error) throw error.status;
 
       return data;

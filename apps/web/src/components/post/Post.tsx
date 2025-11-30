@@ -16,7 +16,7 @@ import { ImagePlus, X } from "lucide-react";
 import ImageLightbox from "./ImageLightbox";
 
 export type PostData = Omit<
-  Treaty.Data<typeof client.posts.get>,
+  Treaty.Data<typeof client.api.posts.get>,
   "pagination"
 >["posts"][number];
 
@@ -45,7 +45,7 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
   } = useInfiniteQuery({
     queryKey: ["comments", post.id],
     queryFn: async ({ pageParam }) => {
-      const { data, error } = await client
+      const { data, error } = await client.api
         .posts({ postid: post.id })
         .comments.get({
           query: { cursor: pageParam },
@@ -72,7 +72,7 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
     if (commentImage) {
       setIsUploadingCommentImage(true);
       try {
-        const { data, error } = await client.upload.image.post({
+        const { data, error } = await client.api.upload.image.post({
           type: "comment",
           file: commentImage,
         });

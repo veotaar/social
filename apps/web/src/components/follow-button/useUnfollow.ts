@@ -5,7 +5,7 @@ const unFollowUser = async ({
   currentUserId,
   targetUserId,
 }: { currentUserId: string; targetUserId: string }) => {
-  const { data, error } = await client
+  const { data, error } = await client.api
     .users({ userid: currentUserId })
     .following({ targetuserid: targetUserId })
     .delete();

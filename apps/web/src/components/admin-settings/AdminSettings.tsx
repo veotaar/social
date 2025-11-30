@@ -5,7 +5,7 @@ import type { Treaty } from "@elysiajs/eden";
 import { useSession } from "@web/lib/auth-client";
 import { useUpdateAdminSettings } from "./useUpdateAdminSettings";
 
-type AdminSettings = Treaty.Data<typeof client.admin.settings.get>;
+type AdminSettings = Treaty.Data<typeof client.api.admin.settings.get>;
 
 export function AdminSettings() {
   const { data: userData } = useSession();
@@ -19,7 +19,7 @@ export function AdminSettings() {
     enabled: userData?.user.role === "admin",
     queryKey: ["adminSettings"],
     queryFn: async () => {
-      const { data, error } = await client.admin.settings.get();
+      const { data, error } = await client.api.admin.settings.get();
       if (error) throw error.status;
       return data;
     },

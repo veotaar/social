@@ -52,7 +52,7 @@ function RouteComponent() {
     enabled: !!sessionData,
     queryKey: ["user", sessionData?.user.id],
     queryFn: async () => {
-      const { data, error } = await client
+      const { data, error } = await client.api
         // biome-ignore lint/style/noNonNullAssertion: query only runs if sessionData is defined
         .users({ userid: sessionData!.user.id })
         .get();
@@ -80,7 +80,7 @@ function RouteComponent() {
       if (profileImage) {
         setIsUploadingImage(true);
         try {
-          const { data, error } = await client.upload.image.post({
+          const { data, error } = await client.api.upload.image.post({
             file: profileImage,
             type: "profile",
           });
@@ -95,7 +95,7 @@ function RouteComponent() {
         }
       }
 
-      const { data, error } = await client
+      const { data, error } = await client.api
         .users({ userid: sessionData.user.id })
         .put({
           username: values.username,

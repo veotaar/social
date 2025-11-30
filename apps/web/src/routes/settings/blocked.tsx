@@ -24,7 +24,7 @@ export const Route = createFileRoute("/settings/blocked")({
     return queryClient.ensureInfiniteQueryData({
       queryKey: ["blockedAccounts"],
       queryFn: async ({ pageParam }) => {
-        const { data, error } = await client.users({ userid }).blocks.get({
+        const { data, error } = await client.api.users({ userid }).blocks.get({
           query: { cursor: pageParam },
         });
         if (error) throw notFound();
@@ -55,7 +55,7 @@ function RouteComponent() {
       queryFn: async ({ pageParam }) => {
         // biome-ignore lint/style/noNonNullAssertion: component only renders when user is authenticated
         const { id: userid } = auth.user!;
-        const { data, error } = await client.users({ userid }).blocks.get({
+        const { data, error } = await client.api.users({ userid }).blocks.get({
           query: { cursor: pageParam },
         });
         if (error) throw error.status;

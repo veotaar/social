@@ -1,5 +1,5 @@
 import { admin } from "@web/lib/auth-client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 
 const removeUser = async (userId: string) => {
@@ -15,7 +15,6 @@ const removeUser = async (userId: string) => {
 };
 
 export const useRemoveUser = () => {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   return useMutation({

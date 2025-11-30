@@ -7,7 +7,7 @@ import { Link } from "@tanstack/react-router";
 import { cn } from "@web/lib/utils";
 import { useState } from "react";
 
-const blockedUserType = client.users({ userid: "string" }).blocks.get;
+const blockedUserType = client.api.users({ userid: "string" }).blocks.get;
 
 type BlockedUser = Treaty.Data<typeof blockedUserType>["blockedUsers"][number];
 

@@ -7,7 +7,7 @@ const deleteComment = async ({
   asAdmin,
 }: { postId: string; commentId: string; asAdmin?: boolean }) => {
   if (asAdmin) {
-    const { data, error } = await client.admin
+    const { data, error } = await client.api.admin
       .posts({ postId })
       .comments({ commentId })
       .delete();
@@ -19,7 +19,7 @@ const deleteComment = async ({
     return data;
   }
 
-  const { data, error } = await client
+  const { data, error } = await client.api
     .posts({ postid: postId })
     .comments({ commentid: commentId })
     .delete();

@@ -11,7 +11,7 @@ async function removeBookmark({
   bookmarkId,
   userId,
 }: { bookmarkId: string; userId: string }) {
-  const { data, error } = await client
+  const { data, error } = await client.api
     .users({ userid: userId })
     .bookmarks({ bookmarkid: bookmarkId })
     .delete();

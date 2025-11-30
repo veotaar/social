@@ -10,7 +10,7 @@ const deleteNotification = async ({
   userid,
   notificationid,
 }: DeleteNotificationParams) => {
-  const { data, error } = await client
+  const { data, error } = await client.api
     .users({ userid })
     .notifications({ notificationid })
     .delete();

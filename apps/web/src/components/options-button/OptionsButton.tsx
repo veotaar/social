@@ -6,7 +6,7 @@ import { useUnblockUser } from "../blocked-user/useUnblockUser";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@web/lib/utils";
 
-const userType = client.users({ userid: "string" }).get;
+const userType = client.api.users({ userid: "string" }).get;
 
 type User = Treaty.Data<typeof userType>;
 

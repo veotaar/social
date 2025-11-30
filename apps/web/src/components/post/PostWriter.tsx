@@ -43,7 +43,7 @@ const PostWriter = ({
       if (selectedFiles.length > 0) {
         setIsUploading(true);
         try {
-          const { data, error } = await client.upload.postimages.post({
+          const { data, error } = await client.api.upload.postimages.post({
             files: selectedFiles,
           });
 
@@ -58,7 +58,7 @@ const PostWriter = ({
       }
 
       // create the post with image IDs
-      return await client.posts.post({ content, imageIds });
+      return await client.api.posts.post({ content, imageIds });
     },
     onSuccess: () => {
       setContent("");

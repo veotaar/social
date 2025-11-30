@@ -5,7 +5,7 @@ const mutualUnfollow = async ({
   currentUserId,
   targetUserId,
 }: { currentUserId: string; targetUserId: string }) => {
-  const { data, error } = await client
+  const { data, error } = await client.api
     .users({ userid: currentUserId })
     .connections({ targetuserid: targetUserId })
     .delete();
