@@ -13,10 +13,11 @@ const CommentButton = ({
   onClick,
 }: CommentButtonProps) => {
   return (
-    <div className="group/comment-button flex w-min items-center">
+    <div className="group/comment-button flex w-min items-center opacity-40">
       <button
         className="btn btn-circle btn-ghost hover:border-0 hover:bg-primary/10"
         type="button"
+        title="write comment"
         onClick={onClick}
       >
         <MessageCircle

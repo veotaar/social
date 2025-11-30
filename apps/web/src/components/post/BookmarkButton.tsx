@@ -35,6 +35,7 @@ const BookmarkButton = ({ postId, isBookmarked }: BookmarkButtonProps) => {
         <Bookmark
           className={cn("group-hover/like-button:stroke-primary", {
             "fill-primary stroke-primary": isBookmarked,
+            "opacity-40": !isBookmarked,
           })}
         />
       </button>

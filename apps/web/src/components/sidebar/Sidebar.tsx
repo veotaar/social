@@ -101,7 +101,7 @@ export function Sidebar() {
                 params={{ userid: session.data.user.id }}
                 activeProps={{
                   className:
-                    "bg-secondary/20 border-secondary/20 border shadow-md",
+                    "bg-secondary/50 border-secondary/20 border shadow-md",
                 }}
                 onClick={closeMenu}
                 className={cn(
@@ -131,7 +131,7 @@ export function Sidebar() {
               to="/"
               className="btn btn-ghost justify-start gap-3 rounded-md"
               activeProps={{
-                className: "bg-secondary/20 border-secondary/20 shadow-md",
+                className: "bg-secondary/50 border-secondary/20 shadow-md",
               }}
               onClick={closeMenu}
             >
@@ -144,7 +144,7 @@ export function Sidebar() {
                 to="/following"
                 className="btn btn-ghost justify-start gap-3 rounded-md"
                 activeProps={{
-                  className: "bg-secondary/20 border-secondary/20 shadow-md",
+                  className: "bg-secondary/50 border-secondary/20 shadow-md",
                 }}
                 onClick={closeMenu}
               >
@@ -158,7 +158,7 @@ export function Sidebar() {
                 to="/notifications"
                 className="btn btn-ghost items-center justify-start gap-3 rounded-md"
                 activeProps={{
-                  className: "bg-secondary/20 border-secondary/20 shadow-md",
+                  className: "bg-secondary/50 border-secondary/20 shadow-md",
                 }}
                 onClick={closeMenu}
               >
@@ -181,7 +181,7 @@ export function Sidebar() {
               to="/bookmarks"
               className="btn btn-ghost justify-start gap-3 rounded-md"
               activeProps={{
-                className: "bg-secondary/20 border-secondary/20 shadow-md",
+                className: "bg-secondary/50 border-secondary/20 shadow-md",
               }}
               onClick={closeMenu}
             >
@@ -194,7 +194,7 @@ export function Sidebar() {
               params={{ userid: session.data?.user.id }}
               className="btn btn-ghost justify-start gap-3 rounded-md"
               activeProps={{
-                className: "bg-secondary/20 border-secondary/20 shadow-md",
+                className: "bg-secondary/50 border-secondary/20 shadow-md",
               }}
               onClick={closeMenu}
             >
@@ -207,7 +207,7 @@ export function Sidebar() {
                 to="/admin.settings"
                 className="btn btn-ghost justify-start gap-3 rounded-md"
                 activeProps={{
-                  className: "bg-secondary/20 border-secondary/20 shadow-md",
+                  className: "bg-secondary/50 border-secondary/20 shadow-md",
                 }}
                 onClick={closeMenu}
               >
@@ -222,7 +222,7 @@ export function Sidebar() {
               to="/settings"
               className="btn btn-ghost justify-start gap-3 rounded-md"
               activeProps={{
-                className: "bg-secondary/20 border-secondary/20 shadow-md",
+                className: "bg-secondary/50 border-secondary/20 shadow-md",
               }}
               onClick={closeMenu}
             >

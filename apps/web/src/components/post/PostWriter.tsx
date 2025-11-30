@@ -5,6 +5,8 @@ import { cn } from "@web/lib/utils";
 import { useState, useRef } from "react";
 import RadialProgress from "../RadialProgress";
 import { ImagePlus, X } from "lucide-react";
+import Avatar from "../avatar/Avatar";
+import { useSession } from "@web/lib/auth-client";
 
 interface PostWriterProps {
   placeholder?: string;
@@ -28,6 +30,8 @@ const PostWriter = ({
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data } = useSession();
 
   const queryClient = useQueryClient();
 
@@ -95,14 +99,23 @@ const PostWriter = ({
   const hasContent = content.length > 0 || selectedFiles.length > 0;
 
   return (
-    <div className="card mb-4 rounded-md border border-base-300 bg-base-200 shadow-sm">
-      <div className="card-body">
+    <div className="mb-4 flex gap-4 rounded-md border-base-300 border-b p-4">
+      <div>
+        <Avatar
+          name={data?.user.name || "User"}
+          image={data?.user.image || null}
+          size="md"
+        />
+      </div>
+
+      <div className="flex w-full flex-col gap-2">
         <textarea
           className="textarea textarea-bordered min-h-24 w-full resize-none text-base"
           placeholder={placeholder}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           maxLength={maxLength}
+          spellCheck={false}
         />
 
         {/* Image Previews */}

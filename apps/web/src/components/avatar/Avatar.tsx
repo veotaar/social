@@ -7,9 +7,10 @@ type AvatarProps = {
   name: string;
   image?: string | null;
   size?: "xs" | "sm" | "md" | "lg" | "xl";
+  className?: string;
 };
 
-const Avatar = ({ name, image, size }: AvatarProps) => {
+const Avatar = ({ name, image, size, className }: AvatarProps) => {
   // TODO: remove useMemo later to take advantage of react compiler
   const avatar = useMemo(() => {
     return createAvatar(shapes, {
@@ -20,13 +21,13 @@ const Avatar = ({ name, image, size }: AvatarProps) => {
   }, [name]);
 
   return (
-    <div className="avatar">
+    <div className={cn("avatar", className)}>
       <div
         className={cn(
           {
             "w-8": size === "xs",
             "w-10": size === "sm",
-            "w-14": size === "md" || !size,
+            "w-12": size === "md" || !size,
             "w-16": size === "lg",
             "w-32": size === "xl",
           },

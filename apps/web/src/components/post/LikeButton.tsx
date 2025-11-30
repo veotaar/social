@@ -16,17 +16,19 @@ const LikeButton = ({ postId, likeCount, likedByUser }: LikeButtonProps) => {
       <button
         className="btn btn-circle btn-ghost hover:border-0 hover:bg-primary/10"
         type="button"
+        title={cn(likedByUser ? "remove like" : "like post")}
         onClick={() => toggleLike.mutate({ postId, like: !likedByUser })}
       >
         <Heart
           className={cn("group-hover/like-button:stroke-primary", {
             "fill-primary stroke-primary": likedByUser,
+            "opacity-40": !likedByUser,
           })}
         />
       </button>
       <p
         className={cn(
-          { "text-primary": likedByUser },
+          { "text-primary": likedByUser, "opacity-40": !likedByUser },
           "group-hover/like-button:text-primary",
         )}
       >

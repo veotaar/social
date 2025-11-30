@@ -1,5 +1,5 @@
 import { useSession } from "@web/lib/auth-client";
-import { Trash } from "lucide-react";
+import { Trash2 as Trash } from "lucide-react";
 import { useRef } from "react";
 import type { PostData } from "./Post";
 import { useDeletePost } from "./useDeletePost";

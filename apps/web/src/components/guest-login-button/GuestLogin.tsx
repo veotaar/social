@@ -13,14 +13,10 @@ const GuestLoginButton = () => {
     isSuccess,
   } = useMutation({
     mutationFn: async () => {
-      // delay to show loading state
-      await new Promise((resolve) => setTimeout(resolve, 1000));
       await signIn.anonymous();
     },
-    onSuccess: () => {
-      setTimeout(async () => {
-        await navigate({ to: "/" });
-      }, 1000);
+    onSuccess: async () => {
+      await navigate({ to: "/" });
     },
   });
 
@@ -29,10 +25,13 @@ const GuestLoginButton = () => {
       <button
         type="button"
         onClick={() => signInAnonymous()}
-        className={cn("btn btn-dash btn-primary mt-4 w-full", {
-          "btn-success btn-active": isSuccess,
-          "btn-warning": isPending,
-        })}
+        className={cn(
+          "btn btn-outline btn-primary corner-squircle mt-4 w-full",
+          {
+            "btn-success btn-active": isSuccess,
+            "btn-warning": isPending,
+          },
+        )}
       >
         {isSuccess ? (
           <>
@@ -46,7 +45,7 @@ const GuestLoginButton = () => {
           </>
         ) : (
           <>
-            One Click Guest Login
+            Instant Guest Login
             <LogIn />
           </>
         )}

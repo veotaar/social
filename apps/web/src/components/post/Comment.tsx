@@ -1,4 +1,4 @@
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNowStrict } from "date-fns";
 import { useState } from "react";
 import Avatar from "../avatar/Avatar";
 import LikeCommentButton from "./LikeCommentButton";
@@ -29,36 +29,30 @@ const Comment = ({ comment, author }: CommentData) => {
         <Avatar name={author.name} image={author.image} size="xs" />
       </div>
 
-      <div>
+      <div className="grow">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex grow items-center gap-2">
             <Link to="/users/$userid" params={{ userid: author.id }}>
               <div className="group/comment-author flex gap-2">
-                <p className="group-hover/comment-author:text-primary">
-                  {author.displayUsername}
-                </p>
-                <p className="font-bold group-hover/comment-author:text-primary">
-                  @{author?.username}
-                </p>
+                <p className="">{author.displayUsername}</p>
+                <p className="font-bold ">@{author?.username}</p>
               </div>
             </Link>
-          </div>
 
-          <p
-            className="lg:tooltip text-base-content/70"
-            data-tip={new Date(comment.createdAt).toLocaleString()}
-          >
-            {formatDistanceToNow(new Date(comment.createdAt), {
-              addSuffix: true,
-            })}
-          </p>
+            <p
+              className="lg:tooltip text-base-content/70"
+              data-tip={new Date(comment.createdAt).toLocaleString()}
+            >
+              {formatDistanceToNowStrict(new Date(comment.createdAt))}
+            </p>
 
-          <div
-            className={cn(
-              "ml-auto self-start opacity-30 group-hover/post:opacity-100",
-            )}
-          >
-            <DeleteCommentButton comment={{ comment, author }} />
+            <div
+              className={cn(
+                "ml-auto self-start opacity-30 group-hover/post:opacity-100",
+              )}
+            >
+              <DeleteCommentButton comment={{ comment, author }} />
+            </div>
           </div>
         </div>
         <div className="my-1 whitespace-pre-wrap">{comment.content}</div>

@@ -1,7 +1,7 @@
 import type { Treaty } from "@elysiajs/eden";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { client } from "@web/lib/api-client";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNowStrict } from "date-fns";
 import Avatar from "../avatar/Avatar";
 import LikeButton from "./LikeButton";
 import CommentButton from "./CommentButton";
@@ -125,38 +125,49 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
   }
 
   return (
-    <div>
-      <div className="card group/post mb-3 flex flex-col gap-2 rounded-md border border-base-300 bg-base-200 p-6 shadow-sm">
-        <div className="flex items-center gap-4">
-          <Avatar name={author.name} image={author.image} size="sm" />
+    <div className="flex gap-4 border-base-300 p-4">
+      <div>
+        <Link
+          to="/users/$userid"
+          params={{ userid: author.id }}
+          resetScroll={true}
+        >
+          <Avatar
+            name={author.name}
+            image={author.image}
+            size="md"
+            className="mt-2"
+          />
+        </Link>
+      </div>
 
+      <div className="group/post flex w-full flex-col gap-1 border-base-300 border-b pb-4">
+        <div className="flex items-end gap-2">
           <div>
             <Link
               to="/users/$userid"
               params={{ userid: author.id }}
               resetScroll={true}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex gap-1">
                 <p className="font-bold">{author.displayUsername}</p>
                 <p className="">@{author.username}</p>
               </div>
             </Link>
-
-            <Link
-              to="/posts/$postid"
-              params={{ postid: post.id }}
-              resetScroll={true}
-            >
-              <span
-                className="lg:tooltip"
-                data-tip={new Date(post.createdAt).toLocaleString()}
-              >
-                {formatDistanceToNow(new Date(post.createdAt), {
-                  addSuffix: true,
-                })}
-              </span>
-            </Link>
           </div>
+
+          <Link
+            to="/posts/$postid"
+            params={{ postid: post.id }}
+            resetScroll={false}
+          >
+            <span
+              className="text-base-content/70"
+              title={new Date(post.createdAt).toLocaleString()}
+            >
+              {formatDistanceToNowStrict(new Date(post.createdAt))}
+            </span>
+          </Link>
 
           <div
             className={cn(
@@ -227,7 +238,7 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
           />
         )}
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 ">
           <LikeButton
             likedByUser={post.likedByCurrentUser}
             likeCount={post.likesCount}
@@ -334,13 +345,18 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
           {showComments ? "Hide Comments" : "Show Comments"}
         </button>
 
-        {showComments && (
-          <div>
+        <div
+          className={cn(
+            "grid transition-[grid-template-rows] duration-300 ease-in-out",
+            showComments ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+          )}
+        >
+          <div className="overflow-hidden">
             {status === "pending" ? (
               <p>Loading comments...</p>
             ) : status === "error" ? (
               <p>Error loading comments: {error.message}</p>
-            ) : (
+            ) : data ? (
               <div className="mt-2 flex flex-col">
                 {data.pages.map((group) => (
                   <div
@@ -376,9 +392,9 @@ const Post = ({ post: { post, author } }: { post: PostData }) => {
                   </button>
                 </div>
               </div>
-            )}
+            ) : null}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
