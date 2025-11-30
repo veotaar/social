@@ -31,7 +31,7 @@ const compiler = TypeCompiler.Compile(EnvSchema);
 
 function loadEnv(): Env {
   const converted = Value.Convert(EnvSchema, process.env);
-  const withDefaults = Value.Cast(EnvSchema, converted);
+  const withDefaults = Value.Default(EnvSchema, converted);
 
   if (!compiler.Check(withDefaults)) {
     const issues = [...compiler.Errors(withDefaults)];
