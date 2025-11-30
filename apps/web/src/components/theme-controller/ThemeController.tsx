@@ -2,7 +2,7 @@ import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const themes = {
-  dark: "dracula",
+  dark: "custom",
   light: "nord",
 } as const;
 

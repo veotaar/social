@@ -1,12 +1,65 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=swap");
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 @plugin "daisyui" {
-  /* biome-ignore lint/correctness/noUnknownProperty: r */
-  themes: dracula, nord;
+  /* biome-ignore lint/correctness/noUnknownProperty: daisyui config */
+  themes: custom, coffee, nord;
 }
 
-.btn {
-  @apply rounded-md;
+@theme {
+  --font-ibm-plex-sans: "IBM Plex Sans", sans-serif;
+}
+
+@plugin "daisyui/theme" {
+  /* biome-ignore lint/correctness/noUnknownProperty: daisyui config */
+  name: "custom";
+  /* biome-ignore lint/correctness/noUnknownProperty: daisyui config */
+  default: true;
+  /* biome-ignore lint/correctness/noUnknownProperty: daisyui config */
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-300: oklch(20.5% 0.0 0);
+  --color-base-200: oklch(17.8% 0.0 0);
+  --color-base-100: oklch(14.5% 0.0 0);
+  --color-base-content: oklch(92.2% 0.0 0);
+  --color-primary: oklch(74.7% 0.134 84.6);
+  --color-primary-content: oklch(16.8% 0.0 0);
+  --color-secondary: oklch(34.6% 0.074 256.0);
+  --color-secondary-content: oklch(97.0% 0.0 0);
+  --color-accent: oklch(84.2% 0.112 89.5);
+  --color-accent-content: oklch(16.8% 0.0 0);
+  --color-neutral: oklch(26.9% 0.0 0);
+  --color-neutral-content: oklch(87.0% 0.0 0);
+  --color-info: oklch(71.4% 0.143 254.6);
+  --color-info-content: oklch(14.5% 0.0 0);
+  --color-success: oklch(80.0% 0.182 151.7);
+  --color-success-content: oklch(14.5% 0.0 0);
+  --color-warning: oklch(83.7% 0.164 84.4);
+  --color-warning-content: oklch(14.5% 0.0 0);
+  --color-error: oklch(71.1% 0.166 22.2);
+  --color-error-content: oklch(14.5% 0.0 0);
+
+  /* standard defaults */
+  --radius-selector: 1rem;
+  --radius-field: 0.25rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 0.5px;
+  --depth: 0;
+  --noise: 0;
+}
+
+.btn:where(:not(.join-item, .btn-circle, .btn-square)) {
+  border-radius: var(--radius-field);
+}
+
+.input:where(:not(.join-item)),
+.textarea:where(:not(.join-item)),
+.select:where(:not(.join-item)),
+.file-input:where(:not(.join-item)) {
+  border-radius: var(--radius-field);
 }
 
 @media (prefers-reduced-motion) {
