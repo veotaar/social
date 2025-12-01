@@ -10,7 +10,6 @@ import {
 import { relations, sql } from "drizzle-orm";
 import user from "./user";
 import subscriptionPlan from "./subscriptionPlan";
-import { uuidv7 } from "uuidv7";
 
 export const subscriptionStatus = pgEnum("subscription_status", [
   "active",
@@ -22,9 +21,7 @@ export const subscriptionStatus = pgEnum("subscription_status", [
 const userSubscription = pgTable(
   "user_subscription",
   {
-    id: text("id")
-      .$defaultFn(() => uuidv7())
-      .primaryKey(),
+    id: text("id").default(sql`uuidv7()`).primaryKey(),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),

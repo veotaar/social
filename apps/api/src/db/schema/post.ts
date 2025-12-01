@@ -17,14 +17,11 @@ import postImage from "./postImage";
 import notification from "./notification";
 import bookmark from "./bookmark";
 // import { createSelectSchema } from "drizzle-zod";
-import { uuidv7 } from "uuidv7";
 
 const post = pgTable(
   "post",
   {
-    id: text("id")
-      .$defaultFn(() => uuidv7())
-      .primaryKey(),
+    id: text("id").default(sql`uuidv7()`).primaryKey(),
     authorId: text("author_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),

@@ -1,11 +1,9 @@
 import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import user from "./user";
-import { uuidv7 } from "uuidv7";
 
 const account = pgTable("account", {
-  id: text("id")
-    .$defaultFn(() => uuidv7())
-    .primaryKey(),
+  id: text("id").default(sql`uuidv7()`).primaryKey(),
   accountId: text("account_id").notNull(),
   providerId: text("provider_id").notNull(),
   userId: text("user_id")

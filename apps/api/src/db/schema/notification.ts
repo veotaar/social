@@ -14,7 +14,6 @@ import comment from "./comment";
 import share from "./share";
 import followRequest from "./followRequest";
 import follow from "./follow";
-import { uuidv7 } from "uuidv7";
 
 export const notificationType = pgEnum("notification_type", [
   "comment_like",
@@ -30,9 +29,7 @@ export const notificationType = pgEnum("notification_type", [
 const notification = pgTable(
   "notification",
   {
-    id: text("id")
-      .$defaultFn(() => uuidv7())
-      .primaryKey(),
+    id: text("id").default(sql`uuidv7()`).primaryKey(),
     recipientId: text("recipient_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),

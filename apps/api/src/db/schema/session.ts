@@ -1,11 +1,9 @@
 import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import user from "./user";
-import { uuidv7 } from "uuidv7";
 
 const session = pgTable("session", {
-  id: text("id")
-    .$defaultFn(() => uuidv7())
-    .primaryKey(),
+  id: text("id").default(sql`uuidv7()`).primaryKey(),
   expiresAt: timestamp("expires_at").notNull(),
   token: text("token").notNull().unique(),
   createdAt: timestamp("created_at").notNull(),

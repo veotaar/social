@@ -8,14 +8,11 @@ import {
 import { relations, sql } from "drizzle-orm";
 import user from "./user";
 import post from "./post";
-import { uuidv7 } from "uuidv7";
 
 const postMention = pgTable(
   "post_mention",
   {
-    id: text("id")
-      .$defaultFn(() => uuidv7())
-      .primaryKey(),
+    id: text("id").default(sql`uuidv7()`).primaryKey(),
     postId: text("post_id")
       .notNull()
       .references(() => post.id, { onDelete: "cascade" }),

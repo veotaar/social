@@ -14,14 +14,11 @@ import user from "./user";
 import post from "./post";
 import commentLike from "./commentLike";
 import notification from "./notification";
-import { uuidv7 } from "uuidv7";
 
 const comment = pgTable(
   "comment",
   {
-    id: text("id")
-      .$defaultFn(() => uuidv7())
-      .primaryKey(),
+    id: text("id").default(sql`uuidv7()`).primaryKey(),
     authorId: text("author_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),

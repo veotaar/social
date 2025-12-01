@@ -9,14 +9,11 @@ import {
 import { relations, sql } from "drizzle-orm";
 import user from "@api/db/schema/user";
 import post from "@api/db/schema/post";
-import { randomUUIDv7 } from "bun";
 
 const bookmark = pgTable(
   "bookmark",
   {
-    id: text("id")
-      .$defaultFn(() => randomUUIDv7())
-      .primaryKey(),
+    id: text("id").default(sql`uuidv7()`).primaryKey(),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),

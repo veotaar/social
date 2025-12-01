@@ -8,14 +8,11 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import user from "@api/db/schema/user";
-import { uuidv7 } from "uuidv7";
 
 const follow = pgTable(
   "follow",
   {
-    id: text("id")
-      .$defaultFn(() => uuidv7())
-      .primaryKey(),
+    id: text("id").default(sql`uuidv7()`).primaryKey(),
     followerId: text("follower_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),

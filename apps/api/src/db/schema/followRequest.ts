@@ -10,7 +10,6 @@ import {
 import { relations, sql } from "drizzle-orm";
 import user from "./user";
 import notification from "./notification";
-import { uuidv7 } from "uuidv7";
 
 export const followRequestStatus = pgEnum("follow_request_status", [
   "pending",
@@ -22,9 +21,7 @@ export const followRequestStatus = pgEnum("follow_request_status", [
 const followRequest = pgTable(
   "follow_request",
   {
-    id: text("id")
-      .$defaultFn(() => uuidv7())
-      .primaryKey(),
+    id: text("id").default(sql`uuidv7()`).primaryKey(),
     followerId: text("follower_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),

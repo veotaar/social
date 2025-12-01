@@ -18,12 +18,9 @@ import block from "./block";
 import notification from "./notification";
 import userSubscription from "./userSubscription";
 import bookmark from "./bookmark";
-import { uuidv7 } from "uuidv7";
 
 const user = pgTable("user", {
-  id: text("id")
-    .$defaultFn(() => uuidv7())
-    .primaryKey(),
+  id: text("id").default(sql`uuidv7()`).primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified")

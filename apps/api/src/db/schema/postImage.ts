@@ -10,14 +10,11 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import post from "./post";
-import { uuidv7 } from "uuidv7";
 
 const postImage = pgTable(
   "post_image",
   {
-    id: text("id")
-      .$defaultFn(() => uuidv7())
-      .primaryKey(),
+    id: text("id").default(sql`uuidv7()`).primaryKey(),
     postId: text("post_id").references(() => post.id, { onDelete: "cascade" }),
     imageUrl: varchar("image_url", { length: 500 }).notNull(),
     altText: varchar("alt_text", { length: 255 }),
