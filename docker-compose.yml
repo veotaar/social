@@ -46,8 +46,8 @@ services:
       MASTERPASS: ${DRIZZLE_GATEWAY_PASSWORD:?DRIZZLE_GATEWAY_PASSWORD is required}
     volumes:
       - drizzle_gateway_data:/app
-    # ports:
-    #   - "4983:4983"
+    ports:
+      - "4983:4983"
     depends_on:
       postgres:
         condition: service_healthy
