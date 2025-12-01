@@ -81,7 +81,7 @@ const wsRoute = new Elysia()
 const app = new Elysia({ prefix: "/api" })
   .use(
     cors({
-      origin: "http://localhost:3001",
+      origin: env.CORS_ORIGIN,
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
       credentials: true,
       allowedHeaders: ["Content-Type", "Authorization", "User-Agent"],

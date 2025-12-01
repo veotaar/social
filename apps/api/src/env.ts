@@ -23,6 +23,10 @@ const EnvSchema = Type.Object({
   S3_BUCKET_NAME: Type.String(),
   S3_ENDPOINT: Type.String(),
   REDIS_URL: Type.String(),
+  CORS_ORIGIN: Type.String({ default: "http://localhost:3001" }),
+  TRUSTED_ORIGINS: Type.String({
+    default: "http://localhost:3001,http://localhost:3000",
+  }),
 });
 
 export type Env = Static<typeof EnvSchema>;
