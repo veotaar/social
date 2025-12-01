@@ -5,6 +5,8 @@ import {
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 
+const API_URL = process.env.BUN_PUBLIC_API_URL ?? "http://localhost:3000";
+
 export const authClient = createAuthClient({
   fetchOptions: {
     credentials: "include",
@@ -12,7 +14,7 @@ export const authClient = createAuthClient({
 
   plugins: [usernameClient(), anonymousClient(), adminClient()],
 
-  baseURL: "http://localhost:3000",
+  baseURL: API_URL,
   basePath: "/api/auth",
 
   sessionOptions: {
