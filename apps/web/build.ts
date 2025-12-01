@@ -161,6 +161,7 @@ const result = await build({
   define: {
     "process.env.NODE_ENV": JSON.stringify("production"),
   },
+  env: "inline",
   ...cliConfig, // Merge in any CLI-provided options
 });
 
