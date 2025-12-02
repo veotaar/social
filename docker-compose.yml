@@ -46,8 +46,8 @@ services:
       MASTERPASS: ${DRIZZLE_GATEWAY_PASSWORD:?DRIZZLE_GATEWAY_PASSWORD is required}
     volumes:
       - drizzle_gateway_data:/app
-    ports:
-      - "4983:4983"
+    # ports:
+    #   - "4983:4983"
     depends_on:
       postgres:
         condition: service_healthy
@@ -74,8 +74,8 @@ services:
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3001}
       TRUSTED_ORIGINS: ${TRUSTED_ORIGINS:-http://localhost:3001,http://localhost:3000}
-    ports:
-      - "3000:3000"
+    # ports:
+    #   - "3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -100,8 +100,8 @@ services:
     restart: unless-stopped
     environment:
       PORT: 3001
-    ports:
-      - "3001:3001"
+    # ports:
+    #   - "3001:3001"
     depends_on:
       api:
         condition: service_healthy
